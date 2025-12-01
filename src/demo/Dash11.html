@@ -1,0 +1,1127 @@
+<template>
+  <ion-page>
+    <!-- CUSTOM HEADER -->
+    <ion-header class="ion-no-border" translucent>
+      <div class="modern-header">
+        <div class="header-left">
+          <div class="profile-bubble" @click="goToProfile">
+            <img :src="user.avatar" alt="Profile" class="bubble-avatar" />
+            <div class="online-dot"></div>
+          </div>
+          <div class="header-greeting">
+            <span class="greeting-text">{{ greeting }}</span>
+            <span class="user-name">{{ user.firstName }} 👋</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="streak-badge" @click="viewStreak">
+            <ion-icon :icon="flameOutline" class="streak-icon"></ion-icon>
+            <span class="streak-count">{{ user.streak }}</span>
+          </div>
+          <ion-button fill="clear" class="notif-btn" @click="openNotifications">
+            <ion-icon :icon="notificationsOutline"></ion-icon>
+            <span class="notif-dot" v-if="hasNotifications"></span>
+          </ion-button>
+        </div>
+      </div>
+    </ion-header>
+
+    <ion-content fullscreen class="modern-content">
+      <!-- VIBE SELECTOR -->
+      <div class="vibe-section">
+        <div class="vibe-scroll">
+          <div 
+            v-for="vibe in vibes" 
+            :key="vibe.id"
+            :class="['vibe-chip', { active: selectedVibe === vibe.id }]"
+            @click="selectedVibe = vibe.id">
+            <span class="vibe-emoji">{{ vibe.emoji }}</span>
+            <span class="vibe-label">{{ vibe.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAILY CHALLENGE CARD -->
+      <div class="challenge-card">
+        <div class="challenge-glow"></div>
+        <div class="challenge-content">
+          <div class="challenge-header">
+            <div class="challenge-badge">
+              <ion-icon :icon="trophyOutline" class="challenge-icon"></ion-icon>
+              <span>Daily Challenge</span>
+            </div>
+            <span class="challenge-timer">{{ challengeTimer }}</span>
+          </div>
+          <h3 class="challenge-title">{{ dailyChallenge.title }}</h3>
+          <div class="challenge-progress-container">
+            <div class="challenge-progress-bar">
+              <div class="challenge-progress-fill" :style="{ width: dailyChallenge.progress + '%' }"></div>
+            </div>
+            <span class="challenge-progress-text">{{ dailyChallenge.progress }}%</span>
+          </div>
+          <div class="challenge-reward">
+            <span class="reward-label">Reward:</span>
+            <span class="reward-value">+{{ dailyChallenge.reward }} points 🎁</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS BUBBLES -->
+      <div class="bubble-actions">
+        <div class="bubble-action primary" @click="navigateTo('/discover')">
+          <div class="bubble-action-icon">
+            <ion-icon :icon="compassOutline"></ion-icon>
+          </div>
+          <span class="bubble-action-label">Discover</span>
+        </div>
+        <div class="bubble-action secondary" @click="navigateTo('/scan')">
+          <div class="bubble-action-icon">
+            <ion-icon :icon="qrCodeOutline"></ion-icon>
+          </div>
+          <span class="bubble-action-label">Scan</span>
+        </div>
+        <div class="bubble-action tertiary" @click="navigateTo('/cafes')">
+          <div class="bubble-action-icon">
+            <ion-icon :icon="locationOutline"></ion-icon>
+          </div>
+          <span class="bubble-action-label">Cafés</span>
+        </div>
+        <div class="bubble-action quaternary" @click="navigateTo('/social')">
+          <div class="bubble-action-icon">
+            <ion-icon :icon="peopleOutline"></ion-icon>
+          </div>
+          <span class="bubble-action-label">Social</span>
+        </div>
+      </div>
+
+      <!-- TRENDING NOW -->
+      <div class="section-modern">
+        <div class="section-header-modern">
+          <h2 class="section-title-modern">🔥 Trending Now</h2>
+          <ion-button fill="clear" class="see-all-btn">See All</ion-button>
+        </div>
+        <div class="trending-scroll">
+          <div 
+            v-for="item in trending" 
+            :key="item.id"
+            class="trending-card"
+            @click="viewProduct(item)">
+            <div class="trending-image-wrapper">
+              <img :src="item.image" :alt="item.name" class="trending-image" />
+              <div class="trending-tag">{{ item.tag }}</div>
+              <div class="like-btn" @click.stop="toggleLike(item)">
+                <ion-icon :icon="item.liked ? heart : heartOutline" :class="{ liked: item.liked }"></ion-icon>
+              </div>
+            </div>
+            <div class="trending-info">
+              <h4 class="trending-name">{{ item.name }}</h4>
+              <div class="trending-meta">
+                <span class="trending-origin">{{ item.origin }}</span>
+                <span class="trending-price">${{ item.price }}</span>
+              </div>
+              <div class="trending-stats">
+                <span class="stat-item">
+                  <ion-icon :icon="starOutline"></ion-icon>
+                  {{ item.rating }}
+                </span>
+                <span class="stat-item">
+                  <ion-icon :icon="heartOutline"></ion-icon>
+                  {{ item.likes }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- YOUR STATS - GAMIFIED -->
+      <div class="stats-modern-section">
+        <h2 class="section-title-modern">📊 Your Stats</h2>
+        <div class="stats-cards-grid">
+          <div class="stat-card-modern purple-gradient">
+            <div class="stat-card-header">
+              <ion-icon :icon="flashOutline" class="stat-card-icon"></ion-icon>
+              <span class="stat-trend">+12%</span>
+            </div>
+            <div class="stat-card-value">{{ stats.cupsThisMonth }}</div>
+            <div class="stat-card-label">Cups This Month</div>
+          </div>
+
+          <div class="stat-card-modern orange-gradient">
+            <div class="stat-card-header">
+              <ion-icon :icon="trophyOutline" class="stat-card-icon"></ion-icon>
+              <span class="stat-trend">Level {{ user.level }}</span>
+            </div>
+            <div class="stat-card-value">{{ stats.points }}</div>
+            <div class="stat-card-label">Total Points</div>
+          </div>
+
+          <div class="stat-card-modern green-gradient">
+            <div class="stat-card-header">
+              <ion-icon :icon="leafOutline" class="stat-card-icon"></ion-icon>
+              <span class="stat-trend">Eco Hero</span>
+            </div>
+            <div class="stat-card-value">{{ stats.co2Saved }}</div>
+            <div class="stat-card-label">CO₂ Saved</div>
+          </div>
+
+          <div class="stat-card-modern blue-gradient">
+            <div class="stat-card-header">
+              <ion-icon :icon="peopleOutline" class="stat-card-icon"></ion-icon>
+              <span class="stat-trend">Top 5%</span>
+            </div>
+            <div class="stat-card-value">{{ stats.friends }}</div>
+            <div class="stat-card-label">Coffee Friends</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMMUNITY FEED -->
+      <div class="section-modern">
+        <div class="section-header-modern">
+          <h2 class="section-title-modern">👥 Community</h2>
+          <ion-button fill="clear" class="see-all-btn">See All</ion-button>
+        </div>
+        <div class="feed-container">
+          <div 
+            v-for="post in communityFeed" 
+            :key="post.id"
+            class="feed-card">
+            <div class="feed-header">
+              <img :src="post.userAvatar" :alt="post.userName" class="feed-user-avatar" />
+              <div class="feed-user-info">
+                <span class="feed-user-name">{{ post.userName }}</span>
+                <span class="feed-time">{{ post.time }}</span>
+              </div>
+              <ion-icon :icon="ellipsisHorizontalOutline" class="feed-menu"></ion-icon>
+            </div>
+            <p class="feed-text">{{ post.text }}</p>
+            <img v-if="post.image" :src="post.image" :alt="post.text" class="feed-image" />
+            <div class="feed-actions">
+              <div class="feed-action" @click="likePost(post)">
+                <ion-icon :icon="post.userLiked ? heart : heartOutline" :class="{ liked: post.userLiked }"></ion-icon>
+                <span>{{ post.likes }}</span>
+              </div>
+              <div class="feed-action">
+                <ion-icon :icon="chatbubbleOutline"></ion-icon>
+                <span>{{ post.comments }}</span>
+              </div>
+              <div class="feed-action">
+                <ion-icon :icon="shareOutline"></ion-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACHIEVEMENTS SHOWCASE -->
+      <div class="achievements-modern">
+        <h2 class="section-title-modern">🏆 Latest Achievements</h2>
+        <div class="achievements-horizontal">
+          <div 
+            v-for="achievement in recentAchievements" 
+            :key="achievement.id"
+            class="achievement-modern-card">
+            <div class="achievement-shine"></div>
+            <div class="achievement-emoji-large">{{ achievement.emoji }}</div>
+            <span class="achievement-name">{{ achievement.name }}</span>
+            <span class="achievement-date">{{ achievement.date }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPACER -->
+      <div class="bottom-spacer"></div>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import {
+  IonPage,
+  IonHeader,
+  IonContent,
+  IonIcon,
+  IonButton,
+} from "@ionic/vue";
+import {
+  flameOutline,
+  notificationsOutline,
+  trophyOutline,
+  compassOutline,
+  qrCodeOutline,
+  locationOutline,
+  peopleOutline,
+  heart,
+  heartOutline,
+  starOutline,
+  flashOutline,
+  leafOutline,
+  chatbubbleOutline,
+  shareOutline,
+  ellipsisHorizontalOutline,
+} from "ionicons/icons";
+
+const router = useRouter();
+
+const user = ref({
+  firstName: "Alex",
+  avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+  streak: 12,
+  level: 8
+});
+
+const greeting = computed(() => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good Morning";
+  if (hour < 18) return "Good Afternoon";
+  return "Good Evening";
+});
+
+const hasNotifications = ref(true);
+const selectedVibe = ref(1);
+
+const vibes = ref([
+  { id: 1, emoji: "⚡", label: "Energize" },
+  { id: 2, emoji: "😌", label: "Chill" },
+  { id: 3, emoji: "🎯", label: "Focus" },
+  { id: 4, emoji: "🌟", label: "Explore" },
+  { id: 5, emoji: "💪", label: "Power" }
+]);
+
+const dailyChallenge = ref({
+  title: "Try 3 New Origins Today",
+  progress: 67,
+  reward: 250
+});
+
+const challengeTimer = ref("6h 24m left");
+
+const trending = ref([
+  {
+    id: 1,
+    name: "Pink Bourbon",
+    origin: "Colombia",
+    price: 24.99,
+    rating: 4.9,
+    likes: 234,
+    tag: "NEW",
+    liked: false,
+    image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400"
+  },
+  {
+    id: 2,
+    name: "Geisha Reserve",
+    origin: "Panama",
+    price: 45.99,
+    rating: 5.0,
+    likes: 567,
+    tag: "RARE",
+    liked: true,
+    image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400"
+  },
+  {
+    id: 3,
+    name: "Honey Process",
+    origin: "Costa Rica",
+    price: 19.99,
+    rating: 4.8,
+    likes: 189,
+    tag: "HOT",
+    liked: false,
+    image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400"
+  }
+]);
+
+const stats = ref({
+  cupsThisMonth: 42,
+  points: "2,340",
+  co2Saved: "38kg",
+  friends: 156
+});
+
+const communityFeed = ref([
+  {
+    id: 1,
+    userName: "Sarah Chen",
+    userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200",
+    time: "2h ago",
+    text: "Just discovered this amazing Ethiopian natural process! The blueberry notes are insane 🫐☕",
+    image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400",
+    likes: 23,
+    comments: 5,
+    userLiked: false
+  },
+  {
+    id: 2,
+    userName: "Mike Rodriguez",
+    userAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+    time: "5h ago",
+    text: "Perfect morning setup! V60 + freshly roasted Colombian beans = ☕️✨",
+    image: null,
+    likes: 45,
+    comments: 12,
+    userLiked: true
+  }
+]);
+
+const recentAchievements = ref([
+  { id: 1, emoji: "🌍", name: "Globe Trotter", date: "Today" },
+  { id: 2, emoji: "🔥", name: "Hot Streak", date: "Yesterday" },
+  { id: 3, emoji: "💎", name: "Rare Find", date: "2 days ago" }
+]);
+
+const goToProfile = () => {
+  console.log('Go to profile');
+};
+
+const viewStreak = () => {
+  console.log('View streak');
+};
+
+const openNotifications = () => {
+  console.log('Open notifications');
+};
+
+const navigateTo = (route) => {
+  console.log('Navigate to:', route);
+};
+
+const toggleLike = (item) => {
+  item.liked = !item.liked;
+  item.likes += item.liked ? 1 : -1;
+};
+
+const viewProduct = (item) => {
+  console.log('View product:', item);
+};
+
+const likePost = (post) => {
+  post.userLiked = !post.userLiked;
+  post.likes += post.userLiked ? 1 : -1;
+};
+</script>
+
+<style scoped>
+/* ===== MODERN VARIABLES ===== */
+:root {
+  --primary-purple: #7c3aed;
+  --primary-orange: #f97316;
+  --primary-green: #10b981;
+  --primary-blue: #3b82f6;
+  --primary-pink: #ec4899;
+  --dark: #1f2937;
+  --gray: #6b7280;
+  --light-gray: #f3f4f6;
+}
+
+/* ===== MODERN HEADER ===== */
+.modern-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-bubble {
+  position: relative;
+  cursor: pointer;
+}
+
+.bubble-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary-purple);
+}
+
+.online-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: var(--primary-green);
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.header-greeting {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.greeting-text {
+  font-size: 12px;
+  color: var(--gray);
+  font-weight: 500;
+}
+
+.user-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.streak-icon {
+  font-size: 16px;
+  color: white;
+}
+
+.streak-count {
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+}
+
+.notif-btn {
+  --color: var(--dark);
+  --background: var(--light-gray);
+  --border-radius: 12px;
+  margin: 0;
+  position: relative;
+}
+
+.notif-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* ===== CONTENT ===== */
+.modern-content {
+  --background: #fafafa;
+}
+
+/* ===== VIBE SELECTOR ===== */
+.vibe-section {
+  padding: 16px;
+  background: white;
+  margin-bottom: 16px;
+}
+
+.vibe-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.vibe-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.vibe-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--light-gray);
+  border-radius: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.vibe-chip.active {
+  background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+  border-color: var(--primary-purple);
+}
+
+.vibe-emoji {
+  font-size: 18px;
+}
+
+.vibe-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.vibe-chip.active .vibe-label {
+  color: white;
+}
+
+/* ===== CHALLENGE CARD ===== */
+.challenge-card {
+  margin: 0 16px 20px;
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  border-radius: 24px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.challenge-glow {
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+  animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-20px, -20px); }
+}
+
+.challenge-content {
+  position: relative;
+  z-index: 1;
+  color: white;
+}
+
+.challenge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.challenge-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.challenge-icon {
+  font-size: 14px;
+}
+
+.challenge-timer {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.challenge-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.challenge-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.challenge-progress-bar {
+  flex: 1;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.challenge-progress-fill {
+  height: 100%;
+  background: white;
+  border-radius: 10px;
+  transition: width 0.8s ease;
+}
+
+.challenge-progress-text {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.challenge-reward {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.reward-label {
+  opacity: 0.9;
+}
+
+.reward-value {
+  font-weight: 700;
+}
+
+/* ===== BUBBLE ACTIONS ===== */
+.bubble-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 0 16px 24px;
+}
+
+.bubble-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.bubble-action:active {
+  transform: scale(0.95);
+}
+
+.bubble-action-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.bubble-action.primary .bubble-action-icon {
+  background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+}
+
+.bubble-action.secondary .bubble-action-icon {
+  background: linear-gradient(135deg, var(--primary-orange) 0%, #fb923c 100%);
+}
+
+.bubble-action.tertiary .bubble-action-icon {
+  background: linear-gradient(135deg, var(--primary-green) 0%, #34d399 100%);
+}
+
+.bubble-action.quaternary .bubble-action-icon {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, #60a5fa 100%);
+}
+
+.bubble-action-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* ===== SECTION MODERN ===== */
+.section-modern {
+  padding: 0 16px 24px;
+}
+
+.stats-modern-section {
+  padding: 0 16px 24px;
+}
+
+.section-header-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title-modern {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0;
+}
+
+.see-all-btn {
+  --color: var(--primary-purple);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ===== TRENDING SCROLL ===== */
+.trending-scroll {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.trending-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.trending-card {
+  min-width: 180px;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.trending-card:active {
+  transform: scale(0.98);
+}
+
+.trending-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 160px;
+}
+
+.trending-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trending-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--primary-orange);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.like-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--gray);
+}
+
+.like-btn ion-icon.liked {
+  color: #ef4444;
+  animation: likeHeart 0.3s ease;
+}
+
+@keyframes likeHeart {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.trending-info {
+  padding: 14px;
+}
+
+.trending-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 6px 0;
+}
+
+.trending-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.trending-origin {
+  font-size: 13px;
+  color: var(--gray);
+  font-weight: 500;
+}
+
+.trending-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-purple);
+}
+
+.trending-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--gray);
+  font-weight: 600;
+}
+
+.stat-item ion-icon {
+  font-size: 14px;
+}
+
+/* ===== STATS CARDS GRID ===== */
+.stats-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.stat-card-modern {
+  padding: 18px;
+  border-radius: 20px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.purple-gradient {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+}
+
+.orange-gradient {
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+}
+
+.green-gradient {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+}
+
+.blue-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.stat-card-icon {
+  font-size: 24px;
+}
+
+.stat-trend {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.stat-card-value {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stat-card-label {
+  font-size: 12px;
+  opacity: 0.9;
+  font-weight: 600;
+}
+
+/* ===== FEED ===== */
+.feed-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feed-card {
+  background: white;
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.feed-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.feed-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.feed-user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feed-user-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.feed-time {
+  font-size: 12px;
+  color: var(--gray);
+}
+
+.feed-menu {
+  font-size: 20px;
+  color: var(--gray);
+  cursor: pointer;
+}
+
+.feed-text {
+  font-size: 14px;
+  color: var(--dark);
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.feed-image {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.feed-actions {
+  display: flex;
+  gap: 20px;
+}
+
+.feed-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--gray);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.feed-action ion-icon {
+  font-size: 20px;
+}
+
+.feed-action ion-icon.liked {
+  color: #ef4444;
+}
+
+/* ===== ACHIEVEMENTS ===== */
+.achievements-modern {
+  padding: 0 16px 24px;
+}
+
+.achievements-horizontal {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.achievements-horizontal::-webkit-scrollbar {
+  display: none;
+}
+
+.achievement-modern-card {
+  min-width: 140px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  padding: 20px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  color: white;
+}
+
+.achievement-shine {
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  animation: shine 4s ease-in-out infinite;
+}
+
+@keyframes shine {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(180deg); }
+}
+
+.achievement-emoji-large {
+  font-size: 48px;
+  position: relative;
+  z-index: 1;
+}
+
+.achievement-name {
+  font-size: 14px;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.achievement-date {
+  font-size: 11px;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== SPACER ===== */
+.bottom-spacer {
+  height: 30px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 360px) {
+  .bubble-actions {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .stats-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

@@ -1,0 +1,660 @@
+<template>
+  <ion-page>
+    <!-- HEADER -->
+    <ion-header class="ion-no-border" translucent>
+      <ion-toolbar class="custom-toolbar">
+        <ion-title class="page-title">Products</ion-title>
+        <ion-buttons slot="end">
+          <ion-button class="header-btn">
+            <ion-icon :icon="cartOutline"></ion-icon>
+            <span class="badge">3</span>
+          </ion-button>
+          <ion-button class="header-btn">
+            <ion-icon :icon="personCircleOutline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content fullscreen class="content-bg">
+      <!-- HERO SECTION -->
+      <div class="hero-section">
+        <h1 class="hero-title">Discover Coffee</h1>
+        <p class="hero-subtitle">Ethically sourced, expertly roasted</p>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="search-wrapper">
+        <ion-searchbar 
+          placeholder="Search beans, roasts, origins..." 
+          class="custom-searchbar"
+          :animated="true">
+        </ion-searchbar>
+        <ion-button fill="clear" class="filter-btn">
+          <ion-icon :icon="optionsOutline"></ion-icon>
+        </ion-button>
+      </div>
+
+      <!-- CATEGORY CHIPS -->
+      <div class="category-chips">
+        <ion-chip class="chip active">
+          <ion-label>All</ion-label>
+        </ion-chip>
+        <ion-chip class="chip">
+          <ion-label>Arabica</ion-label>
+        </ion-chip>
+        <ion-chip class="chip">
+          <ion-label>Espresso</ion-label>
+        </ion-chip>
+        <ion-chip class="chip">
+          <ion-label>Dark Roast</ion-label>
+        </ion-chip>
+      </div>
+
+      <!-- PRODUCTS GRID -->
+      <div class="products-container">
+        <div 
+          v-for="(item, index) in products" 
+          :key="item.id" 
+          class="product-card"
+          :style="{ animationDelay: `${index * 0.1}s` }">
+          
+          <!-- Image Container -->
+          <div class="image-container">
+            <img :src="item.image" :alt="item.name" class="product-image" />
+            <div class="image-overlay"></div>
+            <div class="badge-origin">{{ item.origin }}</div>
+            <ion-button 
+              fill="clear" 
+              class="fav-btn"
+              :class="{ active: item.favorite }">
+              <ion-icon :icon="item.favorite ? heart : heartOutline"></ion-icon>
+            </ion-button>
+          </div>
+
+          <!-- Content -->
+          <div class="card-content">
+            <div class="product-header">
+              <div>
+                <h3 class="product-name">{{ item.name }}</h3>
+                <p class="product-type">{{ item.type }}</p>
+              </div>
+              <div class="rating">
+                <ion-icon :icon="star" class="star-icon"></ion-icon>
+                <span>{{ item.rating }}</span>
+              </div>
+            </div>
+
+            <div class="product-meta">
+              <span class="meta-item">
+                <ion-icon :icon="locationOutline" class="meta-icon"></ion-icon>
+                {{ item.origin }}
+              </span>
+              <span class="meta-item">
+                <ion-icon :icon="flameOutline" class="meta-icon"></ion-icon>
+                {{ item.roast }}
+              </span>
+            </div>
+
+            <div class="card-footer">
+              <div class="price-section">
+                <span class="price-label">Price</span>
+                <span class="price">${{ item.price }}</span>
+              </div>
+              <ion-button 
+                fill="solid" 
+                class="add-btn"
+                @click="addToCart(item)">
+                <ion-icon :icon="addOutline" slot="start"></ion-icon>
+                Add to Cart
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMPTY STATE SPACER -->
+      <div class="bottom-spacer"></div>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script>
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonContent,
+  IonIcon,
+  IonSearchbar,
+  IonChip,
+  IonLabel,
+} from "@ionic/vue";
+import {
+  cartOutline,
+  personCircleOutline,
+  optionsOutline,
+  heartOutline,
+  heart,
+  star,
+  locationOutline,
+  flameOutline,
+  addOutline,
+} from "ionicons/icons";
+
+export default {
+  components: {
+    IonPage,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonContent,
+    IonIcon,
+    IonSearchbar,
+    IonChip,
+    IonLabel,
+  },
+  data() {
+    return {
+      cartOutline,
+      personCircleOutline,
+      optionsOutline,
+      heartOutline,
+      heart,
+      star,
+      locationOutline,
+      flameOutline,
+      addOutline,
+      products: [
+        {
+          id: 1,
+          name: "Arabica Premium",
+          type: "Single Origin",
+          price: 12.99,
+          rating: 4.8,
+          origin: "Ethiopia",
+          roast: "Medium",
+          image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400",
+          favorite: false
+        },
+        {
+          id: 2,
+          name: "Espresso Intenso",
+          type: "Dark Roast Blend",
+          price: 15.99,
+          rating: 4.9,
+          origin: "Colombia",
+          roast: "Dark",
+          image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400",
+          favorite: true
+        },
+        {
+          id: 3,
+          name: "Morning House",
+          type: "Light Roast",
+          price: 10.99,
+          rating: 4.6,
+          origin: "Brazil",
+          roast: "Light",
+          image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400",
+          favorite: false
+        },
+        {
+          id: 4,
+          name: "Decaf Delight",
+          type: "Decaffeinated",
+          price: 13.99,
+          rating: 4.5,
+          origin: "Guatemala",
+          roast: "Medium",
+          image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400",
+          favorite: false
+        },
+        {
+          id: 5,
+          name: "Costa Rica Honey",
+          type: "Single Origin",
+          price: 16.99,
+          rating: 4.9,
+          origin: "Costa Rica",
+          roast: "Medium",
+          image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400",
+          favorite: true
+        },
+        {
+          id: 6,
+          name: "French Roast",
+          type: "Dark Roast",
+          price: 11.99,
+          rating: 4.7,
+          origin: "Sumatra",
+          roast: "Dark",
+          image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=400",
+          favorite: false
+        }
+      ]
+    };
+  },
+  methods: {
+    addToCart(item) {
+      console.log('Added to cart:', item);
+      // Add your cart logic here
+    }
+  }
+};
+</script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+/* ===== CSS VARIABLES ===== */
+:root {
+  --coffee-dark: #4a2c2a;
+  --coffee-medium: #6b4226;
+  --coffee-light: #a87b54;
+  --cream: #f5f1e8;
+  --accent: #d4a574;
+  --text-dark: #2c1810;
+  --text-light: #8b7355;
+  --card-bg: #ffffff;
+  --shadow-sm: 0 2px 8px rgba(74, 44, 42, 0.08);
+  --shadow-md: 0 8px 24px rgba(74, 44, 42, 0.12);
+  --shadow-lg: 0 16px 48px rgba(74, 44, 42, 0.16);
+}
+
+/* ===== HEADER ===== */
+.custom-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  padding: 8px 4px;
+}
+
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  letter-spacing: -0.5px;
+}
+
+.header-btn {
+  --color: var(--coffee-dark);
+  --background: rgba(245, 241, 232, 0.8);
+  --border-radius: 12px;
+  margin: 0 4px;
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--coffee-light);
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ===== CONTENT ===== */
+.content-bg {
+  --background: linear-gradient(180deg, #faf8f3 0%, #f5f1e8 100%);
+}
+
+/* ===== HERO SECTION ===== */
+.hero-section {
+  padding: 32px 20px 24px;
+  text-align: center;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--coffee-dark);
+  margin: 0 0 8px 0;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+
+.hero-subtitle {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  color: var(--text-light);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ===== SEARCH ===== */
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px 16px;
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+.custom-searchbar {
+  --background: white;
+  --border-radius: 16px;
+  --box-shadow: var(--shadow-sm);
+  --icon-color: var(--coffee-light);
+  --placeholder-color: var(--text-light);
+  --placeholder-opacity: 0.7;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  flex: 1;
+}
+
+.filter-btn {
+  --color: var(--coffee-dark);
+  --background: white;
+  --border-radius: 16px;
+  width: 48px;
+  height: 48px;
+  box-shadow: var(--shadow-sm);
+  margin: 0;
+}
+
+/* ===== CATEGORY CHIPS ===== */
+.category-chips {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 20px;
+  overflow-x: auto;
+  animation: fadeIn 0.8s ease-out 0.3s both;
+}
+
+.category-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  --background: white;
+  --color: var(--coffee-medium);
+  border-radius: 20px;
+  height: 36px;
+  box-shadow: var(--shadow-sm);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.chip.active {
+  --background: var(--coffee-dark);
+  --color: white;
+  box-shadow: var(--shadow-md);
+}
+
+/* ===== PRODUCTS GRID ===== */
+.products-container {
+  padding: 0 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.product-card {
+  background: var(--card-bg);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ===== IMAGE ===== */
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f5f1e8 0%, #e8dcc8 100%);
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.1) rotate(2deg);
+}
+
+.image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.product-card:hover .image-overlay {
+  opacity: 1;
+}
+
+.badge-origin {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  color: var(--coffee-dark);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  box-shadow: var(--shadow-sm);
+}
+
+.fav-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  --color: white;
+  --background: rgba(255, 255, 255, 0.3);
+  --background-hover: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  --border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  transition: transform 0.3s ease;
+}
+
+.fav-btn.active {
+  --color: #e74c3c;
+}
+
+.fav-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ===== CARD CONTENT ===== */
+.card-content {
+  padding: 20px;
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.product-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+}
+
+.product-type {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 0;
+  font-weight: 500;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(212, 165, 116, 0.15);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+.star-icon {
+  color: #f39c12;
+  font-size: 14px;
+}
+
+/* ===== META ===== */
+.product-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(139, 115, 85, 0.1);
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.meta-icon {
+  font-size: 16px;
+  color: var(--coffee-light);
+}
+
+/* ===== CARD FOOTER ===== */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.price-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.price-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.price {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  line-height: 1;
+}
+
+.add-btn {
+  --background: var(--coffee-dark);
+  --background-hover: var(--coffee-medium);
+  --background-activated: var(--text-dark);
+  --border-radius: 16px;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  height: 44px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 12px rgba(74, 44, 42, 0.2);
+  transition: all 0.3s ease;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(74, 44, 42, 0.3);
+}
+
+/* ===== SPACER ===== */
+.bottom-spacer {
+  height: 40px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .products-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .hero-title {
+    font-size: 36px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .products-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>

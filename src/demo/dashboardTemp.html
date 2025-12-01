@@ -1,0 +1,847 @@
+<template>
+  <ion-page>
+    <!-- HEADER -->
+    <ion-header class="ion-no-border" translucent>
+      <ion-toolbar class="custom-toolbar">
+        <ion-buttons slot="start">
+          <div class="profile-section" @click="goToProfile">
+            <img :src="user.avatar" alt="Profile" class="profile-avatar" />
+            <div class="profile-text">
+              <span class="greeting">{{ greeting }}</span>
+              <span class="username">{{ user.name }}</span>
+            </div>
+          </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+          <ion-button class="header-btn points-btn">
+            <ion-icon :icon="trophyOutline" class="points-icon"></ion-icon>
+            <span class="points-text">{{ user.points }}</span>
+          </ion-button>
+          <ion-button class="header-btn">
+            <ion-icon :icon="notificationsOutline"></ion-icon>
+            <span class="notification-badge">{{ user.notifications }}</span>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content fullscreen class="content-bg">
+      <!-- QUICK STATS -->
+      <div class="stats-section">
+        <div 
+          v-for="stat in stats" 
+          :key="stat.id"
+          class="stat-card"
+          @click="navigateTo(stat.route)">
+          <ion-icon :icon="stat.icon" class="stat-icon" :style="{ color: stat.color }"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ stat.value }}</span>
+            <span class="stat-label">{{ stat.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURED BANNER -->
+      <div class="banner-carousel">
+        <div 
+          v-for="banner in banners" 
+          :key="banner.id"
+          class="banner-slide"
+          :style="{ background: banner.gradient }">
+          <div class="banner-content">
+            <h2 class="banner-title">{{ banner.title }}</h2>
+            <p class="banner-subtitle">{{ banner.subtitle }}</p>
+            <ion-button fill="solid" class="banner-btn" @click="navigateTo(banner.route)">
+              {{ banner.buttonText }}
+            </ion-button>
+          </div>
+          <img :src="banner.image" :alt="banner.title" class="banner-image" />
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="section-header">
+        <h2 class="section-title">Quick Actions</h2>
+      </div>
+      
+      <div class="actions-grid">
+        <div 
+          v-for="action in quickActions" 
+          :key="action.id"
+          class="action-card"
+          @click="navigateTo(action.route)">
+          <div class="action-icon-box" :style="{ background: action.color }">
+            <ion-icon :icon="action.icon" class="action-icon"></ion-icon>
+          </div>
+          <span class="action-label">{{ action.label }}</span>
+        </div>
+      </div>
+
+      <!-- RECENT ORDERS -->
+      <div class="section-header">
+        <h2 class="section-title">Recent Orders</h2>
+        <ion-button fill="clear" class="view-all-btn" @click="navigateTo('/orders')">
+          View All
+        </ion-button>
+      </div>
+
+      <div class="orders-list">
+        <div 
+          v-for="order in recentOrders" 
+          :key="order.id"
+          class="order-card"
+          @click="viewOrder(order)">
+          <img :src="order.image" :alt="order.product" class="order-image" />
+          <div class="order-details">
+            <h3 class="order-product">{{ order.product }}</h3>
+            <p class="order-date">{{ order.date }}</p>
+            <span class="order-status" :class="order.statusClass">{{ order.status }}</span>
+          </div>
+          <ion-button fill="clear" class="reorder-btn" @click.stop="reorder(order)">
+            <ion-icon :icon="refreshOutline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- RECOMMENDATIONS -->
+      <div class="section-header">
+        <h2 class="section-title">Recommended For You</h2>
+      </div>
+
+      <div class="recommendations-scroll">
+        <div 
+          v-for="product in recommendations" 
+          :key="product.id"
+          class="recommendation-card"
+          @click="viewProduct(product)">
+          <img :src="product.image" :alt="product.name" class="rec-image" />
+          <div class="rec-content">
+            <h4 class="rec-name">{{ product.name }}</h4>
+            <p class="rec-origin">{{ product.origin }}</p>
+            <div class="rec-footer">
+              <span class="rec-price">${{ product.price }}</span>
+              <ion-button fill="solid" class="rec-btn" @click.stop="addToCart(product)">
+                <ion-icon :icon="addOutline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMPACT SECTION -->
+      <div class="impact-section">
+        <div class="impact-header">
+          <h2 class="section-title">Your Coffee Journey</h2>
+          <span class="impact-period">This Month</span>
+        </div>
+        
+        <div class="impact-cards">
+          <div 
+            v-for="impact in impactMetrics" 
+            :key="impact.id"
+            class="impact-card">
+            <ion-icon :icon="impact.icon" class="impact-icon"></ion-icon>
+            <span class="impact-value">{{ impact.value }}</span>
+            <span class="impact-label">{{ impact.label }}</span>
+          </div>
+        </div>
+
+        <div class="journey-progress">
+          <p class="journey-text">{{ journeyMessage }}</p>
+          <div class="progress-bar">
+            <div class="progress-fill" :style="{ width: journeyProgress + '%' }"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPACER -->
+      <div class="bottom-spacer"></div>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonButton,
+  IonContent,
+  IonIcon,
+} from "@ionic/vue";
+import {
+  notificationsOutline,
+  trophyOutline,
+  bagHandleOutline,
+  receiptOutline,
+  leafOutline,
+  refreshOutline,
+  qrCodeOutline,
+  cafeOutline,
+  giftOutline,
+  locationOutline,
+  addOutline,
+  heartOutline,
+  cloudDownloadOutline,
+  waterOutline,
+  earthOutline,
+} from "ionicons/icons";
+
+const router = useRouter();
+
+const user = ref({
+  name: "Joshua",
+  avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+  points: 1250,
+  notifications: 3
+});
+
+const greeting = computed(() => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good Morning";
+  if (hour < 18) return "Good Afternoon";
+  return "Good Evening";
+});
+
+const stats = [
+  { id: 1, label: "Total Orders", value: "24", icon: bagHandleOutline, color: "#6b4226", route: "/orders" },
+  { id: 2, label: "Reward Points", value: "1250", icon: trophyOutline, color: "#c28f51", route: "/rewards" },
+  { id: 3, label: "CO₂ Offset", value: "45kg", icon: leafOutline, color: "#27ae60", route: "/carbon" },
+  { id: 4, label: "Subscriptions", value: "2", icon: refreshOutline, color: "#a87b54", route: "/subscriptions" }
+];
+
+const banners = [
+  {
+    id: 1,
+    title: "New Arrivals",
+    subtitle: "Premium Ethiopian Coffee",
+    buttonText: "Shop Now",
+    image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=300",
+    gradient: "linear-gradient(135deg, #6b4226 0%, #4a2c2a 100%)",
+    route: "/products"
+  }
+];
+
+const quickActions = [
+  { id: 1, label: "Buy Coffee", icon: bagHandleOutline, color: "linear-gradient(135deg, #6b4226 0%, #8b5a3c 100%)", route: "/buy-coffee" },
+  { id: 2, label: "Scan Product", icon: qrCodeOutline, color: "linear-gradient(135deg, #a87b54 0%, #c8956c 100%)", route: "/scan" },
+  { id: 3, label: "Nearby Café", icon: cafeOutline, color: "linear-gradient(135deg, #4a2c2a 0%, #6b4226 100%)", route: "/nearby-cafes" },
+  { id: 4, label: "My Orders", icon: receiptOutline, color: "linear-gradient(135deg, #d4a574 0%, #e8c4a0 100%)", route: "/orders" },
+  { id: 5, label: "Subscriptions", icon: refreshOutline, color: "linear-gradient(135deg, #c28f51 0%, #daa969 100%)", route: "/subscriptions" },
+  { id: 6, label: "Rewards", icon: giftOutline, color: "linear-gradient(135deg, #8b5a3c 0%, #a87b54 100%)", route: "/rewards" },
+  { id: 7, label: "Carbon Credit", icon: leafOutline, color: "linear-gradient(135deg, #27ae60 0%, #3fbd74 100%)", route: "/carbon" },
+  { id: 8, label: "Track Delivery", icon: locationOutline, color: "linear-gradient(135deg, #e67e22 0%, #f39c12 100%)", route: "/track" }
+];
+
+const recentOrders = ref([
+  {
+    id: 1,
+    product: "Ethiopian Yirgacheffe",
+    date: "Nov 25, 2024",
+    status: "Delivered",
+    statusClass: "delivered",
+    image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=200"
+  },
+  {
+    id: 2,
+    product: "Colombian Supreme",
+    date: "Nov 22, 2024",
+    status: "In Transit",
+    statusClass: "transit",
+    image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=200"
+  },
+  {
+    id: 3,
+    product: "Italian Espresso",
+    date: "Nov 18, 2024",
+    status: "Delivered",
+    statusClass: "delivered",
+    image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200"
+  }
+]);
+
+const recommendations = ref([
+  {
+    id: 1,
+    name: "Costa Rica Honey",
+    origin: "Costa Rica",
+    price: 16.99,
+    image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300"
+  },
+  {
+    id: 2,
+    name: "Brazilian Santos",
+    origin: "Brazil",
+    price: 14.99,
+    image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300"
+  },
+  {
+    id: 3,
+    name: "Sumatra Mandheling",
+    origin: "Indonesia",
+    price: 15.99,
+    image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=300"
+  }
+]);
+
+const impactMetrics = [
+  { id: 1, icon: cloudDownloadOutline, value: "45kg", label: "CO₂ Offset" },
+  { id: 2, icon: leafOutline, value: "12", label: "Trees Saved" },
+  { id: 3, icon: waterOutline, value: "850L", label: "Water Saved" },
+  { id: 4, icon: earthOutline, value: "5", label: "Farms Supported" }
+];
+
+const journeyMessage = ref("You've made a positive impact! Keep going to reach your sustainability goals.");
+const journeyProgress = ref(65);
+
+const navigateTo = (route) => {
+  console.log('Navigate to:', route);
+  // router.push(route);
+};
+
+const goToProfile = () => {
+  console.log('Go to profile');
+};
+
+const viewOrder = (order) => {
+  console.log('View order:', order);
+};
+
+const reorder = (order) => {
+  console.log('Reorder:', order);
+};
+
+const viewProduct = (product) => {
+  console.log('View product:', product);
+};
+
+const addToCart = (product) => {
+  console.log('Add to cart:', product);
+};
+</script>
+
+<style scoped>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --coffee-dark: #4a2c2a;
+  --coffee-medium: #6b4226;
+  --coffee-light: #a87b54;
+  --text-dark: #2c1810;
+  --text-light: #8b7355;
+  --green: #27ae60;
+}
+
+/* ===== HEADER ===== */
+.custom-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  padding: 8px 4px;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--coffee-light);
+}
+
+.profile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.greeting {
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.username {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+.header-btn {
+  --color: var(--coffee-dark);
+  --background: rgba(245, 241, 232, 0.8);
+  --border-radius: 12px;
+  margin: 0 4px;
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.points-btn {
+  display: flex;
+  gap: 4px;
+  --padding-start: 10px;
+  --padding-end: 10px;
+}
+
+.points-icon {
+  color: #f39c12;
+}
+
+.points-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+.notification-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ===== CONTENT ===== */
+.content-bg {
+  --background: #f2f2f2;
+}
+
+/* ===== QUICK STATS ===== */
+.stats-section {
+  display: flex;
+  gap: 10px;
+  padding: 16px;
+  overflow-x: auto;
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.stats-section::-webkit-scrollbar {
+  display: none;
+}
+
+.stat-card {
+  min-width: 140px;
+  background: white;
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:active {
+  transform: scale(0.95);
+}
+
+.stat-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ===== BANNER ===== */
+.banner-carousel {
+  padding: 0 16px 20px;
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+.banner-slide {
+  padding: 24px;
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.banner-content {
+  flex: 1;
+  z-index: 1;
+}
+
+.banner-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 6px 0;
+}
+
+.banner-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 16px 0;
+}
+
+.banner-btn {
+  --background: white;
+  --color: var(--coffee-dark);
+  --border-radius: 12px;
+  height: 40px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.banner-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ===== SECTION HEADER ===== */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px 12px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.view-all-btn {
+  --color: var(--coffee-light);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ===== QUICK ACTIONS ===== */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 0 16px 24px;
+  animation: fadeIn 0.8s ease-out 0.3s both;
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.action-card:active {
+  transform: scale(0.95);
+}
+
+.action-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon {
+  font-size: 24px;
+  color: white;
+}
+
+.action-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* ===== ORDERS ===== */
+.orders-list {
+  padding: 0 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-card {
+  background: white;
+  padding: 12px;
+  border-radius: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.order-card:active {
+  transform: scale(0.98);
+}
+
+.order-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.order-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-product {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.order-date {
+  font-size: 12px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.order-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.order-status.delivered {
+  background: rgba(39, 174, 96, 0.15);
+  color: var(--green);
+}
+
+.order-status.transit {
+  background: rgba(243, 156, 18, 0.15);
+  color: #f39c12;
+}
+
+.reorder-btn {
+  --color: var(--coffee-light);
+  margin: 0;
+}
+
+/* ===== RECOMMENDATIONS ===== */
+.recommendations-scroll {
+  display: flex;
+  gap: 12px;
+  padding: 0 16px 24px;
+  overflow-x: auto;
+}
+
+.recommendations-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.recommendation-card {
+  min-width: 160px;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.recommendation-card:active {
+  transform: scale(0.95);
+}
+
+.rec-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+.rec-content {
+  padding: 12px;
+}
+
+.rec-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 4px 0;
+}
+
+.rec-origin {
+  font-size: 11px;
+  color: var(--text-light);
+  margin: 0 0 10px 0;
+}
+
+.rec-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rec-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+.rec-btn {
+  --background: var(--coffee-dark);
+  --border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  --padding-start: 0;
+  --padding-end: 0;
+  margin: 0;
+}
+
+/* ===== IMPACT SECTION ===== */
+.impact-section {
+  margin: 0 16px 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.08), rgba(39, 174, 96, 0.15));
+  border-radius: 20px;
+  border: 1px solid rgba(39, 174, 96, 0.2);
+}
+
+.impact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.impact-period {
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.impact-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.impact-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  background: white;
+  border-radius: 12px;
+}
+
+.impact-icon {
+  font-size: 24px;
+  color: var(--green);
+}
+
+.impact-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+.impact-label {
+  font-size: 10px;
+  color: var(--text-light);
+  text-align: center;
+  font-weight: 600;
+}
+
+.journey-progress {
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+}
+
+.journey-text {
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(39, 174, 96, 0.15);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+/* ===== SPACER ===== */
+.bottom-spacer {
+  height: 20px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 360px) {
+  .actions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .impact-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>

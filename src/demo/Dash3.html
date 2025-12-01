@@ -1,0 +1,925 @@
+<template>
+  <ion-page>
+    <!-- HEADER -->
+    <ion-header class="ion-no-border" translucent>
+      <ion-toolbar class="custom-toolbar">
+        <ion-buttons slot="start">
+          <div class="time-greeting">
+            <ion-icon :icon="coffeeIcon" class="coffee-icon"></ion-icon>
+            <span class="time-text">{{ timeBasedGreeting }}</span>
+          </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+          <ion-button class="header-icon-btn">
+            <ion-icon :icon="heartOutline"></ion-icon>
+          </ion-button>
+          <ion-button class="header-icon-btn">
+            <ion-icon :icon="chatbubbleOutline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content fullscreen class="content-bg">
+      <!-- PERSONALIZED HERO -->
+      <div class="hero-section">
+        <div class="hero-content">
+          <h1 class="hero-title">Hey {{ user.name }}! ☕</h1>
+          <p class="hero-subtitle">{{ personalizedMessage }}</p>
+          <div class="coffee-streak">
+            <ion-icon :icon="flameOutline" class="flame-icon"></ion-icon>
+            <span class="streak-text">{{ user.streak }} day streak</span>
+            <span class="streak-badge">🔥</span>
+          </div>
+        </div>
+        <div class="hero-avatar-section">
+          <img :src="user.avatar" alt="Profile" class="hero-avatar" />
+          <div class="level-badge">
+            <span class="level-text">Level {{ user.level }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- COFFEE MOOD SELECTOR -->
+      <div class="mood-section">
+        <h3 class="section-title">What's your vibe today?</h3>
+        <div class="mood-cards">
+          <div 
+            v-for="mood in moods" 
+            :key="mood.id"
+            :class="['mood-card', { selected: selectedMood === mood.id }]"
+            @click="selectedMood = mood.id">
+            <span class="mood-emoji">{{ mood.emoji }}</span>
+            <span class="mood-label">{{ mood.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECOMMENDED FOR YOU -->
+      <div class="recommendations-section">
+        <div class="section-header">
+          <h3 class="section-title">Perfect for You</h3>
+          <span class="based-on">Based on your taste</span>
+        </div>
+        <div class="recommendation-card featured">
+          <img :src="featuredCoffee.image" alt="Coffee" class="featured-image" />
+          <div class="featured-overlay"></div>
+          <div class="featured-content">
+            <div class="featured-tags">
+              <span class="featured-tag">{{ featuredCoffee.match }}% Match</span>
+              <span class="featured-tag">{{ featuredCoffee.origin }}</span>
+            </div>
+            <h4 class="featured-name">{{ featuredCoffee.name }}</h4>
+            <p class="featured-notes">{{ featuredCoffee.notes }}</p>
+            <div class="featured-footer">
+              <span class="featured-price">${{ featuredCoffee.price }}</span>
+              <ion-button fill="solid" class="try-btn" @click="tryNow(featuredCoffee)">
+                Try Now
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- YOUR COFFEE PROFILE -->
+      <div class="profile-section">
+        <h3 class="section-title">Your Coffee DNA</h3>
+        <div class="profile-cards">
+          <div class="profile-card">
+            <ion-icon :icon="sparklesOutline" class="profile-icon"></ion-icon>
+            <div class="profile-content">
+              <span class="profile-label">Favorite Roast</span>
+              <span class="profile-value">{{ user.favoriteRoast }}</span>
+            </div>
+          </div>
+          <div class="profile-card">
+            <ion-icon :icon="timeOutline" class="profile-icon"></ion-icon>
+            <div class="profile-content">
+              <span class="profile-label">Best Time</span>
+              <span class="profile-value">{{ user.bestTime }}</span>
+            </div>
+          </div>
+          <div class="profile-card">
+            <ion-icon :icon="locationOutline" class="profile-icon"></ion-icon>
+            <div class="profile-content">
+              <span class="profile-label">Top Origin</span>
+              <span class="profile-value">{{ user.topOrigin }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BREWING TIP OF THE DAY -->
+      <div class="tip-card">
+        <div class="tip-header">
+          <ion-icon :icon="bulbOutline" class="bulb-icon"></ion-icon>
+          <span class="tip-title">Brew Tip of the Day</span>
+        </div>
+        <p class="tip-text">{{ dailyTip }}</p>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="actions-section">
+        <div class="action-btn primary" @click="navigateTo('/buy-coffee')">
+          <div class="action-icon-wrap">
+            <ion-icon :icon="bagHandleOutline" class="action-icon"></ion-icon>
+          </div>
+          <span class="action-label">Shop Coffee</span>
+        </div>
+        <div class="action-btn" @click="navigateTo('/scan')">
+          <div class="action-icon-wrap">
+            <ion-icon :icon="qrCodeOutline" class="action-icon"></ion-icon>
+          </div>
+          <span class="action-label">Scan</span>
+        </div>
+        <div class="action-btn" @click="navigateTo('/cafes')">
+          <div class="action-icon-wrap">
+            <ion-icon :icon="cafeOutline" class="action-icon"></ion-icon>
+          </div>
+          <span class="action-label">Cafés</span>
+        </div>
+        <div class="action-btn" @click="navigateTo('/community')">
+          <div class="action-icon-wrap">
+            <ion-icon :icon="peopleOutline" class="action-icon"></ion-icon>
+          </div>
+          <span class="action-label">Community</span>
+        </div>
+      </div>
+
+      <!-- YOUR IMPACT STORY -->
+      <div class="impact-story">
+        <div class="impact-header">
+          <h3 class="section-title">Your Impact Story</h3>
+          <span class="impact-period">This Month</span>
+        </div>
+        <div class="impact-visual">
+          <div class="impact-item">
+            <div class="impact-circle">
+              <ion-icon :icon="leafOutline" class="impact-icon"></ion-icon>
+            </div>
+            <span class="impact-number">{{ impact.trees }}</span>
+            <span class="impact-label">Trees Supported</span>
+          </div>
+          <div class="impact-connector"></div>
+          <div class="impact-item">
+            <div class="impact-circle">
+              <ion-icon :icon="peopleOutline" class="impact-icon"></ion-icon>
+            </div>
+            <span class="impact-number">{{ impact.farmers }}</span>
+            <span class="impact-label">Farmers Helped</span>
+          </div>
+          <div class="impact-connector"></div>
+          <div class="impact-item">
+            <div class="impact-circle">
+              <ion-icon :icon="heartOutline" class="impact-icon"></ion-icon>
+            </div>
+            <span class="impact-number">{{ impact.co2 }}</span>
+            <span class="impact-label">CO₂ Offset</span>
+          </div>
+        </div>
+        <p class="impact-message">{{ impactMessage }}</p>
+      </div>
+
+      <!-- RECENT FAVORITES -->
+      <div class="favorites-section">
+        <div class="section-header">
+          <h3 class="section-title">Buy Again</h3>
+          <ion-button fill="clear" class="view-all-link">View All</ion-button>
+        </div>
+        <div class="favorites-scroll">
+          <div 
+            v-for="fav in favorites" 
+            :key="fav.id"
+            class="favorite-item"
+            @click="quickBuy(fav)">
+            <img :src="fav.image" :alt="fav.name" class="fav-image" />
+            <div class="fav-info">
+              <span class="fav-name">{{ fav.name }}</span>
+              <span class="fav-price">${{ fav.price }}</span>
+            </div>
+            <ion-button fill="clear" class="quick-add-btn">
+              <ion-icon :icon="addCircleOutline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPACER -->
+      <div class="bottom-spacer"></div>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonButton,
+  IonContent,
+  IonIcon,
+} from "@ionic/vue";
+import {
+  cafeOutline,
+  heartOutline,
+  chatbubbleOutline,
+  flameOutline,
+  sparklesOutline,
+  timeOutline,
+  locationOutline,
+  bulbOutline,
+  bagHandleOutline,
+  qrCodeOutline,
+  peopleOutline,
+  leafOutline,
+  addCircleOutline,
+} from "ionicons/icons";
+
+const router = useRouter();
+
+const coffeeIcon = cafeOutline;
+
+const user = ref({
+  name: "Joshua",
+  avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+  streak: 12,
+  level: 5,
+  favoriteRoast: "Medium",
+  bestTime: "Morning",
+  topOrigin: "Ethiopia"
+});
+
+const timeBasedGreeting = computed(() => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Morning Brew";
+  if (hour < 17) return "Afternoon Pick-Me-Up";
+  return "Evening Ritual";
+});
+
+const personalizedMessage = computed(() => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Time for your favorite Ethiopian blend?";
+  if (hour < 17) return "Need an afternoon energy boost?";
+  return "Ready to wind down with decaf?";
+});
+
+const selectedMood = ref(1);
+
+const moods = [
+  { id: 1, emoji: "⚡", label: "Energize" },
+  { id: 2, emoji: "😌", label: "Relax" },
+  { id: 3, emoji: "🎯", label: "Focus" },
+  { id: 4, emoji: "🌟", label: "Explore" }
+];
+
+const featuredCoffee = ref({
+  name: "Ethiopian Yirgacheffe",
+  match: 95,
+  origin: "Ethiopia",
+  notes: "Floral, citrus, bright acidity",
+  price: 18.99,
+  image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=500"
+});
+
+const dailyTip = ref("For pour-over, bloom your coffee for 30-45 seconds with twice the weight of water to coffee. This releases CO₂ and enhances flavor extraction.");
+
+const impact = ref({
+  trees: 8,
+  farmers: 3,
+  co2: "12kg"
+});
+
+const impactMessage = ref("You're making a real difference! Your purchases have supported sustainable farming and reduced carbon emissions.");
+
+const favorites = ref([
+  {
+    id: 1,
+    name: "Costa Rica Honey",
+    price: 16.99,
+    image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300"
+  },
+  {
+    id: 2,
+    name: "Colombian Supreme",
+    price: 14.99,
+    image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300"
+  },
+  {
+    id: 3,
+    name: "Italian Espresso",
+    price: 15.99,
+    image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300"
+  }
+]);
+
+const navigateTo = (route) => {
+  console.log('Navigate to:', route);
+  // router.push(route);
+};
+
+const tryNow = (coffee) => {
+  console.log('Try now:', coffee);
+};
+
+const quickBuy = (item) => {
+  console.log('Quick buy:', item);
+};
+</script>
+
+<style scoped>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --coffee-dark: #4a2c2a;
+  --coffee-medium: #6b4226;
+  --coffee-light: #a87b54;
+  --text-dark: #2c1810;
+  --text-light: #8b7355;
+  --green: #27ae60;
+  --cream: #f5f1e8;
+}
+
+/* ===== HEADER ===== */
+.custom-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  padding: 8px 8px;
+}
+
+.time-greeting {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coffee-icon {
+  font-size: 20px;
+  color: var(--coffee-dark);
+}
+
+.time-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+.header-icon-btn {
+  --color: var(--coffee-dark);
+  --background: rgba(245, 241, 232, 0.6);
+  --border-radius: 12px;
+  margin: 0 4px;
+}
+
+/* ===== CONTENT ===== */
+.content-bg {
+  --background: #f2f2f2;
+}
+
+/* ===== HERO SECTION ===== */
+.hero-section {
+  margin: 16px 16px 24px;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--cream) 0%, #e8dcc8 100%);
+  border-radius: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid #e0d5c0;
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-content {
+  flex: 1;
+}
+
+.hero-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  margin: 0 0 6px 0;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 14px;
+  color: var(--text-light);
+  margin: 0 0 12px 0;
+}
+
+.coffee-streak {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.flame-icon {
+  font-size: 16px;
+  color: #ff6b6b;
+}
+
+.streak-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+.streak-badge {
+  font-size: 14px;
+}
+
+.hero-avatar-section {
+  position: relative;
+}
+
+.hero-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid white;
+  object-fit: cover;
+}
+
+.level-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: var(--coffee-dark);
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 2px solid var(--cream);
+}
+
+.level-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--cream);
+}
+
+/* ===== MOOD SECTION ===== */
+.mood-section {
+  padding: 0 16px 24px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 12px 0;
+}
+
+.mood-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.mood-card {
+  background: white;
+  padding: 16px 8px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mood-card.selected {
+  border-color: var(--coffee-dark);
+  background: var(--cream);
+}
+
+.mood-card:active {
+  transform: scale(0.95);
+}
+
+.mood-emoji {
+  font-size: 28px;
+}
+
+.mood-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* ===== RECOMMENDATIONS ===== */
+.recommendations-section {
+  padding: 0 16px 24px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.based-on {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.recommendation-card.featured {
+  position: relative;
+  height: 240px;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.featured-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.featured-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%);
+}
+
+.featured-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  color: white;
+}
+
+.featured-tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.featured-tag {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.featured-name {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.featured-notes {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 12px 0;
+}
+
+.featured-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.featured-price {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.try-btn {
+  --background: white;
+  --color: var(--coffee-dark);
+  --border-radius: 12px;
+  height: 38px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* ===== PROFILE SECTION ===== */
+.profile-section {
+  padding: 0 16px 24px;
+}
+
+.profile-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.profile-card {
+  background: white;
+  padding: 16px 12px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.profile-icon {
+  font-size: 24px;
+  color: var(--coffee-light);
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.profile-label {
+  font-size: 10px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.profile-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+/* ===== TIP CARD ===== */
+.tip-card {
+  margin: 0 16px 24px;
+  padding: 18px;
+  background: linear-gradient(135deg, rgba(168, 123, 84, 0.08), rgba(168, 123, 84, 0.12));
+  border-radius: 16px;
+  border: 1px solid rgba(168, 123, 84, 0.2);
+}
+
+.tip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.bulb-icon {
+  font-size: 20px;
+  color: var(--coffee-light);
+}
+
+.tip-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+.tip-text {
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ===== ACTIONS ===== */
+.actions-section {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 0 16px 24px;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+.action-btn.primary {
+  background: var(--coffee-dark);
+  border-color: var(--coffee-dark);
+}
+
+.action-icon-wrap {
+  width: 44px;
+  height: 44px;
+  background: rgba(168, 123, 84, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn.primary .action-icon-wrap {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.action-icon {
+  font-size: 22px;
+  color: var(--coffee-dark);
+}
+
+.action-btn.primary .action-icon {
+  color: white;
+}
+
+.action-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.action-btn.primary .action-label {
+  color: white;
+}
+
+/* ===== IMPACT STORY ===== */
+.impact-story {
+  margin: 0 16px 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.08), rgba(39, 174, 96, 0.12));
+  border-radius: 20px;
+  border: 1px solid rgba(39, 174, 96, 0.2);
+}
+
+.impact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.impact-period {
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.impact-visual {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.impact-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.impact-circle {
+  width: 56px;
+  height: 56px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.impact-icon {
+  font-size: 26px;
+  color: var(--green);
+}
+
+.impact-number {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+.impact-label {
+  font-size: 10px;
+  color: var(--text-light);
+  text-align: center;
+  font-weight: 600;
+}
+
+.impact-connector {
+  width: 30px;
+  height: 2px;
+  background: rgba(39, 174, 96, 0.3);
+  margin: 0 -10px;
+  margin-bottom: 40px;
+}
+
+.impact-message {
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.6;
+  margin: 0;
+  text-align: center;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+}
+
+/* ===== FAVORITES ===== */
+.favorites-section {
+  padding: 0 16px 24px;
+}
+
+.view-all-link {
+  --color: var(--coffee-light);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.favorites-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.favorite-item {
+  background: white;
+  padding: 12px;
+  border-radius: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.favorite-item:active {
+  transform: scale(0.98);
+}
+
+.fav-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.fav-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fav-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.fav-price {
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.quick-add-btn {
+  --color: var(--coffee-light);
+  margin: 0;
+  font-size: 28px;
+}
+
+/* ===== SPACER ===== */
+.bottom-spacer {
+  height: 30px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 360px) {
+  .hero-title {
+    font-size: 24px;
+  }
+  
+  .mood-cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .profile-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+</style>

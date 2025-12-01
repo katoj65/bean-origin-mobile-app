@@ -1,0 +1,673 @@
+<template>
+  <ion-page>
+    <!-- HEADER -->
+    <ion-header class="ion-no-border" translucent>
+      <ion-toolbar class="custom-toolbar">
+        <ion-buttons slot="start">
+          <div class="profile-header">
+            <img :src="user.avatar" alt="Profile" class="header-avatar" />
+            <div class="header-text">
+              <span class="header-greeting">{{ greeting }}!</span>
+              <span class="header-name">{{ user.name }}</span>
+            </div>
+          </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+          <ion-button class="icon-btn">
+            <ion-icon :icon="calendarOutline"></ion-icon>
+          </ion-button>
+          <ion-button class="icon-btn">
+            <ion-icon :icon="notificationsOutline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content fullscreen class="content-bg">
+      <!-- PROGRESS CARD -->
+      <div class="progress-card">
+        <div class="progress-header">
+          <ion-icon :icon="trendingUpOutline" class="progress-icon"></ion-icon>
+          <span class="progress-label">Monthly Impact</span>
+        </div>
+        <h2 class="progress-title">Your Coffee Journey</h2>
+        <div class="circle-progress">
+          <svg viewBox="0 0 120 120" class="progress-svg">
+            <circle cx="60" cy="60" r="50" class="progress-bg-circle"></circle>
+            <circle 
+              cx="60" 
+              cy="60" 
+              r="50" 
+              class="progress-fill-circle"
+              :style="{ strokeDashoffset: circleOffset }">
+            </circle>
+          </svg>
+          <div class="progress-center">
+            <span class="progress-number">{{ monthlyOrders }}</span>
+            <span class="progress-unit">orders</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK STATS -->
+      <div class="quick-stats">
+        <div class="stat-item">
+          <ion-icon :icon="bagHandleOutline" class="stat-icon orange"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-label">Purchases</span>
+            <span class="stat-value">{{ stats.purchases }} <span class="stat-unit">items</span></span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <ion-icon :icon="waterOutline" class="stat-icon blue"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-label">CO₂ Saved</span>
+            <span class="stat-value">{{ stats.co2Saved }} <span class="stat-unit">kg</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MONTH SELECTOR -->
+      <div class="month-selector">
+        <ion-button fill="clear" class="nav-btn" @click="previousMonth">
+          <ion-icon :icon="chevronBackOutline"></ion-icon>
+        </ion-button>
+        <span class="month-text">{{ currentMonth }}</span>
+        <ion-button fill="clear" class="nav-btn" @click="nextMonth">
+          <ion-icon :icon="chevronForwardOutline"></ion-icon>
+        </ion-button>
+      </div>
+
+      <!-- CALENDAR -->
+      <div class="calendar">
+        <div v-for="day in weekDays" :key="day" class="day-header">{{ day }}</div>
+        <div 
+          v-for="date in calendarDates" 
+          :key="date.id"
+          :class="['date-cell', { 
+            'active': date.isToday,
+            'has-order': date.hasOrder 
+          }]"
+          @click="selectDate(date)">
+          <span class="date-number">{{ date.day }}</span>
+        </div>
+      </div>
+
+      <!-- MEAL CARDS (Coffee Orders) -->
+      <div class="meal-section">
+        <div class="meal-card">
+          <div class="meal-info">
+            <ion-icon :icon="sunnyOutline" class="meal-icon"></ion-icon>
+            <div class="meal-details">
+              <span class="meal-name">Morning Order</span>
+              <span class="meal-calories">{{ morningOrder.price }} <span class="unit">USD</span></span>
+            </div>
+          </div>
+          <div class="meal-image-container">
+            <img :src="morningOrder.image" :alt="morningOrder.name" class="meal-image" />
+          </div>
+          <ion-button fill="clear" class="add-btn">
+            <ion-icon :icon="addOutline"></ion-icon>
+          </ion-button>
+        </div>
+
+        <div class="meal-card">
+          <div class="meal-info">
+            <ion-icon :icon="partlySunnyOutline" class="meal-icon"></ion-icon>
+            <div class="meal-details">
+              <span class="meal-name">Afternoon Brew</span>
+              <span class="meal-calories">{{ afternoonOrder.price }} <span class="unit">USD</span></span>
+            </div>
+          </div>
+          <div class="meal-image-container">
+            <img :src="afternoonOrder.image" :alt="afternoonOrder.name" class="meal-image" />
+          </div>
+          <ion-button fill="clear" class="add-btn">
+            <ion-icon :icon="addOutline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- BOTTOM NAV -->
+      <div class="bottom-nav">
+        <div class="nav-item active">
+          <ion-icon :icon="homeOutline" class="nav-icon"></ion-icon>
+          <span class="nav-label">Home</span>
+        </div>
+        <div class="nav-item">
+          <ion-icon :icon="statsChartOutline" class="nav-icon"></ion-icon>
+          <span class="nav-label">Progress</span>
+        </div>
+        <div class="nav-item scan">
+          <ion-icon :icon="qrCodeOutline" class="nav-icon"></ion-icon>
+        </div>
+        <div class="nav-item">
+          <ion-icon :icon="trophyOutline" class="nav-icon"></ion-icon>
+          <span class="nav-label">Rewards</span>
+        </div>
+        <div class="nav-item">
+          <ion-icon :icon="gridOutline" class="nav-icon"></ion-icon>
+          <span class="nav-label">Menu</span>
+        </div>
+      </div>
+
+      <!-- SPACER -->
+      <div class="bottom-spacer"></div>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonButton,
+  IonContent,
+  IonIcon,
+} from "@ionic/vue";
+import {
+  calendarOutline,
+  notificationsOutline,
+  trendingUpOutline,
+  bagHandleOutline,
+  waterOutline,
+  chevronBackOutline,
+  chevronForwardOutline,
+  sunnyOutline,
+  partlySunnyOutline,
+  addOutline,
+  homeOutline,
+  statsChartOutline,
+  qrCodeOutline,
+  trophyOutline,
+  gridOutline,
+} from "ionicons/icons";
+
+const user = ref({
+  name: "Sajibur Rahman",
+  avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200"
+});
+
+const greeting = computed(() => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+});
+
+const monthlyOrders = ref(6);
+const currentMonth = ref("August 2025");
+
+const stats = ref({
+  purchases: "5,500",
+  co2Saved: "12"
+});
+
+const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+const calendarDates = ref([
+  { id: 1, day: '07', isToday: false, hasOrder: true },
+  { id: 2, day: '08', isToday: false, hasOrder: false },
+  { id: 3, day: '09', isToday: false, hasOrder: false },
+  { id: 4, day: '10', isToday: true, hasOrder: true },
+  { id: 5, day: '11', isToday: false, hasOrder: false },
+  { id: 6, day: '12', isToday: false, hasOrder: false },
+  { id: 7, day: '13', isToday: false, hasOrder: false },
+]);
+
+const morningOrder = ref({
+  name: "Ethiopian Blend",
+  price: "456 - 512",
+  image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300"
+});
+
+const afternoonOrder = ref({
+  name: "Espresso Shot",
+  price: "456 - 512",
+  image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300"
+});
+
+const circleOffset = computed(() => {
+  const progress = (monthlyOrders.value / 10) * 100; // Assuming 10 is the goal
+  const circumference = 2 * Math.PI * 50;
+  return circumference - (progress / 100) * circumference;
+});
+
+const previousMonth = () => {
+  console.log('Previous month');
+};
+
+const nextMonth = () => {
+  console.log('Next month');
+};
+
+const selectDate = (date) => {
+  console.log('Selected date:', date);
+};
+</script>
+
+<style scoped>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --coffee-dark: #4a2c2a;
+  --coffee-medium: #6b4226;
+  --coffee-light: #a87b54;
+  --text-dark: #2c1810;
+  --text-light: #8b7355;
+  --green: #8bc34a;
+  --green-light: #e8f5e9;
+  --orange: #ff9800;
+  --blue: #2196f3;
+}
+
+/* ===== HEADER ===== */
+.custom-toolbar {
+  --background: white;
+  --border-width: 0;
+  padding: 8px 8px;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header-greeting {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.header-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.icon-btn {
+  --color: var(--text-dark);
+  --background: transparent;
+  margin: 0 4px;
+}
+
+/* ===== CONTENT ===== */
+.content-bg {
+  --background: white;
+}
+
+/* ===== PROGRESS CARD ===== */
+.progress-card {
+  margin: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--green-light) 0%, #f1f8e9 100%);
+  border-radius: 20px;
+  position: relative;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.progress-icon {
+  font-size: 16px;
+  color: var(--green);
+}
+
+.progress-label {
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.progress-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 16px 0;
+}
+
+.circle-progress {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100px;
+  height: 100px;
+}
+
+.progress-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progress-bg-circle {
+  fill: none;
+  stroke: rgba(139, 195, 74, 0.2);
+  stroke-width: 8;
+}
+
+.progress-fill-circle {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 314;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.progress-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.progress-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1;
+}
+
+.progress-unit {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+/* ===== QUICK STATS ===== */
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0 16px 20px;
+}
+
+.stat-item {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.stat-icon {
+  font-size: 24px;
+  padding: 8px;
+  border-radius: 10px;
+  background: white;
+}
+
+.stat-icon.orange {
+  color: var(--orange);
+}
+
+.stat-icon.blue {
+  color: var(--blue);
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.stat-unit {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-light);
+}
+
+/* ===== MONTH SELECTOR ===== */
+.month-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 0 16px 16px;
+}
+
+.nav-btn {
+  --color: var(--text-dark);
+  margin: 0;
+}
+
+.month-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* ===== CALENDAR ===== */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  padding: 0 16px 20px;
+}
+
+.day-header {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 600;
+  padding: 8px 0;
+}
+
+.date-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.date-cell.active {
+  background: var(--green);
+}
+
+.date-cell.has-order {
+  border: 2px solid var(--green);
+}
+
+.date-cell.active.has-order {
+  border-color: var(--green);
+}
+
+.date-number {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.date-cell.active .date-number {
+  color: white;
+}
+
+/* ===== MEAL CARDS ===== */
+.meal-section {
+  padding: 0 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.meal-card {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.meal-info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex: 1;
+}
+
+.meal-icon {
+  font-size: 24px;
+  color: var(--orange);
+  background: white;
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.meal-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meal-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.meal-calories {
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.meal-calories .unit {
+  font-size: 11px;
+}
+
+.meal-image-container {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.meal-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.add-btn {
+  --color: var(--text-dark);
+  --background: white;
+  --border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  --padding-start: 0;
+  --padding-end: 0;
+  margin: 0;
+}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 16px 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.nav-item.scan {
+  background: var(--green);
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  justify-content: center;
+  margin-top: -24px;
+}
+
+.nav-icon {
+  font-size: 24px;
+  color: var(--text-light);
+}
+
+.nav-item.active .nav-icon {
+  color: var(--green);
+}
+
+.nav-item.scan .nav-icon {
+  color: white;
+}
+
+.nav-label {
+  font-size: 10px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.nav-item.active .nav-label {
+  color: var(--green);
+}
+
+/* ===== SPACER ===== */
+.bottom-spacer {
+  height: 20px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 360px) {
+  .progress-title {
+    font-size: 20px;
+  }
+  
+  .circle-progress {
+    width: 90px;
+    height: 90px;
+  }
+}
+</style>

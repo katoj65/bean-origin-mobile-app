@@ -1,0 +1,1261 @@
+<template>
+  <ion-page>
+    <!-- HEADER -->
+    <ion-header class="ion-no-border" translucent>
+      <ion-toolbar class="custom-toolbar">
+        <ion-buttons slot="start">
+          <ion-button class="menu-btn">
+            <ion-icon :icon="menuOutline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-title class="app-title">Bean Origin</ion-title>
+        <ion-buttons slot="end">
+          <ion-button class="header-btn">
+            <ion-icon :icon="cartOutline"></ion-icon>
+            <span class="cart-count">3</span>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content fullscreen class="content-bg">
+      <!-- WELCOME MESSAGE -->
+      <div class="welcome-section">
+        <div class="welcome-content">
+          <div class="welcome-text">
+            <h1 class="welcome-title">Hello, {{ user.name }}! ☕</h1>
+            <p class="welcome-subtitle">{{ welcomeMessage }}</p>
+          </div>
+          <img :src="user.avatar" alt="Profile" class="welcome-avatar" />
+        </div>
+      </div>
+
+      <!-- FEATURED BANNER -->
+      <div class="banner-section">
+        <div class="banner-image-wrapper">
+          <img :src="banner.image" alt="Banner" class="banner-image" />
+          <div class="banner-gradient"></div>
+        </div>
+        <div class="banner-content">
+          <span class="banner-badge">{{ banner.badge }}</span>
+          <h2 class="banner-title">{{ banner.title }}</h2>
+          <p class="banner-description">{{ banner.description }}</p>
+          <ion-button fill="solid" class="banner-btn" @click="navigateTo(banner.route)">
+            {{ banner.buttonText }}
+            <ion-icon :icon="arrowForwardOutline" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- SECTION TITLE -->
+      <div class="section-header">
+        <h3 class="section-title">Explore Coffee World</h3>
+        <span class="section-subtitle">What would you like to do?</span>
+      </div>
+
+      <!-- NAVIGATION TILES -->
+      <div class="tiles-grid">
+        <!-- Buy Coffee - Large Featured Tile -->
+        <div class="tile large featured" @click="navigateTo('/buy-coffee')">
+          <div class="tile-bg">
+            <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400" alt="Coffee" class="tile-bg-image" />
+            <div class="tile-overlay"></div>
+          </div>
+          <div class="tile-content">
+            <div class="tile-icon-box">
+              <ion-icon :icon="bagHandleOutline" class="tile-icon"></ion-icon>
+            </div>
+            <h4 class="tile-title">Buy Coffee</h4>
+            <p class="tile-subtitle">Premium beans from around the world</p>
+          </div>
+        </div>
+
+        <!-- Scan Product -->
+        <div class="tile" @click="navigateTo('/scan')">
+          <div class="tile-icon-box brown">
+            <ion-icon :icon="qrCodeOutline" class="tile-icon"></ion-icon>
+          </div>
+          <h4 class="tile-title">Scan Product</h4>
+          <p class="tile-subtitle">Verify authenticity</p>
+        </div>
+
+        <!-- Nearby Café -->
+        <div class="tile" @click="navigateTo('/nearby-cafes')">
+          <div class="tile-icon-box orange">
+            <ion-icon :icon="cafeOutline" class="tile-icon"></ion-icon>
+          </div>
+          <h4 class="tile-title">Nearby Café</h4>
+          <p class="tile-subtitle">Find local spots</p>
+        </div>
+
+        <!-- Subscriptions -->
+        <div class="tile" @click="navigateTo('/subscriptions')">
+          <div class="tile-icon-box purple">
+            <ion-icon :icon="refreshOutline" class="tile-icon"></ion-icon>
+          </div>
+          <h4 class="tile-title">Subscription</h4>
+          <p class="tile-subtitle">Never run out</p>
+        </div>
+
+        <!-- Rewards -->
+        <div class="tile" @click="navigateTo('/rewards')">
+          <div class="tile-icon-box gold">
+            <ion-icon :icon="giftOutline" class="tile-icon"></ion-icon>
+          </div>
+          <h4 class="tile-title">Rewards</h4>
+          <p class="tile-subtitle">Earn points</p>
+        </div>
+
+        <!-- Carbon Credit - Green Theme -->
+        <div class="tile wide green" @click="navigateTo('/carbon')">
+          <div class="tile-icon-box-inline">
+            <ion-icon :icon="leafOutline" class="tile-icon"></ion-icon>
+          </div>
+          <div class="tile-content-inline">
+            <h4 class="tile-title">Carbon Credit</h4>
+            <p class="tile-subtitle">Track your positive impact</p>
+          </div>
+          <div class="carbon-stat">
+            <span class="carbon-number">{{ carbonImpact }}</span>
+            <span class="carbon-label">kg CO₂</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK STATS -->
+      <div class="stats-banner">
+        <div class="stat-item">
+          <ion-icon :icon="trophyOutline" class="stat-icon"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-number">{{ stats.points }}</span>
+            <span class="stat-label">Points</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <ion-icon :icon="bagHandleOutline" class="stat-icon"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-number">{{ stats.orders }}</span>
+            <span class="stat-label">Orders</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <ion-icon :icon="flameOutline" class="stat-icon"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-number">{{ stats.streak }}</span>
+            <span class="stat-label">Day Streak</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURED PRODUCT CARD - Image Left Style -->
+      <div class="featured-product-card">
+        <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400" alt="Coffee" class="featured-product-image" />
+        <div class="featured-product-content">
+          <span class="featured-badge">🔥 Trending</span>
+          <h3 class="featured-product-title">Ethiopian Yirgacheffe</h3>
+          <p class="featured-product-price">$18.99</p>
+          <ion-button fill="solid" class="add-to-cart-btn" size="small">
+            Add to Cart
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS GRID - Icon Style -->
+      <div class="quick-actions-section">
+        <h3 class="section-title-small">Quick Actions</h3>
+        <div class="quick-actions-grid">
+          <div class="quick-action-item" @click="navigateTo('/buy-coffee')">
+            <div class="quick-icon coffee">☕</div>
+            <span class="quick-label">Shop</span>
+          </div>
+          <div class="quick-action-item" @click="navigateTo('/scan')">
+            <div class="quick-icon scan">📱</div>
+            <span class="quick-label">Scan</span>
+          </div>
+          <div class="quick-action-item" @click="navigateTo('/cafes')">
+            <div class="quick-icon cafe">🏪</div>
+            <span class="quick-label">Cafés</span>
+          </div>
+          <div class="quick-action-item" @click="navigateTo('/rewards')">
+            <div class="quick-icon reward">🎁</div>
+            <span class="quick-label">Rewards</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBSCRIPTION PROMO - Horizontal Split Design -->
+      <div class="subscription-card">
+        <div class="subscription-left">
+          <span class="subscription-emoji">🔄</span>
+        </div>
+        <div class="subscription-right">
+          <h4 class="subscription-title">Never Run Out</h4>
+          <p class="subscription-text">Subscribe & save 15% on every order</p>
+          <ion-button fill="outline" class="subscription-btn" size="small">
+            Learn More
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- IMPACT CARD - Circular Progress Style -->
+      <div class="impact-card">
+        <div class="impact-header">
+          <h3 class="section-title-small">Your Impact</h3>
+          <span class="impact-period">This Month</span>
+        </div>
+        <div class="impact-grid">
+          <div class="impact-item">
+            <div class="circular-progress">
+              <svg width="70" height="70" viewBox="0 0 70 70">
+                <circle cx="35" cy="35" r="30" fill="none" stroke="#e0e0e0" stroke-width="6"></circle>
+                <circle cx="35" cy="35" r="30" fill="none" stroke="#27ae60" stroke-width="6" 
+                  stroke-dasharray="188" stroke-dashoffset="47" stroke-linecap="round"
+                  transform="rotate(-90 35 35)"></circle>
+              </svg>
+              <span class="progress-value">75%</span>
+            </div>
+            <span class="impact-label">CO₂ Goal</span>
+          </div>
+          <div class="impact-stats">
+            <div class="impact-stat-row">
+              <span class="impact-icon">🌱</span>
+              <div class="impact-stat-info">
+                <span class="impact-stat-value">12kg</span>
+                <span class="impact-stat-label">CO₂ Saved</span>
+              </div>
+            </div>
+            <div class="impact-stat-row">
+              <span class="impact-icon">🌳</span>
+              <div class="impact-stat-info">
+                <span class="impact-stat-value">8</span>
+                <span class="impact-stat-label">Trees Supported</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT ORDERS - List Style -->
+      <div class="recent-orders-section">
+        <div class="orders-header">
+          <h3 class="section-title-small">Recent Orders</h3>
+          <ion-button fill="clear" class="view-all-btn" size="small">View All</ion-button>
+        </div>
+        <div class="orders-list">
+          <div class="order-item">
+            <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=200" alt="Coffee" class="order-image" />
+            <div class="order-info">
+              <h4 class="order-name">Colombian Supreme</h4>
+              <span class="order-date">Nov 28, 2024</span>
+            </div>
+            <span class="order-status delivered">Delivered</span>
+          </div>
+          <div class="order-item">
+            <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200" alt="Coffee" class="order-image" />
+            <div class="order-info">
+              <h4 class="order-name">Italian Espresso</h4>
+              <span class="order-date">Nov 25, 2024</span>
+            </div>
+            <span class="order-status transit">In Transit</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- COFFEE TIP - Quote Card Style -->
+      <div class="tip-card-modern">
+        <div class="tip-icon-box">💡</div>
+        <div class="tip-content">
+          <h4 class="tip-title">Brewing Tip</h4>
+          <p class="tip-text">"For the perfect pour-over, maintain water temperature between 195-205°F for optimal extraction."</p>
+        </div>
+      </div>
+
+      <!-- COMMUNITY CARD - Social Style -->
+      <div class="community-card">
+        <div class="community-header">
+          <div class="community-avatars">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100" alt="User" class="community-avatar" />
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100" alt="User" class="community-avatar" />
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100" alt="User" class="community-avatar" />
+            <div class="community-avatar more">+24</div>
+          </div>
+          <h4 class="community-title">Join Coffee Lovers</h4>
+        </div>
+        <p class="community-text">Connect with 2,500+ coffee enthusiasts worldwide</p>
+        <ion-button expand="block" fill="solid" class="community-btn">
+          Join Community
+        </ion-button>
+      </div>
+
+      <!-- SPACER -->
+      <div class="bottom-spacer"></div>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonContent,
+  IonIcon,
+} from "@ionic/vue";
+import {
+  menuOutline,
+  cartOutline,
+  arrowForwardOutline,
+  bagHandleOutline,
+  qrCodeOutline,
+  cafeOutline,
+  refreshOutline,
+  giftOutline,
+  leafOutline,
+  trophyOutline,
+  flameOutline,
+} from "ionicons/icons";
+
+const router = useRouter();
+
+const user = ref({
+  name: "Joshua",
+  avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200"
+});
+
+const welcomeMessage = computed(() => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Start your day with the perfect brew";
+  if (hour < 18) return "Time for an afternoon coffee break?";
+  return "Unwind with your evening cup";
+});
+
+const banner = ref({
+  image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600",
+  badge: "New Arrival",
+  title: "Ethiopian Yirgacheffe",
+  description: "Discover our finest single-origin beans with notes of citrus and floral undertones",
+  buttonText: "Explore Now",
+  route: "/featured"
+});
+
+const carbonImpact = ref("45");
+
+const stats = ref({
+  points: "1,250",
+  orders: "24",
+  streak: "12"
+});
+
+const navigateTo = (route) => {
+  console.log('Navigate to:', route);
+  // router.push(route);
+};
+</script>
+
+<style scoped>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --coffee-dark: #4a2c2a;
+  --coffee-medium: #6b4226;
+  --coffee-light: #a87b54;
+  --text-dark: #2c1810;
+  --text-light: #8b7355;
+  --green: #27ae60;
+  --cream: #f5f1e8;
+  --orange: #ff9800;
+  --purple: #9c27b0;
+  --gold: #ffd700;
+}
+
+/* ===== HEADER ===== */
+.custom-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  padding: 8px 4px;
+}
+
+.menu-btn,
+.header-btn {
+  --color: var(--coffee-dark);
+  --background: transparent;
+  margin: 0 4px;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  text-align: center;
+}
+
+.cart-count {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--coffee-light);
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ===== CONTENT ===== */
+.content-bg {
+  --background: #f2f2f2;
+}
+
+/* ===== WELCOME SECTION ===== */
+.welcome-section {
+  padding: 16px 16px 20px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.welcome-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.welcome-text {
+  flex: 1;
+}
+
+.welcome-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  margin: 0 0 6px 0;
+  line-height: 1.2;
+}
+
+.welcome-subtitle {
+  font-size: 15px;
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.welcome-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 4px 12px rgba(74, 44, 42, 0.15);
+  object-fit: cover;
+}
+
+/* ===== BANNER SECTION ===== */
+.banner-section {
+  margin: 0 16px 24px;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  height: 200px;
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+.banner-image-wrapper {
+  position: absolute;
+  inset: 0;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.banner-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%);
+}
+
+.banner-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+  color: white;
+}
+
+.banner-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.banner-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  line-height: 1.2;
+}
+
+.banner-description {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.banner-btn {
+  --background: white;
+  --color: var(--coffee-dark);
+  --border-radius: 14px;
+  height: 42px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* ===== SECTION HEADER ===== */
+.section-header {
+  padding: 0 16px 16px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  margin: 0 0 4px 0;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* ===== TILES GRID ===== */
+.tiles-grid {
+  padding: 0 16px 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.tile {
+  background: white;
+  padding: 20px 16px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tile:nth-child(1) { animation-delay: 0.1s; }
+.tile:nth-child(2) { animation-delay: 0.15s; }
+.tile:nth-child(3) { animation-delay: 0.2s; }
+.tile:nth-child(4) { animation-delay: 0.25s; }
+.tile:nth-child(5) { animation-delay: 0.3s; }
+.tile:nth-child(6) { animation-delay: 0.35s; }
+
+.tile:active {
+  transform: scale(0.96);
+}
+
+/* Large Featured Tile - Buy Coffee */
+.tile.large {
+  grid-column: span 2;
+  padding: 0;
+  min-height: 180px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tile-bg {
+  position: absolute;
+  inset: 0;
+}
+
+.tile-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tile-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(74, 44, 42, 0.85) 0%, rgba(107, 66, 38, 0.85) 100%);
+}
+
+.tile.large .tile-content {
+  position: relative;
+  z-index: 1;
+  padding: 24px;
+  color: white;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.tile.large .tile-icon-box {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  margin-bottom: auto;
+}
+
+.tile.large .tile-title {
+  color: white;
+  font-size: 22px;
+}
+
+.tile.large .tile-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Regular Tiles */
+.tile-icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--coffee-medium) 0%, var(--coffee-light) 100%);
+}
+
+.tile-icon-box.brown {
+  background: linear-gradient(135deg, #6b4226 0%, #8b5a3c 100%);
+}
+
+.tile-icon-box.orange {
+  background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+}
+
+.tile-icon-box.purple {
+  background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+}
+
+.tile-icon-box.gold {
+  background: linear-gradient(135deg, #ffd700 0%, #ffab00 100%);
+}
+
+.tile-icon {
+  font-size: 28px;
+  color: white;
+}
+
+.tile-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.tile-subtitle {
+  font-size: 12px;
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Wide Green Tile - Carbon Credit */
+.tile.wide {
+  grid-column: span 2;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.tile.green {
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.1) 0%, rgba(39, 174, 96, 0.15) 100%);
+  border-color: rgba(39, 174, 96, 0.3);
+}
+
+.tile-icon-box-inline {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--green);
+  flex-shrink: 0;
+}
+
+.tile-content-inline {
+  flex: 1;
+  min-width: 0;
+}
+
+.carbon-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.carbon-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1;
+}
+
+.carbon-label {
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+/* ===== STATS BANNER ===== */
+.stats-banner {
+  margin: 0 16px 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+}
+
+.stat-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.stat-icon {
+  font-size: 24px;
+  color: var(--coffee-light);
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-number {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: #e0e0e0;
+}
+
+/* ===== SPACER ===== */
+.bottom-spacer {
+  height: 30px;
+}
+
+/* ===== FEATURED PRODUCT CARD ===== */
+.featured-product-card {
+  margin: 0 16px 16px;
+  background: white;
+  border-radius: 20px;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  height: 140px;
+}
+
+.featured-product-image {
+  width: 140px;
+  height: 100%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.featured-product-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.featured-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  padding: 4px 8px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.featured-product-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  margin: 0;
+}
+
+.featured-product-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--coffee-light);
+  margin: auto 0 0 0;
+}
+
+.add-to-cart-btn {
+  --background: var(--coffee-dark);
+  --border-radius: 12px;
+  height: 36px;
+  font-weight: 600;
+}
+
+/* ===== QUICK ACTIONS SECTION ===== */
+.quick-actions-section {
+  padding: 0 16px 16px;
+}
+
+.section-title-small {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  margin: 0 0 12px 0;
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.quick-action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.quick-action-item:active {
+  transform: scale(0.9);
+}
+
+.quick-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.quick-icon.coffee {
+  background: linear-gradient(135deg, #6b4226 0%, #8b5a3c 100%);
+}
+
+.quick-icon.scan {
+  background: linear-gradient(135deg, #a87b54 0%, #c8956c 100%);
+}
+
+.quick-icon.cafe {
+  background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+}
+
+.quick-icon.reward {
+  background: linear-gradient(135deg, #ffd700 0%, #ffab00 100%);
+}
+
+.quick-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* ===== SUBSCRIPTION CARD ===== */
+.subscription-card {
+  margin: 0 16px 16px;
+  background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+  border-radius: 20px;
+  display: flex;
+  overflow: hidden;
+  min-height: 120px;
+}
+
+.subscription-left {
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.subscription-emoji {
+  font-size: 48px;
+}
+
+.subscription-right {
+  padding: 20px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.subscription-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.subscription-text {
+  font-size: 13px;
+  margin: 0 0 8px 0;
+  opacity: 0.95;
+}
+
+.subscription-btn {
+  --border-color: white;
+  --color: white;
+  --border-radius: 12px;
+  height: 36px;
+  font-weight: 600;
+  margin-top: auto;
+}
+
+/* ===== IMPACT CARD ===== */
+.impact-card {
+  margin: 0 16px 16px;
+  padding: 20px;
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+}
+
+.impact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.impact-period {
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.impact-grid {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.impact-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.circular-progress {
+  position: relative;
+  width: 70px;
+  height: 70px;
+}
+
+.progress-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.impact-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.impact-stats {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.impact-stat-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.impact-icon {
+  font-size: 28px;
+}
+
+.impact-stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.impact-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+}
+
+.impact-stat-label {
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+/* ===== RECENT ORDERS ===== */
+.recent-orders-section {
+  padding: 0 16px 16px;
+}
+
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.view-all-btn {
+  --color: var(--coffee-light);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order-item {
+  background: white;
+  padding: 12px;
+  border-radius: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+}
+
+.order-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.order-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  margin: 0;
+}
+
+.order-date {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.order-status {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 10px;
+}
+
+.order-status.delivered {
+  background: rgba(39, 174, 96, 0.15);
+  color: var(--green);
+}
+
+.order-status.transit {
+  background: rgba(255, 152, 0, 0.15);
+  color: var(--orange);
+}
+
+/* ===== TIP CARD MODERN ===== */
+.tip-card-modern {
+  margin: 0 16px 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(168, 123, 84, 0.08), rgba(168, 123, 84, 0.15));
+  border-radius: 20px;
+  display: flex;
+  gap: 16px;
+  border: 1px solid rgba(168, 123, 84, 0.2);
+}
+
+.tip-icon-box {
+  width: 56px;
+  height: 56px;
+  background: white;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.tip-content {
+  flex: 1;
+}
+
+.tip-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  margin: 0 0 6px 0;
+}
+
+.tip-text {
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+}
+
+/* ===== COMMUNITY CARD ===== */
+.community-card {
+  margin: 0 16px 24px;
+  padding: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 24px;
+  color: white;
+  text-align: center;
+}
+
+.community-header {
+  margin-bottom: 12px;
+}
+
+.community-avatars {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.community-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid white;
+  margin-left: -12px;
+  object-fit: cover;
+}
+
+.community-avatar:first-child {
+  margin-left: 0;
+}
+
+.community-avatar.more {
+  background: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.community-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.community-text {
+  font-size: 14px;
+  margin: 0 0 16px 0;
+  opacity: 0.95;
+}
+
+.community-btn {
+  --background: white;
+  --color: #667eea;
+  --border-radius: 14px;
+  height: 44px;
+  font-weight: 700;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 360px) {
+  .welcome-title {
+    font-size: 24px;
+  }
+  
+  .banner-title {
+    font-size: 22px;
+  }
+  
+  .stats-banner {
+    padding: 16px;
+  }
+  
+  .stat-number {
+    font-size: 16px;
+  }
+}
+</style>

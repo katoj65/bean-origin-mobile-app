@@ -1,0 +1,169 @@
+/* For information on how to create your own theme, please refer to:
+http://ionicframework.com/docs/theming/ */
+
+/* ===== Bean Origin Colors ===== */
+:root {
+  --bean-bg: #6B4226;
+  --bean-accent: #A87B54;
+  --bean-light: #f0e6d2;
+  --bean-title: white;
+  --bean-subtitle: #f0e68c;
+}
+
+/* ===== Header ===== */
+ion-header::part(background),
+ion-toolbar::part(background) {
+  background-color: var(--bean-bg) !important;
+
+}
+ion-title {
+  color: var(--bean-title) !important;
+}
+
+/* ===== Page Background ===== */
+.bean-bg {
+  background-color: var(--bean-bg);
+  color: var(--bean-title);
+}
+
+/* ===== Input Fields ===== */
+.bean-input {
+  --background: transparent;
+  --color: #fff;
+  --placeholder-color: #ddd;
+
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+
+  border: solid thin #fff;
+  border-radius: 6px;
+  margin-bottom: 14px;
+}
+
+/* ===== Button ===== */
+.btn {
+  --background: var(--bean-accent);
+  --background-hover: #9d7045;
+  --background-activated: #8b5f38;
+  --color: white;
+  --border-radius: 6px;
+  height: 48px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+
+/* Remove the blue underline from ion-input (Material Design mode) */
+ion-input {
+  --highlight-color-focused: transparent !important;
+  --highlight-color: transparent !important;
+  --highlight-width: 0 !important;
+}
+
+/* Remove shadow/underline drawn by the native input part */
+ion-input::part(native) {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Remove MD underline element that Ionic inserts inside ion-input */
+ion-input::part(container) {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* For some IOS/Android builds, Ionic adds <div class="input-bottom"> */
+.input-bottom {
+  display: none !important;
+}
+
+/* If ion-input is inside ion-item, remove that underline too */
+ion-item::part(native) {
+  --border-width: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+
+
+
+ion-input.input-brown, ion-select.input-solid {
+  --background: transparent;
+  --color: #fff;
+  --placeholder-color: black;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  border: solid thin #D9A066;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  margin-top:10px;
+}
+
+
+
+.hero-card {
+  height: 150px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+  position: relative;
+  margin: 10px;
+   box-shadow: none;
+}
+
+/* Gradient overlay */
+.hero-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.45),
+    rgba(0, 0, 0, 0.05)
+  ); */
+  border-radius: inherit;
+}
+
+/* Main content container */
+.hero-content {
+  position: relative;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 16px;
+}
+
+/* Text on the right */
+.text-area {
+  text-align: right;
+  margin-right: 10px;
+}
+
+.greeting {
+  color: #6B4226;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+.line {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #F0C75E; /* warm gold */
+}
+
+/* Decorative coffee image */
+.hero-img {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  width: 80px;
+}

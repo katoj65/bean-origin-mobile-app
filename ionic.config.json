@@ -1,0 +1,7 @@
+{
+  "name": "BeanOrigin",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
