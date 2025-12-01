@@ -9,23 +9,23 @@
 <p class="subtitle">From farm to cup, transparently.</p>
 
 <!-- FORM (NO ion-list, NO ion-item) -->
-<form class="form-box">
+<form class="form-box" @submit.prevent="submit">
 
 <label class="label">Email Address</label>
 <ion-input 
 type="email" 
 placeholder="Enter email"
-class="input">
+class="input" v-model="form.email">
 </ion-input>
 
 <label class="label">Password</label>
 <ion-input 
 type="password" 
 placeholder="Enter password"
-class="input">
+class="input" v-model="form.password">
 </ion-input>
 
-<ion-button expand="block" class="login-btn">
+<ion-button expand="block" type="submit" class="login-btn">
 LOGIN
 </ion-button>
 
@@ -40,11 +40,14 @@ LOGIN
 </template>
 
 <script setup>
+import { ref,reactive } from 'vue';
 import { 
 IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonImg,
 IonInput, IonButton
 } from '@ionic/vue';
 import { useRouter } from 'vue-router';
+import AuthenticationService from '@/service/AuthenticationService';
+import { Preferences } from '@capacitor/preferences';
 
 
 
@@ -54,6 +57,79 @@ const router = useRouter();
 function registerNav(){
 router.push({ name: 'Register' });
 }
+
+
+const error=ref(null);
+const form=reactive({
+email:'katoj65@gmail.com',
+password:'0987654321'
+});
+
+const isLoading=ref(false);
+const submit = async ()=>{
+if(!form.email || !form.password){
+error.value='Fill in all fields';
+return;
+}else{
+
+
+try{
+isLoading.value=true;
+const auth=new AuthenticationService();
+const response=await auth.login(form);
+if(response.error===null){
+let data=response.data;
+const email=data.user.email;
+let profile = await auth.getProfile(email);
+if(profile.error===null){
+profile=profile.data;
+
+//create user profile
+let account='';
+profile.forEach(element => {
+account={
+id:element.id,
+fname:element.fname,
+email:element.email,
+gender:element.gender,
+dob:element.dob,
+status:element.status,
+role:element.role,
+address:element.address
+}
+});
+
+account=JSON.stringify(account);
+Preferences.set({key:'account',value:account});
+Preferences.set({key:'app_status',value:'active'});
+
+//Move to dashboard
+router.push('/dashboard-buyer')
+
+}else{
+error.value='Could not fetch user profile';
+console.log(profile.error);
+}
+
+}else{
+console.log(error);
+error.value='Invalid email address or password';
+}
+
+
+}catch(err){
+console.log(err);
+}finally{
+isLoading.value=false;
+}
+
+}
+
+}
+
+
+
+
 
 
 </script>

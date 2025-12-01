@@ -97,7 +97,7 @@ response.data.forEach(element => {
 account=element;    
 });
 //save profile locally
-const item={
+let item={
 id:account.id,
 fname:account.fname,
 email:account.email,
@@ -105,10 +105,11 @@ tel:account.tel,
 status:account.status,
 role:account.role
 };
-
-await Preferences.set({key:'account',value:JSON.stringify(account)});
 await Preferences.remove({key:'user'});
-await Preferences.set({key:'app_status',value:'active'});
+item=JSON.stringify(item);
+Preferences.set({key:'account',value:item});
+Preferences.set({key:'app_status',value:'active'});
+
 //navigate to dashboard
 router.push({ name: 'DashboardBuyer' });
 

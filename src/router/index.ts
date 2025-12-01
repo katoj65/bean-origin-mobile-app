@@ -83,7 +83,7 @@ router.beforeEach(async (to, from, next) => {
 const { value: app_status } = await Preferences.get({ key: 'app_status' });
 
 console.log("App status:", app_status);
-if (app_status && to.name === 'Home') {
+if (app_status==='active' && to.name === 'Home') {
 return next('/dashboard-buyer');
 }
 

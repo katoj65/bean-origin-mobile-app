@@ -25,6 +25,16 @@ return await database.from('profile').insert([profile]).select();
 }
 
 
+async getProfile(email){
+return await database
+.from('profile')
+.select('*')
+.eq('email', email);
+}
+
+
+
+
 
 
 

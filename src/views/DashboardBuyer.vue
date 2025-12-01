@@ -12,7 +12,7 @@
 
 <!-- USER PROFILE CARD -->
 <div class="hero-section">
-<h1 class="hero-title">Welcome Joshua!</h1>
+<h1 class="hero-title" style="text-transform: capitalize;">Welcome {{fname}}!</h1>
 <p class="hero-subtitle">Discover the best coffee shops around you</p>
 </div>
 
@@ -76,9 +76,10 @@ v-for="tile in tiles"
 
 
 <script setup>
+import { Preferences } from '@capacitor/preferences';
 import AppLayout from './template/AppLayout.vue';
 import HeadButtonsDefault from './template/HeadButtonsDefault.vue';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import {
 IonButtons,
@@ -140,7 +141,7 @@ badge: null
 },
 {
 id: 3,
-title: "Nearby Cafés",
+title: "Nearby Cafes",
 description: "Find local spots",
 icon: cafeOutline,
 colorClass: "purple",
@@ -192,11 +193,6 @@ const navigateToTile = (tile) => {
 router.push(tile.route);
 };
 
-
-
-
-
-//
 function navigateToProducts() {
   router.push('/coffee-products');
 }   
@@ -205,6 +201,23 @@ function navigateToProducts() {
 function nav(item){
 router.push(item);
 }
+
+
+
+
+const fname=ref('');
+onMounted(async ()=>{
+let {value: account}=await Preferences.get({key:'account'});
+account = JSON.parse(account);
+console.log(account);
+fname.value=account.fname;
+// Preferences.clear();
+
+
+});
+
+
+
 
 
 
