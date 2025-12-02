@@ -3,7 +3,7 @@ import { Preferences } from '@capacitor/preferences';
 import AuthebticationService from '../service/AuthenticationService';
 import { useRouter } from 'vue-router';
 import AppLayout from './template/AppLayout.vue';
-import { reactive,ref, onMounted, computed} from 'vue';
+import { reactive,ref, onMounted} from 'vue';
 import {IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,  IonButton, IonAvatar,
 IonList,
 IonItem,
@@ -69,10 +69,17 @@ return;
 
 try{    
 
-
 let user = await Preferences.get({key:'user'}); 
 user = JSON.parse(user.value);
 
+//get user data
+const authService = new AuthebticationService();
+let uid=await authService.getUser();
+if(uid.error===null){
+//get user UID
+uid=uid.data.user.id;
+
+//format user input
 const input={
 fname:user.fname,
 lname:user.lname,
@@ -82,29 +89,30 @@ dob:form.dob,
 tel:form.tel,
 address:form.location,  
 status:'active',
-role:'user'
+role:'user',
+user_id:uid
 };
 
- //insert in to the database
- const authService = new AuthebticationService();
+//insert in to table profile
  const response = await authService.createProfile(input);
-if(response.error===null){
-
-//profile created successfully
 if(response.status===201){
+
 let account='';
 response.data.forEach(element => {
 account=element;    
 });
+
 //save profile locally
 let item={
-id:account.id,
+id:account.user_id,
 fname:account.fname,
 email:account.email,
 tel:account.tel,
 status:account.status,
 role:account.role
 };
+
+
 await Preferences.remove({key:'user'});
 item=JSON.stringify(item);
 Preferences.set({key:'account',value:item});
@@ -113,19 +121,18 @@ Preferences.set({key:'app_status',value:'active'});
 //navigate to dashboard
 router.push({ name: 'DashboardBuyer' });
 
+
+
 }else{
-error.value = 'Profile creation failed. Please try again.';
-console.log('Profile creation error:', response.error);
+console.log(response.error);
+error.value='An error occurred, could not save.';
 }
 
 
 }else{
-error.value = 'Profile creation failed. Please try again.';
-console.log('Profile creation error:', response.error);
+console.log(uid.error);
+error.value='Session error, please try again.';
 }
-
-
-isLoading.value = true;
 
 
 }catch(error){

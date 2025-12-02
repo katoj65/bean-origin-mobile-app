@@ -12,7 +12,7 @@
 
 <!-- USER PROFILE CARD -->
 <div class="hero-section">
-<h1 class="hero-title" style="text-transform: capitalize;">Welcome {{fname}}!</h1>
+<h2 class="hero-title" style="text-transform: capitalize;">Welcome {{fname}}!</h2>
 <p class="hero-subtitle">Discover the best coffee shops around you</p>
 </div>
 
@@ -136,7 +136,7 @@ title: "Scan QR",
 description: "Verify authenticity",
 icon: qrCodeOutline,
 colorClass: "orange",
-route: "/nearby-coffee-shops",
+route: "/scan",
 badge: null
 },
 {
@@ -163,7 +163,7 @@ title: "Subscription",
 description: "Don't run out",
 icon: peopleOutline,
 colorClass: "blue",
-route: "/nearby-coffee-shops",
+route: "/subscription",
 badge: "Hot"
 },
 {

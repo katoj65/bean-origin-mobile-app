@@ -19,8 +19,23 @@
 
     <ion-content fullscreen class="content-bg">
       <!-- SCANNING VIEW -->
-      <div  class="scanner-container">
-      
+      <div v-if="!productFound && !orderPlaced" class="scanner-container">
+        <div class="camera-view">
+          <div class="camera-background">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+          </div>
+          <div class="scan-frame">
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="scan-line" :class="{ scanning: isScanning }"></div>
+            <div class="scan-grid"></div>
+          </div>
+        </div>
+
         <div class="scanner-overlay">
           <div class="scanner-info-card">
             <div class="info-header">
@@ -66,18 +81,22 @@
               <h4 class="recent-title">Recent Scans</h4>
               <span class="recent-count">{{ recentScans.length }}</span>
             </div>
-            <div class="recent-list">
+            <div class="recent-grid">
               <div 
                 v-for="scan in recentScans" 
                 :key="scan.id"
-                class="recent-list-item"
+                class="recent-card"
                 @click="loadRecentScan(scan)">
-                <img :src="scan.image" :alt="scan.name" class="recent-list-image" />
-                <div class="recent-list-info">
-                  <span class="recent-list-name">{{ scan.name }}</span>
-                  <span class="recent-list-date">{{ scan.date }}</span>
+                <div class="recent-image-wrapper">
+                  <img :src="scan.image" :alt="scan.name" class="recent-image" />
+                  <div class="recent-overlay">
+                    <ion-icon :icon="chevronForwardOutline"></ion-icon>
+                  </div>
                 </div>
-                <ion-icon :icon="chevronForwardOutline" class="recent-list-arrow"></ion-icon>
+                <div class="recent-details">
+                  <span class="recent-name">{{ scan.name }}</span>
+                  <span class="recent-date">{{ scan.date }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -721,6 +740,7 @@ const getNoteEmoji = (note) => {
   border-radius: 24px;
   padding: 24px;
   margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .info-header {
@@ -867,6 +887,7 @@ const getNoteEmoji = (note) => {
   background: white;
   border-radius: 24px;
   padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .recent-header {
@@ -892,59 +913,75 @@ const getNoteEmoji = (note) => {
   border-radius: 10px;
 }
 
-.recent-list {
-  display: flex;
-  flex-direction: column;
+.recent-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
-.recent-list-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px;
+.recent-card {
   background: #f8f8f8;
   border-radius: 16px;
+  overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.recent-list-item:active {
-  transform: scale(0.98);
-  background: #f0f0f0;
+.recent-card:active {
+  transform: scale(0.97);
 }
 
-.recent-list-image {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
+.recent-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+}
+
+.recent-image {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  flex-shrink: 0;
 }
 
-.recent-list-info {
-  flex: 1;
+.recent-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.6) 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.recent-card:hover .recent-overlay {
+  opacity: 1;
+}
+
+.recent-overlay ion-icon {
+  font-size: 24px;
+  color: white;
+}
+
+.recent-details {
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.recent-list-name {
-  font-size: 15px;
+.recent-name {
+  font-size: 14px;
   font-weight: 700;
   color: var(--coffee-dark);
 }
 
-.recent-list-date {
-  font-size: 12px;
+.recent-date {
+  font-size: 11px;
   color: var(--text-light);
   font-weight: 600;
-}
-
-.recent-list-arrow {
-  font-size: 22px;
-  color: var(--text-light);
-  flex-shrink: 0;
 }
 
 /* ===== PRODUCT VIEW MODERN ===== */
@@ -1098,6 +1135,7 @@ const getNoteEmoji = (note) => {
   font-size: 13px;
   font-weight: 700;
   backdrop-filter: blur(12px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   animation: slideInRight 0.6s ease-out;
 }
 
@@ -1167,6 +1205,7 @@ const getNoteEmoji = (note) => {
   display: flex;
   align-items: baseline;
   gap: 2px;
+  box-shadow: 0 4px 16px rgba(39, 174, 96, 0.3);
   flex-shrink: 0;
 }
 
@@ -1312,6 +1351,7 @@ const getNoteEmoji = (note) => {
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .farmer-verified-badge {
@@ -1401,6 +1441,7 @@ const getNoteEmoji = (note) => {
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .qty-control-btn:active {

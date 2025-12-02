@@ -8,192 +8,173 @@
             <ion-icon :icon="arrowBackOutline"></ion-icon>
           </ion-button>
         </ion-buttons>
-        <ion-title class="page-title">Subscriptions</ion-title>
+        <ion-title class="page-title">My Subscriptions</ion-title>
         <ion-buttons slot="end">
-          <ion-button @click="viewHistory">
-            <ion-icon :icon="timeOutline"></ion-icon>
+          <ion-button @click="addNew">
+            <ion-icon :icon="addOutline"></ion-icon>
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
     <ion-content fullscreen class="content-bg">
-      <!-- HERO BANNER -->
-      <div class="hero-banner">
-        <div class="hero-icon">🔄</div>
-        <h2 class="hero-title">Never Run Out of Coffee</h2>
-        <p class="hero-subtitle">Save up to 15% with automatic deliveries</p>
+      <!-- STATS HEADER -->
+      <div class="stats-header">
+        <div class="stat-card modern">
+          <div class="stat-icon-wrapper active">
+            <ion-icon :icon="checkmarkCircleOutline" class="stat-icon"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">{{ activeSubscriptions.length }}</span>
+            <span class="stat-label">Active</span>
+          </div>
+        </div>
+        <div class="stat-card modern">
+          <div class="stat-icon-wrapper monthly">
+            <ion-icon :icon="calendarOutline" class="stat-icon"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">${{ totalMonthly }}</span>
+            <span class="stat-label">Monthly</span>
+          </div>
+        </div>
+        <div class="stat-card modern">
+          <div class="stat-icon-wrapper savings">
+            <ion-icon :icon="trendingUpOutline" class="stat-icon"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">${{ totalSavings }}</span>
+            <span class="stat-label">Saved</span>
+          </div>
+        </div>
       </div>
 
-      <!-- ACTIVE SUBSCRIPTIONS -->
-      <div class="section-container" v-if="activeSubscriptions.length > 0">
-        <div class="section-header">
-          <h3 class="section-title">Active Subscriptions</h3>
-          <span class="section-badge">{{ activeSubscriptions.length }}</span>
-        </div>
-        
+      <!-- FILTER TABS -->
+      <div class="filter-tabs">
+        <button 
+          :class="['filter-tab', { active: selectedFilter === 'all' }]"
+          @click="selectedFilter = 'all'">
+          All ({{ allSubscriptions.length }})
+        </button>
+        <button 
+          :class="['filter-tab', { active: selectedFilter === 'active' }]"
+          @click="selectedFilter = 'active'">
+          Active ({{ activeCount }})
+        </button>
+        <button 
+          :class="['filter-tab', { active: selectedFilter === 'paused' }]"
+          @click="selectedFilter = 'paused'">
+          Paused ({{ pausedCount }})
+        </button>
+      </div>
+
+      <!-- SUBSCRIPTIONS LIST -->
+      <div class="subscriptions-container">
         <div 
-          v-for="sub in activeSubscriptions" 
+          v-for="sub in filteredSubscriptions" 
           :key="sub.id"
-          class="subscription-card active">
-          <div class="subscription-header">
-            <img :src="sub.image" :alt="sub.name" class="subscription-image" />
-            <div class="subscription-info">
-              <h4 class="subscription-name">{{ sub.name }}</h4>
-              <p class="subscription-origin">{{ sub.origin }}</p>
-            </div>
-            <span class="subscription-status active">Active</span>
-          </div>
+          class="subscription-item-modern"
+          @click="viewDetails(sub)">
           
-          <div class="subscription-details">
-            <div class="detail-row">
-              <span class="detail-label">Frequency</span>
-              <span class="detail-value">{{ sub.frequency }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Next Delivery</span>
-              <span class="detail-value">{{ sub.nextDelivery }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Price</span>
-              <span class="detail-value highlight">${{ sub.price }}/delivery</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">You Save</span>
-              <span class="detail-value savings">{{ sub.savings }}%</span>
-            </div>
-          </div>
+          <div class="sub-card-content">
+            <div class="sub-header-row">
+              <div class="sub-image-wrapper">
+                <img :src="sub.image" :alt="sub.name" class="sub-image-modern" />
+                <div :class="['status-badge-modern', sub.status]">
+                  <div class="status-pulse"></div>
+                </div>
+              </div>
 
-          <div class="subscription-actions">
-            <ion-button fill="outline" size="small" class="action-btn" @click="pauseSubscription(sub)">
-              <ion-icon :icon="pauseOutline" slot="start"></ion-icon>
-              Pause
-            </ion-button>
-            <ion-button fill="outline" size="small" class="action-btn" @click="editSubscription(sub)">
-              <ion-icon :icon="createOutline" slot="start"></ion-icon>
-              Edit
-            </ion-button>
-            <ion-button fill="clear" size="small" class="cancel-btn" @click="cancelSubscription(sub)">
-              Cancel
-            </ion-button>
-          </div>
-        </div>
-      </div>
+              <div class="sub-info-section">
+                <h3 class="sub-name-modern">{{ sub.name }}</h3>
+                <p class="sub-origin-text">
+                  <ion-icon :icon="locationOutline" class="origin-icon"></ion-icon>
+                  {{ sub.origin }}
+                </p>
+              </div>
 
-      <!-- PAUSED SUBSCRIPTIONS -->
-      <div class="section-container" v-if="pausedSubscriptions.length > 0">
-        <div class="section-header">
-          <h3 class="section-title">Paused Subscriptions</h3>
-          <span class="section-badge paused">{{ pausedSubscriptions.length }}</span>
-        </div>
-        
-        <div 
-          v-for="sub in pausedSubscriptions" 
-          :key="sub.id"
-          class="subscription-card paused">
-          <div class="subscription-header">
-            <img :src="sub.image" :alt="sub.name" class="subscription-image" />
-            <div class="subscription-info">
-              <h4 class="subscription-name">{{ sub.name }}</h4>
-              <p class="subscription-origin">{{ sub.origin }}</p>
+              <button 
+                class="menu-trigger-btn"
+                @click.stop="toggleMenu(sub.id)">
+                <ion-icon :icon="ellipsisVerticalOutline"></ion-icon>
+              </button>
             </div>
-            <span class="subscription-status paused">Paused</span>
-          </div>
-          
-          <div class="paused-message">
-            <ion-icon :icon="informationCircleOutline" class="info-icon"></ion-icon>
-            <p class="paused-text">Paused since {{ sub.pausedDate }}. Resume anytime.</p>
-          </div>
 
-          <div class="subscription-actions">
-            <ion-button fill="solid" size="small" class="resume-btn" @click="resumeSubscription(sub)">
-              <ion-icon :icon="playOutline" slot="start"></ion-icon>
-              Resume
-            </ion-button>
-            <ion-button fill="clear" size="small" class="cancel-btn" @click="cancelSubscription(sub)">
-              Cancel
-            </ion-button>
-          </div>
-        </div>
-      </div>
+            <div class="sub-info-cards">
+              <div class="info-card-small">
+                <div class="info-card-icon">
+                  <ion-icon :icon="timeOutline"></ion-icon>
+                </div>
+                <div class="info-card-text">
+                  <span class="info-card-label">Frequency</span>
+                  <span class="info-card-value">{{ sub.frequency }}</span>
+                </div>
+              </div>
 
-      <!-- SUBSCRIPTION PLANS -->
-      <div class="section-container">
-        <h3 class="section-title">Available Plans</h3>
-        <p class="section-description">Choose your perfect coffee subscription</p>
-        
-        <div class="plans-grid">
-          <div 
-            v-for="plan in availablePlans" 
-            :key="plan.id"
-            :class="['plan-card', { popular: plan.popular }]"
-            @click="selectPlan(plan)">
-            <div class="plan-badge" v-if="plan.popular">Most Popular</div>
-            <div class="plan-icon">{{ plan.icon }}</div>
-            <h4 class="plan-name">{{ plan.name }}</h4>
-            <p class="plan-description">{{ plan.description }}</p>
-            <div class="plan-price">
-              <span class="price-amount">${{ plan.price }}</span>
-              <span class="price-period">/{{ plan.period }}</span>
-            </div>
-            <div class="plan-savings">Save {{ plan.savings }}%</div>
-            <div class="plan-features">
-              <div v-for="feature in plan.features" :key="feature" class="feature-item">
-                <ion-icon :icon="checkmarkCircleOutline" class="check-icon"></ion-icon>
-                <span>{{ feature }}</span>
+              <div class="info-card-small">
+                <div class="info-card-icon">
+                  <ion-icon :icon="cubeOutline"></ion-icon>
+                </div>
+                <div class="info-card-text">
+                  <span class="info-card-label">Quantity</span>
+                  <span class="info-card-value">{{ sub.quantity }} bags</span>
+                </div>
               </div>
             </div>
-            <ion-button expand="block" :fill="plan.popular ? 'solid' : 'outline'" class="plan-btn">
-              Subscribe Now
-            </ion-button>
-          </div>
-        </div>
-      </div>
 
-      <!-- BENEFITS SECTION -->
-      <div class="benefits-section">
-        <h3 class="section-title">Subscription Benefits</h3>
-        <div class="benefits-grid">
-          <div class="benefit-card">
-            <div class="benefit-icon">💰</div>
-            <h4 class="benefit-title">Save Money</h4>
-            <p class="benefit-text">Up to 15% off regular prices</p>
-          </div>
-          <div class="benefit-card">
-            <div class="benefit-icon">📦</div>
-            <h4 class="benefit-title">Free Shipping</h4>
-            <p class="benefit-text">On all subscription orders</p>
-          </div>
-          <div class="benefit-card">
-            <div class="benefit-icon">🎯</div>
-            <h4 class="benefit-title">Flexible</h4>
-            <p class="benefit-text">Pause, skip, or cancel anytime</p>
-          </div>
-          <div class="benefit-card">
-            <div class="benefit-icon">⭐</div>
-            <h4 class="benefit-title">Priority Access</h4>
-            <p class="benefit-text">Early access to new blends</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- FAQ SECTION -->
-      <div class="section-container">
-        <h3 class="section-title">Frequently Asked Questions</h3>
-        <div class="faq-list">
-          <div 
-            v-for="faq in faqs" 
-            :key="faq.id"
-            :class="['faq-item', { open: faq.open }]"
-            @click="toggleFaq(faq)">
-            <div class="faq-question">
-              <span>{{ faq.question }}</span>
-              <ion-icon :icon="faq.open ? chevronUpOutline : chevronDownOutline" class="faq-icon"></ion-icon>
-            </div>
-            <div class="faq-answer" v-if="faq.open">
-              <p>{{ faq.answer }}</p>
+            <div class="sub-bottom-row">
+              <div class="price-display">
+                <span class="price-amount">${{ sub.price }}</span>
+                <span class="price-period">per delivery</span>
+              </div>
+              <div class="next-delivery-chip">
+                <ion-icon :icon="calendarOutline" class="chip-icon"></ion-icon>
+                <span>{{ sub.nextDelivery }}</span>
+              </div>
             </div>
           </div>
+          
+          <div v-if="openMenuId === sub.id" class="action-dropdown">
+            <button class="dropdown-item" @click.stop="editSubscription(sub)">
+              <div class="dropdown-icon edit">
+                <ion-icon :icon="createOutline"></ion-icon>
+              </div>
+              <span>Edit Subscription</span>
+            </button>
+            <button class="dropdown-item" @click.stop="pauseSubscription(sub)">
+              <div class="dropdown-icon pause">
+                <ion-icon :icon="pauseOutline"></ion-icon>
+              </div>
+              <span>{{ sub.status === 'paused' ? 'Resume' : 'Pause' }}</span>
+            </button>
+            <button class="dropdown-item" @click.stop="skipNext(sub)">
+              <div class="dropdown-icon skip">
+                <ion-icon :icon="playSkipForwardOutline"></ion-icon>
+              </div>
+              <span>Skip Next Delivery</span>
+            </button>
+            <button class="dropdown-item danger" @click.stop="cancelSubscription(sub)">
+              <div class="dropdown-icon cancel">
+                <ion-icon :icon="closeCircleOutline"></ion-icon>
+              </div>
+              <span>Cancel Subscription</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div v-if="filteredSubscriptions.length === 0" class="empty-state-modern">
+          <div class="empty-illustration">
+            <div class="empty-circle">
+              <span class="empty-emoji">☕</span>
+            </div>
+          </div>
+          <h3 class="empty-title-modern">No {{ selectedFilter }} subscriptions</h3>
+          <p class="empty-text-modern">{{ emptyMessage }}</p>
+          <button class="empty-cta-btn" @click="addNew">
+            <ion-icon :icon="addCircleOutline"></ion-icon>
+            <span>Start New Subscription</span>
+          </button>
         </div>
       </div>
 
@@ -204,7 +185,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   IonPage,
@@ -218,150 +199,171 @@ import {
 } from "@ionic/vue";
 import {
   arrowBackOutline,
+  addOutline,
+  locationOutline,
   timeOutline,
-  pauseOutline,
+  cubeOutline,
+  ellipsisVerticalOutline,
   createOutline,
-  playOutline,
-  informationCircleOutline,
+  pauseOutline,
+  playSkipForwardOutline,
+  closeCircleOutline,
+  addCircleOutline,
   checkmarkCircleOutline,
-  chevronUpOutline,
-  chevronDownOutline,
+  calendarOutline,
+  trendingUpOutline,
 } from "ionicons/icons";
 
 const router = useRouter();
 
-const activeSubscriptions = ref([
+const allSubscriptions = ref([
   {
     id: 1,
     name: "Ethiopian Yirgacheffe",
-    origin: "Ethiopia",
-    image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=300",
+    origin: "Yirgacheffe, Ethiopia",
+    image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400",
     frequency: "Every 2 weeks",
-    nextDelivery: "Dec 15, 2024",
-    price: 16.99,
+    quantity: 2,
+    price: 32.99,
+    nextDelivery: "Dec 15",
+    status: 'active',
     savings: 15
-  }
-]);
-
-const pausedSubscriptions = ref([
-  {
-    id: 2,
-    name: "Colombian Supreme",
-    origin: "Colombia",
-    image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300",
-    pausedDate: "Nov 20, 2024"
-  }
-]);
-
-const availablePlans = ref([
-  {
-    id: 1,
-    name: "Weekly",
-    icon: "☕",
-    description: "Perfect for daily drinkers",
-    price: 19.99,
-    period: "week",
-    savings: 10,
-    popular: false,
-    features: [
-      "Fresh coffee weekly",
-      "10% savings",
-      "Free shipping",
-      "Flexible scheduling"
-    ]
   },
   {
     id: 2,
-    name: "Bi-Weekly",
-    icon: "🔥",
-    description: "Our most popular choice",
-    price: 16.99,
-    period: "2 weeks",
-    savings: 15,
-    popular: true,
-    features: [
-      "Delivery every 2 weeks",
-      "15% savings",
-      "Free shipping",
-      "Priority support",
-      "Early access to new blends"
-    ]
+    name: "Colombian Supremo",
+    origin: "Huila, Colombia",
+    image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400",
+    frequency: "Every month",
+    quantity: 1,
+    price: 15.99,
+    nextDelivery: "Jan 5",
+    status: 'active',
+    savings: 20
   },
   {
     id: 3,
-    name: "Monthly",
-    icon: "📅",
-    description: "Best value for money",
-    price: 14.99,
-    period: "month",
-    savings: 12,
-    popular: false,
-    features: [
-      "Monthly deliveries",
-      "12% savings",
-      "Free shipping",
-      "Flexible scheduling"
-    ]
-  }
-]);
-
-const faqs = ref([
-  {
-    id: 1,
-    question: "Can I change my delivery frequency?",
-    answer: "Yes! You can change your delivery frequency anytime from your subscription settings. Changes will apply to your next scheduled delivery.",
-    open: false
-  },
-  {
-    id: 2,
-    question: "How do I pause my subscription?",
-    answer: "Click the 'Pause' button on your active subscription. You can resume anytime without losing your subscription benefits.",
-    open: false
-  },
-  {
-    id: 3,
-    question: "Is there a cancellation fee?",
-    answer: "No, there are no cancellation fees. You can cancel your subscription at any time without any charges.",
-    open: false
+    name: "Costa Rica Honey",
+    origin: "Tarrazú, Costa Rica",
+    image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400",
+    frequency: "Every week",
+    quantity: 1,
+    price: 18.39,
+    nextDelivery: "Paused",
+    status: 'paused',
+    savings: 10
   },
   {
     id: 4,
-    question: "Can I skip a delivery?",
-    answer: "Absolutely! You can skip any delivery up to 24 hours before it's scheduled to ship. Just go to your subscription and click 'Skip Next Delivery'.",
-    open: false
+    name: "Brazilian Santos",
+    origin: "Minas Gerais, Brazil",
+    image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400",
+    frequency: "Every 2 weeks",
+    quantity: 3,
+    price: 40.77,
+    nextDelivery: "Dec 20",
+    status: 'active',
+    savings: 20
   }
 ]);
+
+const selectedFilter = ref('all');
+const openMenuId = ref(null);
+
+const activeSubscriptions = computed(() => {
+  return allSubscriptions.value.filter(sub => sub.status === 'active');
+});
+
+const filteredSubscriptions = computed(() => {
+  if (selectedFilter.value === 'all') {
+    return allSubscriptions.value;
+  }
+  return allSubscriptions.value.filter(sub => sub.status === selectedFilter.value);
+});
+
+const activeCount = computed(() => {
+  return allSubscriptions.value.filter(sub => sub.status === 'active').length;
+});
+
+const pausedCount = computed(() => {
+  return allSubscriptions.value.filter(sub => sub.status === 'paused').length;
+});
+
+const totalMonthly = computed(() => {
+  const total = activeSubscriptions.value.reduce((sum, sub) => {
+    let monthlyAmount = sub.price;
+    if (sub.frequency.includes('week')) {
+      monthlyAmount = sub.price * 4;
+    } else if (sub.frequency.includes('2 weeks')) {
+      monthlyAmount = sub.price * 2;
+    }
+    return sum + monthlyAmount;
+  }, 0);
+  return total.toFixed(2);
+});
+
+const totalSavings = computed(() => {
+  const total = activeSubscriptions.value.reduce((sum, sub) => {
+    const savings = (sub.price / (100 - sub.savings)) * sub.savings;
+    return sum + savings;
+  }, 0);
+  return total.toFixed(2);
+});
+
+const emptyMessage = computed(() => {
+  if (selectedFilter.value === 'active') {
+    return 'Start a new subscription to never run out of coffee';
+  } else if (selectedFilter.value === 'paused') {
+    return 'You have no paused subscriptions';
+  }
+  return 'Start your first coffee subscription today';
+});
 
 const goBack = () => {
   router.back();
 };
 
-const viewHistory = () => {
-  console.log('View subscription history');
+const addNew = () => {
+  router.push('/subscriptions');
 };
 
-const pauseSubscription = (sub) => {
-  console.log('Pause subscription:', sub);
+const viewDetails = (sub) => {
+  console.log('View details:', sub);
+};
+
+const toggleMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
 };
 
 const editSubscription = (sub) => {
   console.log('Edit subscription:', sub);
+  openMenuId.value = null;
+};
+
+const pauseSubscription = (sub) => {
+  if (sub.status === 'paused') {
+    sub.status = 'active';
+    sub.nextDelivery = 'Dec 15'; // Reset to next delivery date
+  } else {
+    sub.status = 'paused';
+    sub.nextDelivery = 'Paused';
+  }
+  openMenuId.value = null;
+};
+
+const skipNext = (sub) => {
+  console.log('Skip next delivery:', sub);
+  openMenuId.value = null;
 };
 
 const cancelSubscription = (sub) => {
-  console.log('Cancel subscription:', sub);
-};
-
-const resumeSubscription = (sub) => {
-  console.log('Resume subscription:', sub);
-};
-
-const selectPlan = (plan) => {
-  console.log('Select plan:', plan);
-};
-
-const toggleFaq = (faq) => {
-  faq.open = !faq.open;
+  if (confirm('Are you sure you want to cancel this subscription?')) {
+    const index = allSubscriptions.value.findIndex(s => s.id === sub.id);
+    if (index !== -1) {
+      allSubscriptions.value.splice(index, 1);
+    }
+  }
+  openMenuId.value = null;
 };
 </script>
 
@@ -375,12 +377,12 @@ const toggleFaq = (faq) => {
   --text-light: #8b7355;
   --green: #27ae60;
   --orange: #ff9800;
-  --purple: #9c27b0;
+  --red: #ef4444;
 }
 
 /* ===== HEADER ===== */
 .custom-toolbar {
-  --background: transparent;
+  --background: white;
   --border-width: 0;
   padding: 8px 4px;
 }
@@ -396,468 +398,508 @@ const toggleFaq = (faq) => {
   --background: #f2f2f2;
 }
 
-/* ===== HERO BANNER ===== */
-.hero-banner {
-  margin: 16px 16px 24px;
-  padding: 28px 24px;
+/* ===== STATS HEADER ===== */
+.stats-header {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px;
   background: white;
-  border-radius: 20px;
-  text-align: center;
-  border: 1px solid #e0e0e0;
-}
-
-.hero-icon {
-  font-size: 56px;
-  margin-bottom: 12px;
-}
-
-.hero-title {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  line-height: 1.3;
-  color: var(--coffee-dark);
-}
-
-.hero-subtitle {
-  font-size: 15px;
-  margin: 0;
-  color: var(--text-light);
-}
-
-/* ===== SECTION CONTAINER ===== */
-.section-container {
-  background: white;
-  margin: 0 16px 16px;
-  padding: 20px 16px;
-  border-radius: 20px;
-  border: 1px solid #e0e0e0;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 16px;
 }
 
-.section-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--coffee-dark);
-  margin: 0 0 8px 0;
-}
-
-.section-description {
-  font-size: 14px;
-  color: var(--text-light);
-  margin: 0 0 20px 0;
-}
-
-.section-badge {
-  background: var(--coffee-dark);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.section-badge.paused {
-  background: var(--orange);
-}
-
-/* ===== SUBSCRIPTION CARD ===== */
-.subscription-card {
+.stat-card.modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 12px;
   background: white;
   border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 16px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #f0f0f0;
 }
 
-.subscription-card.active {
-  border-color: var(--green);
-  background: rgba(39, 174, 96, 0.02);
-}
-
-.subscription-card.paused {
-  border-color: var(--orange);
-  background: rgba(255, 152, 0, 0.02);
-}
-
-.subscription-header {
+.stat-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   display: flex;
-  gap: 12px;
   align-items: center;
-  margin-bottom: 16px;
+  justify-content: center;
 }
 
-.subscription-image {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
-  object-fit: cover;
+.stat-icon-wrapper.active {
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.15), rgba(39, 174, 96, 0.25));
 }
 
-.subscription-info {
-  flex: 1;
+.stat-icon-wrapper.monthly {
+  background: linear-gradient(135deg, rgba(107, 66, 38, 0.15), rgba(107, 66, 38, 0.25));
 }
 
-.subscription-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--coffee-dark);
-  margin: 0 0 4px 0;
+.stat-icon-wrapper.savings {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 152, 0, 0.25));
 }
 
-.subscription-origin {
-  font-size: 13px;
-  color: var(--text-light);
-  margin: 0;
+.stat-icon {
+  font-size: 22px;
 }
 
-.subscription-status {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 10px;
-}
-
-.subscription-status.active {
-  background: rgba(39, 174, 96, 0.15);
+.stat-icon-wrapper.active .stat-icon {
   color: var(--green);
 }
 
-.subscription-status.paused {
-  background: rgba(255, 152, 0, 0.15);
-  color: var(--orange);
-}
-
-/* ===== SUBSCRIPTION DETAILS ===== */
-.subscription-details {
-  background: #f8f8f8;
-  padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  border: 1px solid #e0e0e0;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-}
-
-.detail-row:not(:last-child) {
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.detail-label {
-  font-size: 13px;
-  color: var(--text-light);
-  font-weight: 500;
-}
-
-.detail-value {
-  font-size: 14px;
-  color: var(--coffee-dark);
-  font-weight: 600;
-}
-
-.detail-value.highlight {
+.stat-icon-wrapper.monthly .stat-icon {
   color: var(--coffee-medium);
-  font-size: 15px;
 }
 
-.detail-value.savings {
-  color: var(--green);
-}
-
-/* ===== SUBSCRIPTION ACTIONS ===== */
-.subscription-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.action-btn {
-  --border-color: var(--coffee-light);
-  --color: var(--coffee-dark);
-  --border-radius: 12px;
-  font-weight: 600;
-  flex: 1;
-  min-width: 100px;
-}
-
-.resume-btn {
-  --background: var(--green);
-  --border-radius: 12px;
-  font-weight: 600;
-  flex: 1;
-}
-
-.cancel-btn {
-  --color: #e74c3c;
-  font-weight: 600;
-}
-
-/* ===== PAUSED MESSAGE ===== */
-.paused-message {
-  display: flex;
-  gap: 10px;
-  padding: 12px;
-  background: rgba(255, 152, 0, 0.1);
-  border-radius: 12px;
-  margin-bottom: 12px;
-}
-
-.info-icon {
-  font-size: 20px;
+.stat-icon-wrapper.savings .stat-icon {
   color: var(--orange);
-  flex-shrink: 0;
 }
 
-.paused-text {
-  font-size: 13px;
-  color: var(--text-dark);
-  margin: 0;
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
-/* ===== PLANS GRID ===== */
-.plans-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-
-.plan-card {
-  background: white;
-  border: 2px solid #e0e0e0;
-  border-radius: 20px;
-  padding: 24px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.plan-card.popular {
-  border-color: var(--coffee-dark);
-  background: rgba(74, 44, 42, 0.02);
-  box-shadow: 0 4px 12px rgba(74, 44, 42, 0.08);
-}
-
-.plan-card:active {
-  transform: scale(0.98);
-}
-
-.plan-badge {
-  position: absolute;
-  top: -12px;
-  right: 20px;
-  background: var(--coffee-dark);
-  color: white;
-  padding: 6px 16px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.plan-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
-}
-
-.plan-name {
+.stat-number {
   font-size: 22px;
   font-weight: 700;
   color: var(--coffee-dark);
-  margin: 0 0 6px 0;
+  line-height: 1;
 }
 
-.plan-description {
-  font-size: 13px;
+.stat-label {
+  font-size: 12px;
   color: var(--text-light);
-  margin: 0 0 16px 0;
+  font-weight: 600;
 }
 
-.plan-price {
-  margin-bottom: 8px;
+/* ===== FILTER TABS ===== */
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 16px;
+  background: white;
+  overflow-x: auto;
 }
 
-.price-amount {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--coffee-dark);
+.filter-tabs::-webkit-scrollbar {
+  display: none;
 }
 
-.price-period {
-  font-size: 16px;
+.filter-tab {
+  padding: 10px 18px;
+  border-radius: 20px;
+  border: none;
+  background: #f8f8f8;
   color: var(--text-light);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
 }
 
-.plan-savings {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--green);
-  background: rgba(39, 174, 96, 0.1);
-  padding: 4px 12px;
-  border-radius: 10px;
-  display: inline-block;
+.filter-tab.active {
+  background: linear-gradient(135deg, var(--coffee-dark) 0%, var(--coffee-medium) 100%);
+  color: white;
+}
+
+/* ===== SUBSCRIPTIONS LIST MODERN ===== */
+.subscriptions-container {
+  padding: 0 16px 24px;
+}
+
+.subscription-item-modern {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
   margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  border: 2px solid #f0f0f0;
 }
 
-.plan-features {
+.subscription-item-modern:active {
+  transform: scale(0.98);
+}
+
+.sub-card-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 16px;
 }
 
-.feature-item {
+.sub-header-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--text-dark);
+  gap: 14px;
+  align-items: flex-start;
 }
 
-.check-icon {
-  font-size: 18px;
-  color: var(--green);
+.sub-image-wrapper {
+  position: relative;
   flex-shrink: 0;
 }
 
-.plan-btn {
-  --border-radius: 14px;
-  height: 48px;
-  font-weight: 700;
-}
-
-.plan-card.popular .plan-btn {
-  --background: var(--coffee-dark);
-}
-
-/* ===== BENEFITS SECTION ===== */
-.benefits-section {
-  padding: 20px 16px;
-  background: white;
-  margin: 0 16px 16px;
-  border-radius: 20px;
-  border: 1px solid #e0e0e0;
-}
-
-.benefits-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.benefit-card {
-  text-align: center;
-  padding: 20px 12px;
-  background: white;
+.sub-image-modern {
+  width: 70px;
+  height: 70px;
   border-radius: 16px;
-  border: 1px solid #e0e0e0;
+  object-fit: cover;
 }
 
-.benefit-icon {
-  font-size: 36px;
-  margin-bottom: 8px;
+.status-badge-modern {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.benefit-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--coffee-dark);
-  margin: 0 0 6px 0;
+.status-badge-modern.active {
+  background: var(--green);
 }
 
-.benefit-text {
-  font-size: 12px;
-  color: var(--text-light);
-  margin: 0;
-  line-height: 1.4;
+.status-badge-modern.paused {
+  background: var(--orange);
 }
 
-/* ===== FAQ SECTION ===== */
-.faq-list {
+.status-pulse {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+}
+
+.sub-info-section {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sub-name-modern {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sub-origin-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 0;
+  font-weight: 600;
+}
+
+.origin-icon {
+  font-size: 15px;
+}
+
+.menu-trigger-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #f8f8f8;
+  color: var(--coffee-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.menu-trigger-btn:active {
+  background: #f0f0f0;
+}
+
+.menu-trigger-btn ion-icon {
+  font-size: 20px;
+}
+
+.sub-info-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
-.faq-item {
-  background: white;
+.info-card-small {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: #f8f8f8;
   border-radius: 12px;
+}
+
+.info-card-icon {
+  width: 36px;
+  height: 36px;
+  background: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-card-icon ion-icon {
+  font-size: 18px;
+  color: var(--coffee-medium);
+}
+
+.info-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.info-card-label {
+  font-size: 10px;
+  color: var(--text-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-card-value {
+  font-size: 13px;
+  color: var(--coffee-dark);
+  font-weight: 700;
+  white-space: nowrap;
   overflow: hidden;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  border: 1px solid #e0e0e0;
+  text-overflow: ellipsis;
 }
 
-.faq-item:active {
-  background: #fafafa;
-}
-
-.faq-question {
+.sub-bottom-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--coffee-dark);
+  padding-top: 16px;
+  border-top: 2px solid #f0f0f0;
 }
 
-.faq-icon {
-  font-size: 20px;
-  color: var(--coffee-light);
+.price-display {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.price-amount {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  line-height: 1;
+}
+
+.price-period {
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.next-delivery-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, rgba(107, 66, 38, 0.1), rgba(107, 66, 38, 0.15));
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--coffee-medium);
+}
+
+.chip-icon {
+  font-size: 16px;
+}
+
+/* ===== ACTION DROPDOWN ===== */
+.action-dropdown {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  z-index: 10;
+  min-width: 200px;
+  border: 2px solid #f0f0f0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: none;
+  background: white;
+  color: var(--coffee-dark);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.dropdown-item:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-item:active {
+  background: #f8f8f8;
+}
+
+.dropdown-item.danger {
+  color: var(--red);
+}
+
+.dropdown-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.faq-answer {
-  padding: 0 16px 16px;
-  animation: fadeIn 0.3s ease;
+.dropdown-icon.edit {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(33, 150, 243, 0.25));
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.dropdown-icon.pause {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 152, 0, 0.25));
 }
 
-.faq-answer p {
+.dropdown-icon.skip {
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.15), rgba(156, 39, 176, 0.25));
+}
+
+.dropdown-icon.cancel {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.25));
+}
+
+.dropdown-icon ion-icon {
+  font-size: 18px;
+}
+
+.dropdown-icon.edit ion-icon {
+  color: #2196f3;
+}
+
+.dropdown-icon.pause ion-icon {
+  color: var(--orange);
+}
+
+.dropdown-icon.skip ion-icon {
+  color: #9c27b0;
+}
+
+.dropdown-icon.cancel ion-icon {
+  color: var(--red);
+}
+
+/* ===== EMPTY STATE MODERN ===== */
+.empty-state-modern {
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.empty-illustration {
+  margin-bottom: 24px;
+}
+
+.empty-circle {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, rgba(168, 123, 84, 0.1), rgba(168, 123, 84, 0.15));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.empty-emoji {
+  font-size: 60px;
+  opacity: 0.6;
+}
+
+.empty-title-modern {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--coffee-dark);
+  margin: 0 0 10px 0;
+}
+
+.empty-text-modern {
   font-size: 14px;
   color: var(--text-light);
-  line-height: 1.6;
-  margin: 0;
+  margin: 0 0 28px 0;
+  line-height: 1.5;
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.empty-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg, var(--coffee-dark) 0%, var(--coffee-medium) 100%);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.empty-cta-btn:active {
+  transform: scale(0.97);
+}
+
+.empty-cta-btn ion-icon {
+  font-size: 22px;
 }
 
 /* ===== SPACER ===== */
 .bottom-spacer {
   height: 30px;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (min-width: 768px) {
-  .plans-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 360px) {
-  .hero-title {
-    font-size: 20px;
-  }
-  
-  .subscription-actions {
-    flex-direction: column;
-  }
-  
-  .action-btn {
-    width: 100%;
-  }
 }
 </style>

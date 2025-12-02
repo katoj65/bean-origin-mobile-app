@@ -33,7 +33,13 @@ return await database
 }
 
 
+async logout(){
+return await database.auth.signOut();
+}
 
+async getUser(){
+return await database.auth.getUser();
+}
 
 
 

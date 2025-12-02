@@ -63,6 +63,21 @@ const routes: Array<RouteRecordRaw> = [
     path:'/buy-coffee',
     name:'Buy Coffee',
     component:()=>import('../views/BuyCoffee.vue')
+  },
+  {
+    path:'/scan',
+    name:'Scan',
+    component:()=>import('../views/ScanCodePage.vue')
+  },
+  {
+    path:'/subscription',
+    name:'Subscriptions',
+    component:()=>import('../views/SubscriptionPage.vue')
+  },
+  {
+    path:'/profile',
+    name:'Profile',
+    component:()=>import('../views/UserProfile.vue')
   }
 ]
 

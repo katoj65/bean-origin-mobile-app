@@ -1,0 +1,895 @@
+<template>
+<app-layout title="Profile">
+<template #content>
+<ion-content fullscreen class="content-bg">
+<!-- PROFILE HEADER -->
+
+<skeleton v-if="isLoading===true" style="margin:20px;"/>
+
+
+
+<div v-else>
+<div class="profile-header-section" style="margin-top:10px;">
+
+<div class="profile-avatar-wrapper">
+  <ion-avatar class="profile-avatar">
+    <img :alt="user.name" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+  </ion-avatar>
+
+
+<div class="level-badge">
+<ion-icon :icon="trophyOutline" class="level-icon"></ion-icon>
+<span class="level-text">Level {{ user.level }}</span>
+</div>
+
+
+</div>
+<h2 class="profile-name" style="text-transform: capitalize;">{{ user.name }}</h2>
+<p class="profile-email">{{ user.email }}</p>
+<p class="profile-member-since">Member since {{ user.memberSince }}</p>
+</div>
+
+<!-- STATS CARDS -->
+<div class="stats-grid">
+<div class="stat-card">
+<div class="stat-icon-box purple">
+<ion-icon :icon="bagHandleOutline" class="stat-icon"></ion-icon>
+</div>
+<span class="stat-number">{{ user.stats.totalOrders }}</span>
+<span class="stat-label">Total Orders</span>
+</div>
+<div class="stat-card">
+<div class="stat-icon-box gold">
+<ion-icon :icon="starOutline" class="stat-icon"></ion-icon>
+</div>
+<span class="stat-number">{{ user.stats.points }}</span>
+<span class="stat-label">Points</span>
+</div>
+<div class="stat-card">
+<div class="stat-icon-box green">
+<ion-icon :icon="leafOutline" class="stat-icon"></ion-icon>
+</div>
+<span class="stat-number">{{ user.stats.co2Saved }}</span>
+<span class="stat-label">CO₂ Saved</span>
+</div>
+</div>
+
+<!-- ACHIEVEMENTS SECTION -->
+<div class="section-container">
+<div class="section-header">
+<h3 class="section-title">Achievements</h3>
+<span class="section-subtitle">{{ user.achievements.length }}/12 Unlocked</span>
+</div>
+<div class="achievements-scroll">
+<div 
+v-for="achievement in user.achievements" 
+:key="achievement.id"
+:class="['achievement-card', { locked: !achievement.unlocked }]">
+<div class="achievement-icon-box">
+<span class="achievement-emoji">{{ achievement.emoji }}</span>
+</div>
+<p class="achievement-name">{{ achievement.name }}</p>
+</div>
+</div>
+</div>
+
+<!-- COFFEE PREFERENCES -->
+<div class="section-container">
+<div class="section-header">
+<h3 class="section-title">Coffee Preferences</h3>
+<ion-button fill="clear" class="edit-btn" size="small" @click="editPreferences">
+Edit
+</ion-button>
+</div>
+<div class="preferences-list">
+<div class="preference-item">
+<div class="preference-icon">☕</div>
+<div class="preference-content">
+<span class="preference-label">Favorite Roast</span>
+<span class="preference-value">{{ user.preferences.roast }}</span>
+</div>
+</div>
+<div class="preference-item">
+<div class="preference-icon">🌍</div>
+<div class="preference-content">
+<span class="preference-label">Preferred Origins</span>
+<span class="preference-value">{{ user.preferences.origins }}</span>
+</div>
+</div>
+<div class="preference-item">
+<div class="preference-icon">💪</div>
+<div class="preference-content">
+<span class="preference-label">Strength</span>
+<span class="preference-value">{{ user.preferences.strength }}</span>
+</div>
+</div>
+<div class="preference-item">
+<div class="preference-icon">🍋</div>
+<div class="preference-content">
+<span class="preference-label">Flavor Notes</span>
+<span class="preference-value">{{ user.preferences.flavors }}</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ACCOUNT DETAILS -->
+<div class="section-container">
+<h3 class="section-title">Account Details</h3>
+<div class="details-list">
+
+
+<div class="detail-row" @click="navigateTo('/profile/edit')">
+<div class="detail-left">
+<ion-icon :icon="calendarOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">
+{{user.dob}}
+</span>
+</div>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+
+
+
+
+<div class="detail-row" @click="navigateTo('/profile/edit')">
+<div class="detail-left">
+<ion-icon :icon="personOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">
+{{user.gender}}
+</span>
+</div>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+
+
+
+
+
+<div class="detail-row" @click="navigateTo('/profile/edit')">
+<div class="detail-left">
+<ion-icon :icon="callOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">
+0{{user.tel}}
+</span>
+</div>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+
+
+
+<div class="detail-row" @click="navigateTo('/addresses')">
+<div class="detail-left">
+<ion-icon :icon="locationOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">
+{{ user.address }}
+</span>
+</div>
+<div class="detail-right">
+<span class="detail-count"></span>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+</div>
+<div class="detail-row" @click="navigateTo('/payment')">
+<div class="detail-left">
+<ion-icon :icon="cardOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">Payment Methods</span>
+</div>
+<div class="detail-right">
+<span class="detail-count">{{ user.paymentCount }}</span>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+</div>
+<div class="detail-row" @click="navigateTo('/subscriptions')">
+<div class="detail-left">
+<ion-icon :icon="refreshOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">Subscriptions</span>
+</div>
+<div class="detail-right">
+<span class="detail-badge active">{{ user.activeSubscriptions }} Active</span>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SETTINGS -->
+<div class="section-container">
+<h3 class="section-title">Settings</h3>
+<div class="details-list">
+<div class="detail-row" @click="navigateTo('/notifications')">
+<div class="detail-left">
+<ion-icon :icon="notificationsOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">Notifications</span>
+</div>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+<div class="detail-row" @click="navigateTo('/privacy')">
+<div class="detail-left">
+<ion-icon :icon="lockClosedOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">Privacy & Security</span>
+</div>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+<div class="detail-row" @click="navigateTo('/language')">
+<div class="detail-left">
+<ion-icon :icon="languageOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">Language</span>
+</div>
+<div class="detail-right">
+<span class="detail-value">{{ user.language }}</span>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SUPPORT SECTION -->
+<div class="section-container">
+<h3 class="section-title">Support</h3>
+<div class="details-list">
+<div class="detail-row" @click="navigateTo('/help')">
+<div class="detail-left">
+<ion-icon :icon="helpCircleOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">Help Center</span>
+</div>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+<div class="detail-row" @click="navigateTo('/contact')">
+<div class="detail-left">
+<ion-icon :icon="mailOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">Contact Us</span>
+</div>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+<div class="detail-row" @click="navigateTo('/about')">
+<div class="detail-left">
+<ion-icon :icon="informationCircleOutline" class="detail-icon"></ion-icon>
+<span class="detail-label">About</span>
+</div>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+</div>
+</div>
+</div>
+
+<!-- LOGOUT BUTTON -->
+<div class="logout-section">
+<ion-button expand="block" fill="outline" class="logout-btn" @click="logout">
+<ion-icon :icon="logOutOutline" slot="start"></ion-icon>
+Log Out
+</ion-button>
+</div>
+
+<!-- VERSION INFO -->
+<div class="version-info">
+<p class="version-text">Version 1.0.0</p>
+</div>
+
+<!-- SPACER -->
+<div class="bottom-spacer"></div>
+
+</div>
+
+
+
+
+</ion-content>
+
+
+
+</template>
+</app-layout>
+</template>
+
+<script setup>
+
+
+import { Preferences } from '@capacitor/preferences';
+import { ref,reactive,onMounted } from 'vue';
+import AuthenticationService from '@/service/AuthenticationService';
+import AppLayout from './template/AppLayout.vue';
+import { useRouter } from 'vue-router';
+import Skeleton from './template/Skeleton.vue';
+import {
+IonButtons,
+IonButton,
+IonContent,
+IonIcon,
+IonAvatar,
+ IonSkeletonText,
+} from "@ionic/vue";
+import {
+arrowBackOutline,
+createOutline,
+trophyOutline,
+bagHandleOutline,
+starOutline,
+leafOutline,
+personOutline,
+locationOutline,
+cardOutline,
+refreshOutline,
+notificationsOutline,
+lockClosedOutline,
+languageOutline,
+helpCircleOutline,
+mailOutline,
+informationCircleOutline,
+logOutOutline,
+chevronForwardOutline,
+callOutline,
+
+calendarOutline
+
+} from "ionicons/icons";
+
+const router = useRouter();
+
+const user = reactive({
+name: "",
+email: "joshua.martinez@email.com",
+avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
+memberSince: "January 2024",
+tel:'',
+address:'',
+dob:'',
+gender:'',
+
+level: 5,
+stats: {
+totalOrders: 24,
+points: "1,250",
+co2Saved: "45kg"
+},
+achievements: [
+{ id: 1, name: "First Order", emoji: "🎉", unlocked: true },
+{ id: 2, name: "Coffee Explorer", emoji: "🌍", unlocked: true },
+{ id: 3, name: "Eco Warrior", emoji: "🌱", unlocked: true },
+{ id: 4, name: "Loyalty Star", emoji: "⭐", unlocked: true },
+{ id: 5, name: "Master Brewer", emoji: "☕", unlocked: false },
+{ id: 6, name: "Community Leader", emoji: "👥", unlocked: false },
+],
+preferences: {
+roast: "Medium",
+origins: "Ethiopia, Colombia",
+strength: "Strong",
+flavors: "Citrus, Floral"
+},
+addressCount: 2,
+paymentCount: 1,
+activeSubscriptions: 1,
+language: "English"
+});
+
+
+
+const editProfile = () => {
+console.log('Edit profile');
+};
+
+const editPreferences = () => {
+console.log('Edit preferences');
+};
+
+const navigateTo = (route) => {
+console.log('Navigate to:', route);
+// router.push(route);
+};
+
+
+
+
+const isLoading=ref(null);
+import DateService from '@/service/DateService';
+onMounted(async()=>{
+isLoading.value=true;
+try{
+const auth = new AuthenticationService();
+//get email
+let account = await Preferences.get({key:'account'});
+account=JSON.parse(account.value);
+const email=account.email;
+
+let response= await auth.getProfile(email);
+
+console.log(response);
+
+if(response.status===200){
+const data=response.data;
+let profile='';
+data.forEach(element => {
+profile=element;
+});
+
+//format user details
+const dates=new DateService();
+user.name=profile.fname+' '+profile.lname;
+user.email=profile.email;
+user.memberSince=dates.formatDate(profile.created_at);
+user.tel=profile.tel;
+user.address=profile.address;
+user.gender=profile.gender;
+user.dob =dates.formatDateAmerican(profile.dob);
+
+
+
+console.log(profile);
+
+
+}else{
+console.log('An error has occured');
+error.value='An error has occured, try again.';
+}
+
+
+}catch(e){
+console.log(e);
+}finally{
+isLoading.value=false;
+}
+});
+
+
+
+
+//logot function
+async function logout(){
+try{
+isLoading.value=true;
+const auth=new AuthenticationService();
+const response=await auth.logout();
+if(response.error===null){
+//clear session
+Preferences.clear();
+router.push('/home');
+}else{
+console.log(response.error);
+error.value=response.error;
+}
+
+
+}catch(e){
+console.log(e);
+}finally{
+isLoading.value=false;
+}
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+</script>
+
+<style scoped>
+/* ===== CSS VARIABLES ===== */
+:root {
+--coffee-dark: #4a2c2a;
+--coffee-medium: #6b4226;
+--coffee-light: #a87b54;
+--text-dark: #2c1810;
+--text-light: #8b7355;
+--green: #27ae60;
+--purple: #9c27b0;
+--gold: #ffd700;
+}
+
+/* ===== HEADER ===== */
+.custom-toolbar {
+--background: transparent;
+--border-width: 0;
+padding: 8px 4px;
+}
+
+.page-title {
+font-size: 20px;
+font-weight: 700;
+color: var(--coffee-dark);
+}
+
+/* ===== CONTENT ===== */
+.content-bg {
+--background: #f2f2f2;
+}
+
+/* ===== PROFILE HEADER ===== */
+.profile-header-section {
+padding: 24px 16px 32px;
+text-align: center;
+background: white;
+margin-bottom: 16px;
+border-radius:20px;
+}
+
+.profile-avatar-wrapper {
+position: relative;
+width: 120px;
+height: 120px;
+margin: 0 auto 16px;
+}
+
+.profile-avatar {
+width: 100%;
+height: 100%;
+border-radius: 50%;
+object-fit: cover;
+border: 4px solid var(--coffee-light);
+}
+
+.level-badge {
+position: absolute;
+bottom: 0;
+right: 0;
+background: var(--coffee-dark);
+padding: 6px 12px;
+border-radius: 16px;
+display: flex;
+align-items: center;
+gap: 4px;
+border: 3px solid white;
+}
+
+.level-icon {
+font-size: 14px;
+color: #ffd700;
+}
+
+.level-text {
+font-size: 12px;
+font-weight: 700;
+color: white;
+}
+
+.profile-name {
+font-size: 24px;
+font-weight: 700;
+color: var(--coffee-dark);
+margin: 0 0 6px 0;
+}
+
+.profile-email {
+font-size: 14px;
+color: var(--text-light);
+margin: 0 0 4px 0;
+}
+
+.profile-member-since {
+font-size: 13px;
+color: var(--text-light);
+margin: 0;
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 12px;
+padding: 0 16px 24px;
+}
+
+.stat-card {
+background: white;
+padding: 20px 12px;
+border-radius: 16px;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 8px;
+
+}
+
+.stat-icon-box {
+width: 48px;
+height: 48px;
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.stat-icon-box.purple {
+background: rgba(156, 39, 176, 0.1);
+}
+
+.stat-icon-box.gold {
+background: rgba(255, 215, 0, 0.15);
+}
+
+.stat-icon-box.green {
+background: rgba(39, 174, 96, 0.1);
+}
+
+.stat-icon {
+font-size: 24px;
+}
+
+.stat-icon-box.purple .stat-icon {
+color: var(--purple);
+}
+
+.stat-icon-box.gold .stat-icon {
+color: var(--gold);
+}
+
+.stat-icon-box.green .stat-icon {
+color: var(--green);
+}
+
+.stat-number {
+font-size: 20px;
+font-weight: 700;
+color: var(--coffee-dark);
+}
+
+.stat-label {
+font-size: 11px;
+color: var(--text-light);
+font-weight: 600;
+text-align: center;
+}
+
+/* ===== SECTION CONTAINER ===== */
+.section-container {
+background: white;
+margin-bottom: 16px;
+padding: 20px 16px;
+}
+
+.section-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 16px;
+}
+
+.section-title {
+font-size: 18px;
+font-weight: 700;
+color: var(--coffee-dark);
+margin: 0 0 16px 0;
+}
+
+.section-header .section-title {
+margin: 0;
+}
+
+.section-subtitle {
+font-size: 13px;
+color: var(--text-light);
+font-weight: 600;
+}
+
+.edit-btn {
+--color: var(--coffee-light);
+font-weight: 600;
+margin: 0;
+}
+
+/* ===== ACHIEVEMENTS ===== */
+.achievements-scroll {
+display: flex;
+gap: 12px;
+overflow-x: auto;
+padding-bottom: 4px;
+}
+
+.achievements-scroll::-webkit-scrollbar {
+display: none;
+}
+
+.achievement-card {
+min-width: 80px;
+padding: 16px 12px;
+background: rgba(168, 123, 84, 0.08);
+border-radius: 16px;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 8px;
+border: 2px solid transparent;
+}
+
+.achievement-card.locked {
+opacity: 0.4;
+}
+
+.achievement-icon-box {
+width: 56px;
+height: 56px;
+background: white;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.achievement-emoji {
+font-size: 28px;
+}
+
+.achievement-name {
+font-size: 11px;
+font-weight: 600;
+color: var(--coffee-dark);
+text-align: center;
+margin: 0;
+line-height: 1.2;
+}
+
+/* ===== PREFERENCES ===== */
+.preferences-list {
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+
+.preference-item {
+display: flex;
+gap: 12px;
+align-items: center;
+padding: 12px;
+background: #f8f8f8;
+border-radius: 12px;
+}
+
+.preference-icon {
+width: 44px;
+height: 44px;
+background: white;
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 24px;
+flex-shrink: 0;
+}
+
+.preference-content {
+flex: 1;
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+
+.preference-label {
+font-size: 12px;
+color: var(--text-light);
+font-weight: 600;
+}
+
+.preference-value {
+font-size: 14px;
+color: var(--coffee-dark);
+font-weight: 600;
+}
+
+/* ===== DETAILS LIST ===== */
+.details-list {
+display: flex;
+flex-direction: column;
+}
+
+.detail-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 16px 0;
+border-bottom: 1px solid #f0f0f0;
+cursor: pointer;
+transition: background 0.3s ease;
+text-transform: capitalize;
+}
+
+.detail-row:last-child {
+border-bottom: none;
+}
+
+.detail-row:active {
+background: rgba(168, 123, 84, 0.05);
+}
+
+.detail-left {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.detail-icon {
+font-size: 22px;
+color: var(--coffee-light);
+}
+
+.detail-label {
+font-size: 15px;
+color: var(--coffee-dark);
+font-weight: 500;
+}
+
+.detail-right {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.detail-count {
+font-size: 14px;
+color: var(--text-light);
+font-weight: 600;
+}
+
+.detail-value {
+font-size: 14px;
+color: var(--text-light);
+font-weight: 500;
+}
+
+.detail-badge {
+font-size: 12px;
+font-weight: 600;
+padding: 4px 10px;
+border-radius: 10px;
+}
+
+.detail-badge.active {
+background: rgba(39, 174, 96, 0.15);
+color: var(--green);
+}
+
+.chevron-icon {
+font-size: 18px;
+color: var(--text-light);
+}
+
+/* ===== LOGOUT SECTION ===== */
+.logout-section {
+padding: 0 16px 16px;
+}
+
+.logout-btn {
+--border-color: #e74c3c;
+--color: #e74c3c;
+--border-radius: 14px;
+height: 48px;
+font-weight: 600;
+}
+
+/* ===== VERSION INFO ===== */
+.version-info {
+text-align: center;
+padding: 0 16px 24px;
+}
+
+.version-text {
+font-size: 12px;
+color: var(--text-light);
+margin: 0;
+}
+
+/* ===== SPACER ===== */
+.bottom-spacer {
+height: 20px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 360px) {
+.profile-name {
+font-size: 22px;
+}
+
+.stats-grid {
+gap: 8px;
+}
+
+.stat-card {
+padding: 16px 8px;
+}
+}
+</style>

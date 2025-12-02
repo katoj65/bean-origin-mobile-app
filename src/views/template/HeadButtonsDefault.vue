@@ -11,17 +11,19 @@ function navigateToOptions() {
 router.push('/options');
 }   
 
-
+function profileNav(){
+router.push('/profile');
+}
 
 
 
 </script>
 <template>
 <div>
-<ion-button>
+<ion-button @click="navigateToOptions">
 <ion-icon slot="icon-only" :icon="search" class="icon"></ion-icon>
 </ion-button>
-<ion-button @click="navigateToOptions">
+<ion-button @click="profileNav">
 <ion-icon slot="icon-only" :md="ellipsisVertical" class="icon"></ion-icon>
 </ion-button> 
 </div>

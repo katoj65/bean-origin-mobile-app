@@ -65,9 +65,7 @@ import { Preferences } from '@capacitor/preferences';
 import { useRouter } from 'vue-router';
 import { reactive, ref } from 'vue';
 import AuthenticationService from '../service/AuthenticationService';
-import { 
-  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonImg,
-  IonInput, IonButton, 
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonImg, IonInput, IonButton, 
 } from '@ionic/vue';
 
 const router = useRouter();
@@ -103,20 +101,31 @@ return;
 try{
 
 isLoading.value = true;
+
 const authService = new AuthenticationService();
+//create account
+
 const response = await authService.register(form);
 if(response.error===null){
-//create user object
-let user=JSON.stringify({fname:form.fname,
-lname:form.lname,
-email:form.email,
-});
-Preferences.set({key:'user',value:user});
 
 //login
 const loginResponse = await authService.login(form);
 if(loginResponse.error===null){
-//navigate to create profile
+
+//get user details
+let loggedIn=loginResponse.data;
+loggedIn=loggedIn.user;
+const id=loggedIn.id;
+
+//create user object
+let user=JSON.stringify({
+fname:form.fname,
+lname:form.lname,
+email:form.email,
+id:id
+});
+
+Preferences.set({key:'user',value:user});
 router.push({ name: 'CreateProfile' });
 
 }else{

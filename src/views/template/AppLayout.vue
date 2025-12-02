@@ -17,7 +17,7 @@ title:String,
 <template>
 <ion-page>
 <ion-header translucent class="header ion-no-border">
-<ion-toolbar>
+<ion-toolbar style="padding-top:30px;">
 <!-- TITLE -->
 <ion-title style="font-weight:bold;">{{ title }} </ion-title>
 <!-- RIGHT ICONS -->
@@ -35,7 +35,7 @@ title:String,
 </ion-header>
 <ion-content :fullscreen="true" style="--background:#f2f2f2;">
 <ion-header translucent class="header ion-no-border" collapse="condense">
-<ion-toolbar>
+<ion-toolbar style="padding-top:30px;">
 <!-- TITLE -->
 <ion-title style="font-weight:bold;">{{ title }} </ion-title>
 <!-- RIGHT ICONS -->

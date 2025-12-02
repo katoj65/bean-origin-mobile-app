@@ -21,7 +21,7 @@ import { IonApp, IonRouterOutlet } from '@ionic/vue';
 /* ===== Header ===== */
 ion-header::part(background),
 ion-toolbar::part(background) {
-  background-color: var(--bean-bg) !important;
+background-color: var(--bean-bg) !important;
 }
 ion-title {
   color: var(--bean-title) !important;
