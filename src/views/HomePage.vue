@@ -77,28 +77,32 @@ try{
 isLoading.value=true;
 const auth=new AuthenticationService();
 const response=await auth.login(form);
-
-//
-console.log(response);
-
 if(response.error===null){
+
+let id=response.data.user;
+id=id.id;
+
+
 let data=response.data;
 const email=data.user.email;
+
 let profile = await auth.getProfile(email);
 if(profile.error===null){
 profile=profile.data;
+
+
 //create user profile
 let account='';
 profile.forEach(element => {
 account={
-id:element.id,
+id:id,
 fname:element.fname,
 email:element.email,
 gender:element.gender,
 dob:element.dob,
 status:element.status,
 role:element.role,
-address:element.address
+address:element.address,
 }
 });
 
@@ -107,7 +111,7 @@ Preferences.set({key:'account',value:account});
 Preferences.set({key:'app_status',value:'active'});
 
 //Move to dashboard
-//router.push('/dashboard-buyer')
+router.push('/dashboard-buyer')
 
 }else{
 error.value='Could not fetch user profile';

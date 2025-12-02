@@ -1,6 +1,8 @@
 <script setup>
-import { useRouter } from 'vue-router';
 import AppLayout from './template/AppLayout.vue';
+import { useIonRouter } from '@ionic/vue';
+import { ref,onMounted } from 'vue';
+import ProductService from '@/service/ProductService';
 import HeadButtonsDefault from './template/HeadButtonsDefault.vue';
 import {
 IonPage,
@@ -25,6 +27,7 @@ star,
 locationOutline,
 flameOutline,
 } from "ionicons/icons";
+import Skeleton from './template/Skeleton.vue';
 
 
 
@@ -33,83 +36,63 @@ flameOutline,
 
 
 
-const   products= [
-{
-id: 1,
-name: "Arabica Premium",
-type: "Single Origin",
-price: 12.99,
-rating: 4.8,
-origin: "Ethiopia",
-roast: "Medium",
-image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400",
-favorite: false
-},
-{
-id: 2,
-name: "Espresso Intenso",
-type: "Dark Roast Blend",
-price: 15.99,
-rating: 4.9,
-origin: "Colombia",
-roast: "Dark",
-image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400",
-favorite: true
-},
-{
-id: 3,
-name: "Morning House",
-type: "Light Roast",
-price: 10.99,
-rating: 4.6,
-origin: "Brazil",
-roast: "Light",
-image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400",
-favorite: false
-},
-{
-id: 4,
-name: "Decaf Delight",
-type: "Decaffeinated",
-price: 13.99,
-rating: 4.5,
-origin: "Guatemala",
-roast: "Medium",
-image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400",
-favorite: false
-},
-{
-id: 5,
-name: "Costa Rica Honey",
-type: "Single Origin",
-price: 16.99,
-rating: 4.9,
-origin: "Costa Rica",
-roast: "Medium",
-image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400",
-favorite: true
-},
-{
-id: 6,
-name: "French Roast",
-type: "Dark Roast",
-price: 11.99,
-rating: 4.7,
-origin: "Sumatra",
-roast: "Dark",
-image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=400",
-favorite: false
-}
-];
 
+const products=ref('');
+const router=useIonRouter();
 
-
-
-
-const router=useRouter();
 function productNav(){
 router.push('/product-details');
 }
+
+
+const isLoading=ref(false);
+const error=ref(null);
+
+onMounted(async()=>{
+try{
+isLoading.value=true;
+const database=new ProductService();
+const response=await database.getProducts();
+if(response.status===200){
+const items=[];
+response.data.forEach(element => {
+items.push({
+id: element.id,
+name: element.name,
+type: element.type,
+price: element.price,
+rating: 4.8,
+origin: "Elgon",
+roast: element.roast_level,
+image: element.image,
+favorite: false
+})    
+});
+
+products.value=items;
+
+}else{
+console.log(response.error);
+error.value='An error occurred, try again.';
+}
+
+}catch(e){
+console.log(e);
+error.value=e;
+}finally{
+isLoading.value=false;
+}
+
+
+
+});
+
+
+
+
+
+
+
 
 </script>
 <template>
@@ -119,20 +102,11 @@ router.push('/product-details');
 </template>
 <template #content> 
 
-
-
-
+<div v-if="isLoading===false">
 <div class="hero-section">
 <h1 class="hero-title">Discover Coffee</h1>
 <p class="hero-subtitle">Ethically sourced, expertly roasted</p>
 </div>
-
-
-
-
-
-
-
 
 <div class="products-container">
 <div 
@@ -199,9 +173,8 @@ class="fav-btn"
 </div>
 </div>
 </div>
-
-
-
+</div>
+<skeleton v-else style="margin:20px;"/>
 
 </template>
 </app-layout>

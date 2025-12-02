@@ -288,7 +288,7 @@ import { Preferences } from '@capacitor/preferences';
 import { ref,reactive,onMounted } from 'vue';
 import AuthenticationService from '@/service/AuthenticationService';
 import AppLayout from './template/AppLayout.vue';
-import { useRouter } from 'vue-router';
+import { useIonRouter } from '@ionic/vue';
 import Skeleton from './template/Skeleton.vue';
 import {
 IonButtons,
@@ -323,7 +323,7 @@ calendarOutline
 
 } from "ionicons/icons";
 
-const router = useRouter();
+const router = useIonRouter();
 
 const user = reactive({
 name: "",
@@ -382,8 +382,11 @@ console.log('Navigate to:', route);
 const isLoading=ref(null);
 import DateService from '@/service/DateService';
 onMounted(async()=>{
+
 isLoading.value=true;
+
 try{
+
 const auth = new AuthenticationService();
 //get email
 let account = await Preferences.get({key:'account'});
@@ -391,8 +394,6 @@ account=JSON.parse(account.value);
 const email=account.email;
 
 let response= await auth.getProfile(email);
-
-console.log(response);
 
 if(response.status===200){
 const data=response.data;
@@ -411,9 +412,6 @@ user.address=profile.address;
 user.gender=profile.gender;
 user.dob =dates.formatDateAmerican(profile.dob);
 
-
-
-console.log(profile);
 
 
 }else{
@@ -447,14 +445,11 @@ console.log(response.error);
 error.value=response.error;
 }
 
-
 }catch(e){
 console.log(e);
 }finally{
 isLoading.value=false;
 }
-
-
 
 
 

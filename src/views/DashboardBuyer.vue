@@ -8,7 +8,7 @@
 
 
 <template #content>
-<ion-content fullscreen class="content-bg">
+<div fullscreen class="content-bg">
 
 <!-- USER PROFILE CARD -->
 <div class="hero-section">
@@ -59,10 +59,10 @@ v-for="tile in tiles"
 
 <!-- SPACER -->
 <div class="bottom-spacer"></div>
-</ion-content>
+</div>
 </template>
 <template #footer>
-<ion-button expand="block" style="margin:10px;" class="edit-btn" @click="navigateToProducts">Coffee Products</ion-button>
+<ion-button expand="block" style="margin:10px;" class="edit-btn" @click="navProducts">Coffee Products</ion-button>
 </template>
 </AppLayout>
 </template>
@@ -81,6 +81,7 @@ import AppLayout from './template/AppLayout.vue';
 import HeadButtonsDefault from './template/HeadButtonsDefault.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useIonRouter } from '@ionic/vue';
 import {
 IonButtons,
 IonButton,
@@ -110,7 +111,7 @@ cardOutline,
 } from "ionicons/icons";
 
 const router = useRouter();
-
+const ionRouter=useIonRouter();
 
 const advertisement = ref({
 image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800",
@@ -190,17 +191,20 @@ console.log('Advertisement clicked');
 };
 
 const navigateToTile = (tile) => {
-router.push(tile.route);
+ionRouter.push(tile.route);
 };
 
 function navigateToProducts() {
-  router.push('/coffee-products');
+ionRouter.push('/coffee-products');
 }   
 
 
 function nav(item){
-router.push(item);
+ionRouter.push(item);
 }
+
+
+
 
 
 
@@ -213,11 +217,13 @@ console.log(account);
 fname.value=account.fname;
 // Preferences.clear();
 
-
 });
 
 
 
+function navProducts(){
+ionRouter.push('/coffee-products');
+}
 
 
 
