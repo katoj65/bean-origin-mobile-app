@@ -10,7 +10,7 @@
 <!-- PRODUCT HERO -->
 <div class="hero-section">
 <div class="product-image-wrapper">
-<img :src="product.image" :alt="product.name" class="product-image" />
+<img :src="item.image" :alt="product.name" class="product-image" />
 <div class="product-badge" v-if="product_standard.length>0">{{product_standard[0].standard }}</div>
 </div>
 </div>
@@ -92,23 +92,18 @@ Shs. {{ product.originalPrice }}</span>
 
 <!-- DESCRIPTION -->
 <div class="description-card">
-<h2 class="section-title">About This Coffee</h2>
+<h2 class="section-title">About the product</h2>
 <p class="description-text">{{ item.description}}</p>
 
-<div class="tasting-notes">
+<div class="tasting-notes" v-if="product_taste.length>0">
 <h3 class="subsection-title">Tasting Notes</h3>
 <div class="notes-grid">
-
 <div class="note-item" v-for="(taste,key) in product_taste" :key="key">
 <span class="note-label">{{ taste.type }} </span>
 <span class="note-value">{{ taste.taste }} </span>
 </div>
-
 </div>
 </div>
-
-
-
 
 
 
@@ -133,7 +128,7 @@ Shs. {{ product.originalPrice }}</span>
 <ion-icon :icon="leafOutline" class="origin-icon"></ion-icon>
 <div class="origin-content">
 <span class="origin-label">Farm</span>
-<span class="origin-value">{{ origin.farm }}</span>
+<span class="origin-value">{{ origin.farm.name }}</span>
 </div>
 </div>
 </div>
@@ -154,7 +149,7 @@ Shs. {{ product.originalPrice }}</span>
 
 
 <!-- SPECS -->
-<div class="specs-card">
+<div class="specs-card" v-if="product_specification.length>0">
 <h2 class="section-title">Specifications</h2>
 <div class="specs-grid">
 
@@ -436,7 +431,7 @@ product_specification.value=element.product_specification;
 product_standard.value=element.product_standard;
 });
 
-// console.log(product_standard.value);
+console.log(product_origin.value);
 
 }else{
 console.log(response.error);
