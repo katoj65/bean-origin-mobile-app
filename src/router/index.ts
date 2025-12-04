@@ -55,7 +55,7 @@ const routes: Array<RouteRecordRaw> = [
     component:() => import('../views/CoffeeShop.vue')
   },
   {
-    path:'/product-details',
+    path:'/product-details/:id',
     name:'Product Details',
     component:()=>import('../views/ProductDetails.vue')
   },

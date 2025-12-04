@@ -113,4 +113,11 @@ text-transform: none;
 
 }
 
+.capitalize{
+text-transform: capitalize;
+}
+
+
+
+
 </style>

@@ -40,8 +40,8 @@ import Skeleton from './template/Skeleton.vue';
 const products=ref('');
 const router=useIonRouter();
 
-function productNav(){
-router.push('/product-details');
+function productNav(id){
+router.push('/product-details/'+id);
 }
 
 
@@ -102,7 +102,7 @@ isLoading.value=false;
 </template>
 <template #content> 
 
-<div v-if="isLoading===false">
+<div v-if="isLoading===false" style="padding-bottom:50px;">
 <div class="hero-section">
 <h1 class="hero-title">Discover Coffee</h1>
 <p class="hero-subtitle">Ethically sourced, expertly roasted</p>
@@ -113,7 +113,7 @@ isLoading.value=false;
 v-for="(item, index) in products" 
 :key="item.id" 
 class="product-card"
-:style="{ animationDelay: `${index * 0.1}s` }" style="background:white;" @click="productNav">
+:style="{ animationDelay: `${index * 0.1}s` }" style="background:white;" @click="productNav(item.id)">
 
 <!-- Image Container -->
 <div class="image-container">
@@ -167,7 +167,7 @@ class="fav-btn"
 <div class="card-footer">
 <div class="price-section">
 <span class="price-label">Price</span>
-<span class="price">${{ item.price }}</span>
+<span class="price">Shs. {{ item.price }}</span>
 </div>
 </div>
 </div>
