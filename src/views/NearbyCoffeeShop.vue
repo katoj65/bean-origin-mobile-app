@@ -1,11 +1,11 @@
 <script setup>
-import { useRouter } from 'vue-router';
+import { useIonRouter } from '@ionic/vue';
+import { ref,reactive,onMounted } from 'vue';
 import AppLayout from './template/AppLayout.vue';
+import CoffeeShopService from '../service/CoffeeShopService';
+import Skeleton from './template/Skeleton.vue';
+
 import {
-IonPage,
-IonHeader,
-IonToolbar,
-IonTitle,
 IonButtons,
 IonButton,
 IonContent,
@@ -28,83 +28,57 @@ navigateOutline,
 
 
 
-const coffeeShops=[
-{
-id: 1,
-name: "The Daily Grind",
-address: "123 Main Street, Downtown",
+
+
+
+
+const router=useIonRouter();
+function navigateToShop(id){
+router.push('/coffee-shop/'+id);
+}
+
+
+
+const coffeeShops=ref([]);
+const isLoading=ref(false);
+const error=ref(null);
+onMounted(async ()=>{
+try{
+isLoading.value=true;
+const service=new CoffeeShopService();
+const response=await service.getCoffeeShop(); 
+if(response.status===200){
+if(response.data.length>0){
+const items=[];
+response.data.forEach(element => {
+let item = {
+id: element.id,
+name: element.name,
+address: element.address,
 distance: "0.5 km",
 rating: 4.8,
-hours: "7:00 AM - 8:00 PM",
+hours: element.open_hours,
 isOpen: true,
 tags: ["WiFi", "Outdoor Seating"],
-image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400"
-},
-{
-id: 2,
-name: "Bean & Leaf Café",
-address: "456 Oak Avenue, Midtown",
-distance: "1.2 km",
-rating: 4.9,
-hours: "6:30 AM - 9:00 PM",
-isOpen: true,
-tags: ["Organic", "Vegan Options"],
-image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400"
-},
-{
-id: 3,
-name: "Espresso Corner",
-address: "789 Park Lane, Uptown",
-distance: "2.1 km",
-rating: 4.6,
-hours: "8:00 AM - 6:00 PM",
-isOpen: false,
-tags: ["Quiet", "Books"],
-image: "https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=400"
-},
-{
-id: 4,
-name: "Roast & Toast",
-address: "321 Pine Street, East Side",
-distance: "2.8 km",
-rating: 4.7,
-hours: "7:00 AM - 7:00 PM",
-isOpen: true,
-tags: ["Pastries", "Breakfast"],
-image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400"
-},
-{
-id: 5,
-name: "Brew Masters",
-address: "555 Elm Road, West End",
-distance: "3.5 km",
-rating: 4.9,
-hours: "6:00 AM - 10:00 PM",
-isOpen: true,
-tags: ["Artisan", "Live Music"],
-image: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400"
-},
-{
-id: 6,
-name: "Coffee Culture",
-address: "888 Maple Drive, South District",
-distance: "4.2 km",
-rating: 4.5,
-hours: "8:00 AM - 5:00 PM",
-isOpen: false,
-tags: ["Coworking", "Events"],
-image: "https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=400"
+image: element.image
 }
-];
+items.push(item);
+});
 
+coffeeShops.value=items;
 
-
-
-
-const router=useRouter();
-function navigateToShop(){
-router.push('/coffee-shop');
 }
+}else{
+console.log(response.error);
+}
+}catch(e){
+console.log(e);
+}finally{
+isLoading.value=false;
+}
+});
+
+
 
 
 
@@ -113,7 +87,7 @@ router.push('/coffee-shop');
 <app-layout title="Nearby Coffee Shop">
 <template #content>
 
-<ion-content fullscreen class="content-bg">
+<div fullscreen class="content-bg">
 <!-- HERO SECTION -->
 <div class="hero-section">
 <h1 class="hero-title">Find Coffee Nearby</h1>
@@ -121,20 +95,14 @@ router.push('/coffee-shop');
 </div>
 
 
-
-
-
-
-
-
 <!-- COFFEE SHOPS LIST -->
-<div class="shops-container">
+<div class="shops-container" v-if="isLoading===false">
 <div 
 v-for="(shop, index) in coffeeShops" 
 :key="shop.id" 
 class="shop-card"
 :style="{ animationDelay: `${index * 0.1}s` }"
-@click="navigateToShop" style="background:white;">
+@click="navigateToShop(shop.id)" style="background:white;">
 
 <!-- Image Container -->
 <div class="image-container">
@@ -149,18 +117,18 @@ class="shop-card"
 <div class="card-content">
 <div class="content-top">
 <div class="shop-info">
-<h3 class="shop-name">{{ shop.name }}</h3>
-<p class="shop-address">{{ shop.address }}</p>
+<h3 class="shop-name partial-text">{{ shop.name }}</h3>
+<p class="shop-address partial-text">{{ shop.address }}</p>
 
 <div class="shop-meta">
 <span class="meta-item">
 <ion-icon :icon="timeOutline" class="meta-icon"></ion-icon>
 {{ shop.hours }}
 </span>
-<span class="meta-item">
+<!-- <span class="meta-item">
 <ion-icon :icon="navigateOutline" class="meta-icon"></ion-icon>
 {{ shop.distance }}
-</span>
+</span> -->
 </div>
 </div>
 
@@ -186,14 +154,11 @@ class="directions-btn"
 </div>
 </div>
 </div>
+<skeleton v-else style="margin:20px;"/>
 
 
 
-
-
-
-
-</ion-content>
+</div>
 </template>
 </app-layout>
 </template>

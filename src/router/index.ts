@@ -50,9 +50,9 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/NearbyCoffeeShop.vue')
   },
   {
-    path:'/coffee-shop',
+    path:'/coffee-shop/:id',
     name:'Coffee Shop',
-    component:() => import('../views/CoffeeShop.vue')
+    component:() => import('../views/CoffeeShopDetails.vue')
   },
   {
     path:'/product-details/:id',

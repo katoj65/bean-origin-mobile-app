@@ -117,7 +117,11 @@ text-transform: none;
 text-transform: capitalize;
 }
 
-
+.partial-text {
+  width: 15ch;        /* show first 10 characters */
+  white-space: nowrap;
+  overflow: hidden;
+}
 
 
 

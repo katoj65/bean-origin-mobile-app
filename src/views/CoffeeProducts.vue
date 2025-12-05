@@ -102,13 +102,13 @@ isLoading.value=false;
 </template>
 <template #content> 
 
-<div v-if="isLoading===false" style="padding-bottom:50px;">
+<div style="padding-bottom:50px;">
 <div class="hero-section">
 <h1 class="hero-title">Discover Coffee</h1>
 <p class="hero-subtitle">Ethically sourced, expertly roasted</p>
 </div>
 
-<div class="products-container">
+<div class="products-container" v-if="isLoading===false">
 <div 
 v-for="(item, index) in products" 
 :key="item.id" 
@@ -173,8 +173,8 @@ class="fav-btn"
 </div>
 </div>
 </div>
-</div>
 <skeleton v-else style="margin:20px;"/>
+</div>
 
 </template>
 </app-layout>
