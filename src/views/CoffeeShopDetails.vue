@@ -1,5 +1,5 @@
 <template>
-<shop-layout title="0.2 Km from your location">
+<shop-layout title="0.2 km away">
 <template #header-buttons>
 <shop-header-buttons/>
 </template>
@@ -99,10 +99,10 @@ Directions
 
 
 <!-- Menu Section -->
-<div class="section">
+<div class="section" v-if="shopDetails.menu.length">
 <h2 class="section-title">Menu</h2>
 
-<div class="menu-list" v-if="shopDetails.menu.length">
+<div class="menu-list">
 <div v-for="(i,key) in shopDetails.menu" :key="key" class="menu-item">
 <img :src="i.image" :alt="i.name" class="menu-item-image" />
 <div class="menu-item-content">
@@ -139,7 +139,7 @@ Directions
 
 
 <!-- Amenities -->
-<div class="section">
+<div class="section" v-if="shopDetails.amenity.length>0">
 <h2 class="section-title">Amenities</h2>
 <div class="amenities-list">
 <div v-for="amenity in shopDetails.product.amenity" :key="amenity.name" class="amenity-box">
@@ -181,7 +181,7 @@ Directions
 
 
 <!-- Reviews -->
-<div class="section">
+<div class="section" v-if="shopDetails.rating.length>0">
 <div class="reviews-header">
 <h2 class="section-title">Reviews</h2>
 <div class="rating-badge">
@@ -191,17 +191,9 @@ Directions
 </div>
 <div class="reviews-container">
 
-
-
-
-
-
-  
-
-
-<div v-for="review in shop.reviews.slice(0, 2)" :key="review.id" class="review-card">
+<div v-for="review in shopDetails.rating.slice(0, 2)" :key="review.id" class="review-card">
 <div class="review-top">
-<span class="reviewer-name">{{ review.name }}</span>
+<span class="reviewer-name text-capitalize">{{ review.names }}</span>
 <div class="review-stars">
 <ion-icon v-for="n in review.rating" :key="n" :icon="star"></ion-icon>
 </div>
@@ -236,15 +228,15 @@ Directions
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted,computed } from 'vue';
 import ShopLayout from './template/ShopLayout.vue';
 import ShopHeaderButtons from './template/ShopHeaderButtons.vue';
-import HeadButtonsDefault from './template/HeadButtonsDefault.vue';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
 import CoffeeShopService from '../service/CoffeeShopService';
 import Skeleton from './template/Skeleton.vue';
 import {IonIcon } from '@ionic/vue';
+import DateService from '../service/DateService';
 import {
 heart,
 heartOutline,
@@ -263,8 +255,8 @@ sunny,
 water,
 } from 'ionicons/icons';
 
-const isFavorite = ref(false);
 
+const isFavorite = ref(false);
 const shop = reactive({
 name: 'Brew & Beans Coffee',
 heroImage: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=1200&q=80',
@@ -348,7 +340,8 @@ const addToCart = (item) => console.log('Adding to cart:', item.name);
 const shopDetails=reactive({
 product:{},
 menu:[],
-rating:[]
+rating:[],
+amenity:[]
 });
 
 const coffeeShop=ref('');
@@ -409,19 +402,25 @@ icon:icon
 //
 shopDetails.product.amenity=amenity;
 shopDetails.menu=data.business.product;
-shopDetails.rating=data.coffee_shop_rating;
+shopDetails.amenity=data.coffee_shop_amenity;
 
+//format rating date
+const dateFormatService = new DateService ();
+const rateDate=[];
+data.coffee_shop_rating.forEach(element => {
+rateDate.push({
+names:element.profile.fname+' '+element.profile.lname,
+comment:element.comment,
+rating:element.rating,
+date:dateFormatService.formatDate(element.created_at)
+});  
+});
+shopDetails.rating=rateDate;
 
 
 
 
 console.log(shopDetails.rating);
-
-
-
-
-
-
 
 
 }else{
@@ -433,11 +432,10 @@ console.log(e);
 isLoading.value=false;
 }
 
-
-
-
-
 });
+
+
+
 
 
 

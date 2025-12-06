@@ -123,7 +123,9 @@ text-transform: capitalize;
   overflow: hidden;
 }
 
-
+.text-capitalize{
+text-transform: capitalize;
+}
 
 
 
