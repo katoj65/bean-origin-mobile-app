@@ -8,7 +8,7 @@ return await database.from('coffee_shop').select('*');
 
 
 async coffeeShopDetails(id){
-return await database.from('coffee_shop').select('*').eq('id',id);
+return await database.from('coffee_shop').select('*,coffee_shop_amenity(name,icon),business(id,product(*)),coffee_shop_rating(*)').eq('id',id);
 }
 
 
