@@ -55,7 +55,7 @@
 <span class="info-sub">{{ shop.distance }} away</span>
 </div>
 </div>
-<button class="directions-button" @click="getDirections">
+<button class="directions-button" @click="setOpen(true)">
 <ion-icon :icon="navigateOutline"></ion-icon>
 Directions
 </button>
@@ -101,7 +101,6 @@ Directions
 <!-- Menu Section -->
 <div class="section" v-if="shopDetails.menu.length">
 <h2 class="section-title">Menu</h2>
-
 <div class="menu-list">
 <div v-for="(i,key) in shopDetails.menu" :key="key" class="menu-item">
 <img :src="i.image" :alt="i.name" class="menu-item-image" />
@@ -190,7 +189,6 @@ Directions
 </div>
 </div>
 <div class="reviews-container">
-
 <div v-for="review in shopDetails.rating.slice(0, 2)" :key="review.id" class="review-card">
 <div class="review-top">
 <span class="reviewer-name text-capitalize">{{ review.names }}</span>
@@ -223,20 +221,64 @@ Directions
 </div>
 <skeleton style="margin:20px;" v-else/>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ion-modal :is-open="isOpen">
+<shop-layout title="Map">
+<template #header-buttons>
+<ion-buttons slot="end">
+<ion-button @click="setOpen(false)">Close</ion-button>
+</ion-buttons>
+</template>
+<template #content>
+<map-modal-content/>
+</template>
+</shop-layout>
+</ion-modal>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </template>
 </shop-layout>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted,computed } from 'vue';
+  import { IonButtons, IonButton, IonModal,IonIcon  } from '@ionic/vue';
 import ShopLayout from './template/ShopLayout.vue';
 import ShopHeaderButtons from './template/ShopHeaderButtons.vue';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
 import CoffeeShopService from '../service/CoffeeShopService';
 import Skeleton from './template/Skeleton.vue';
-import {IonIcon } from '@ionic/vue';
 import DateService from '../service/DateService';
+import MapModalContent from './model/MapModalContent.vue';
+
+
 import {
 heart,
 heartOutline,
@@ -434,10 +476,9 @@ isLoading.value=false;
 
 });
 
-
-
-
-
+//get the modal
+const isOpen = ref(false);
+const setOpen = (open) => (isOpen.value = open);
 
 
 

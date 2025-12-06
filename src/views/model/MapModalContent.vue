@@ -1,7 +1,5 @@
 <template>
-  <ion-page>
-    <ion-content :fullscreen="true">
-      <div class="location-page">
+ <div class="location-page">
         
         <!-- Map Container (Full Screen) -->
         <div class="map-container">
@@ -16,7 +14,7 @@
           </div>
           
           <!-- Map Label -->
-          <div class="map-label">
+          <div class="map-label" style="margin-top:20px;">
             <ion-icon :icon="navigateOutline"></ion-icon>
             <span>{{ shop.distance }} away</span>
           </div>
@@ -52,8 +50,6 @@
         </div>
 
       </div>
-    </ion-content>
-  </ion-page>
 </template>
 
 <script setup>
@@ -119,6 +115,7 @@ const copyAddress = () => {
   position: relative;
   min-height: 100vh;
   background: #faf8f5;
+
 }
 
 /* ===== MAP CONTAINER (FULL SCREEN) ===== */
