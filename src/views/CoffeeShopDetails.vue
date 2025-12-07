@@ -84,11 +84,11 @@ Directions
 <ion-icon :icon="callOutline"></ion-icon>
 <span>Call</span>
 </button>
-<button class="action-btn favorite" @click="toggleFavorite">
-<ion-icon :icon="isFavorite ? heart : heartOutline"></ion-icon>
-<span>Favorite</span>
+<button class="action-btn favorite" @click="setMenu(true)">
+<ion-icon :icon="fastFoodOutline"></ion-icon>
+<span>Menu</span>
 </button>
-<button class="action-btn order" @click="orderNow">
+<button class="action-btn order" @click="setOrder(true)">
 <ion-icon :icon="cartOutline"></ion-icon>
 <span>Order</span>
 </button>
@@ -233,12 +233,14 @@ Directions
 
 
 
-
-<ion-modal :is-open="isOpen">
+<!-----Modal 1------->
+<ion-modal :is-open="isOpen" @didDismiss="isOpen=false">
 <shop-layout title="Map">
 <template #header-buttons>
 <ion-buttons slot="end">
-<ion-button @click="setOpen(false)">Close</ion-button>
+<ion-button @click="setOpen(false)">
+<ion-icon :icon="close"></ion-icon>
+</ion-button>
 </ion-buttons>
 </template>
 <template #content>
@@ -250,10 +252,45 @@ Directions
 
 
 
+<!-----Modal 2------->
+<ion-modal :is-open="isMenu" @didDismiss="isMenu=false">
+<shop-layout title="Our menu">
+<template #header-buttons>
+<ion-buttons slot="end">
+<ion-button @click="setMenu(false)">
+<ion-icon :icon="close"></ion-icon>
+</ion-button>
+</ion-buttons>
+</template>
+<template #content>
+<coffee-shop-menu-modal/>
+</template>
+</shop-layout>
+</ion-modal>
 
 
 
 
+
+
+
+<!-----Modal 3------->
+<ion-modal :is-open="isOrder" @didDismiss="isOrder=false">
+<shop-layout title="Make orders">
+<template #header-buttons>
+<ion-buttons slot="end">
+<ion-button @click="setOrder(false)">
+<ion-icon :icon="close"></ion-icon>
+</ion-button>
+
+</ion-buttons>
+</template>
+<template #content>
+
+
+</template>
+</shop-layout>
+</ion-modal>
 
 
 
@@ -265,9 +302,8 @@ Directions
 </template>
 </shop-layout>
 </template>
-
 <script setup>
-import { ref, reactive, onMounted,computed } from 'vue';
+import { ref, reactive, onMounted, } from 'vue';
   import { IonButtons, IonButton, IonModal,IonIcon  } from '@ionic/vue';
 import ShopLayout from './template/ShopLayout.vue';
 import ShopHeaderButtons from './template/ShopHeaderButtons.vue';
@@ -277,7 +313,7 @@ import CoffeeShopService from '../service/CoffeeShopService';
 import Skeleton from './template/Skeleton.vue';
 import DateService from '../service/DateService';
 import MapModalContent from './model/MapModalContent.vue';
-
+import CoffeeShopMenuModal from './model/CoffeeShopMenuModal.vue';
 
 import {
 heart,
@@ -295,6 +331,8 @@ leaf,
 cafe,
 sunny,
 water,
+fastFoodOutline,
+close
 } from 'ionicons/icons';
 
 
@@ -479,6 +517,12 @@ isLoading.value=false;
 //get the modal
 const isOpen = ref(false);
 const setOpen = (open) => (isOpen.value = open);
+const isMenu= ref(false);
+const setMenu = (open) => (isMenu.value = open);
+const isOrder= ref(false);
+const setOrder = (open) => (isOrder.value = open);
+
+
 
 
 
