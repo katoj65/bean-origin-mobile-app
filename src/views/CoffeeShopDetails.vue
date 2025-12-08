@@ -10,8 +10,8 @@
 <!-- Hero Image -->
 <div class="hero-container">
 <img :src="shopDetails.product.heroImage" :alt="shopDetails.product.name" class="hero-image"/>
-<button class="favorite-button" :class="{ active: isFavorite }" @click="toggleFavorite" style="margin-top:20px;">
-<ion-icon :icon="isFavorite ? heart : heartOutline"></ion-icon>
+<button class="favorite-button" style="margin-top:20px;">
+<ion-icon :icon="heartOutline"></ion-icon>
 </button>
 </div>
 
@@ -30,12 +30,12 @@
 <div class="info-row">
 <div class="rating-section">
 <ion-icon :icon="star"></ion-icon>
-<span class="rating-value">{{ shop.rating }}</span>
-<span class="review-count">({{ shop.reviewCount }})</span>
+<span class="rating-value">5.1</span>
+<span class="review-count">(20)</span>
 </div>
-<div class="status-label" :class="shop.isOpen ? 'open' : 'closed'">
+<div class="status-label open">
 <span class="status-dot"></span>
-{{ shop.isOpen ? 'Open Now' : 'Closed' }}
+Open Now
 </div>
 </div>
 </div>
@@ -52,7 +52,7 @@
 <ion-icon :icon="locationSharp" class="info-icon"></ion-icon>
 <div class="info-text">
 <span class="info-main">{{ shopDetails.product.address }}</span>
-<span class="info-sub">{{ shop.distance }} away</span>
+<span class="info-sub">0.5 km away</span>
 </div>
 </div>
 <button class="directions-button" @click="setOpen(true)">
@@ -185,7 +185,7 @@ Directions
 <h2 class="section-title">Reviews</h2>
 <div class="rating-badge">
 <ion-icon :icon="star"></ion-icon>
-<span>{{ shop.rating }}</span>
+<span>5.1</span>
 </div>
 </div>
 <div class="reviews-container">
@@ -239,7 +239,7 @@ Directions
 <template #header-buttons>
 <ion-buttons slot="end">
 <ion-button @click="setOpen(false)">
-<ion-icon :icon="close"></ion-icon>
+<ion-icon :icon="close" class="icon"></ion-icon>
 </ion-button>
 </ion-buttons>
 </template>
@@ -256,11 +256,9 @@ Directions
 <ion-modal :is-open="isMenu" @didDismiss="isMenu=false">
 <shop-layout title="Our menu">
 <template #header-buttons>
-<ion-buttons slot="end">
 <ion-button @click="setMenu(false)">
-<ion-icon :icon="close"></ion-icon>
+<ion-icon :icon="close" class="icon"></ion-icon>
 </ion-button>
-</ion-buttons>
 </template>
 <template #content>
 <coffee-shop-menu-modal/>
@@ -280,14 +278,13 @@ Directions
 <template #header-buttons>
 <ion-buttons slot="end">
 <ion-button @click="setOrder(false)">
-<ion-icon :icon="close"></ion-icon>
+<ion-icon :icon="close" class="icon"></ion-icon>
 </ion-button>
 
 </ion-buttons>
 </template>
 <template #content>
-
-
+<coffee-shop-order-modal/>
 </template>
 </shop-layout>
 </ion-modal>
@@ -314,6 +311,7 @@ import Skeleton from './template/Skeleton.vue';
 import DateService from '../service/DateService';
 import MapModalContent from './model/MapModalContent.vue';
 import CoffeeShopMenuModal from './model/CoffeeShopMenuModal.vue';
+import CoffeeShopOrderModal from './model/CoffeeShopOrderModal.vue';
 
 import {
 heart,
@@ -336,81 +334,10 @@ close
 } from 'ionicons/icons';
 
 
-const isFavorite = ref(false);
-const shop = reactive({
-name: 'Brew & Beans Coffee',
-heroImage: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=1200&q=80',
-rating: 4.8,
-reviewCount: 342,
-isOpen: true,
-address: '123 Coffee Street, Downtown',
-distance: '3.2 km',
-hours: 'Mon-Fri: 7:00 AM - 8:00 PM, Sat-Sun: 8:00 AM - 9:00 PM',
-description: 'A cozy neighborhood coffee shop specializing in single-origin beans and handcrafted espresso drinks. We roast our beans in-house daily and pride ourselves on quality and sustainability.',
-
-menuItems: [
-{
-id: 1,
-name: 'Espresso',
-image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400&q=80',
-flavorNotes: 'Rich, bold, chocolate',
-price: 3.50,
-},
-{
-id: 2,
-name: 'Cappuccino',
-image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&q=80',
-flavorNotes: 'Creamy, balanced, smooth',
-price: 4.50,
-},
-{
-id: 3,
-name: 'Latte',
-image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&q=80',
-flavorNotes: 'Silky, sweet, comforting',
-price: 4.75,
-},
-{
-id: 4,
-name: 'Cold Brew',
-image: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400&q=80',
-flavorNotes: 'Smooth, refreshing, sweet',
-price: 5.00,
-},
-],
-
-amenities: [
-{ name: 'Free Wi-Fi', icon: wifi },
-{ name: 'Card Payment', icon: card },
-{ name: 'Eco-Friendly', icon: leaf },
-{ name: 'Specialty Beans', icon: cafe },
-{ name: 'Outdoor Seating', icon: sunny },
-{ name: 'Fresh Water', icon: water },
-],
-
-reviews: [
-{
-id: 1,
-name: 'Sarah Johnson',
-rating: 5,
-comment: 'Amazing coffee and friendly staff! Perfect spot for working or relaxing.',
-date: '2 days ago',
-},
-{
-id: 2,
-name: 'Michael Chen',
-rating: 5,
-comment: 'Best espresso in town. Love their single-origin selection!',
-date: '1 week ago',
-},
-],
-});
 
 
-const toggleFavorite = () => isFavorite.value = !isFavorite.value;
-const getDirections = () => console.log('Getting directions');
+
 const callShop = () => console.log('Calling shop');
-const orderNow = () => console.log('Order now');
 const openMap = () => console.log('Opening map');
 const addToCart = (item) => console.log('Adding to cart:', item.name);
 
@@ -424,7 +351,7 @@ rating:[],
 amenity:[]
 });
 
-const coffeeShop=ref('');
+
 const isLoading=ref(false);
 const error=ref(false);
 onMounted(async ()=>{
@@ -448,12 +375,14 @@ address: data.address,
 distance: '3.2 km',
 hours: data.open_hours,
 description: data.about,
+
 //amenity
 amenity:'',
 
 
-
 };
+
+
 
 //format amenity
 const amenity=[];
@@ -495,12 +424,8 @@ rating:element.rating,
 date:dateFormatService.formatDate(element.created_at)
 });  
 });
+
 shopDetails.rating=rateDate;
-
-
-
-
-console.log(shopDetails.rating);
 
 
 }else{
@@ -1085,5 +1010,8 @@ height: 40px;
 max-width: 600px;
 margin: 0 auto;
 }
+}
+.icon{
+font-size: 25px;
 }
 </style>

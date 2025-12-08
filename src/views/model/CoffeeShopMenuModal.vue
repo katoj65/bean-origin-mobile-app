@@ -1,7 +1,8 @@
 <template>
-
+<div>
+<div v-if="isLoading===false">
+<coffee-shop-heading style="margin-bottom:20px;" :header="header"/>
 <div class="content-container" style="padding-top:0px;">
-<coffee-shop-heading style="margin-bottom:20px;"/>
 <div class="search-categories-section">
 <!-- Categories -->
 <div class="categories-row">
@@ -24,6 +25,14 @@ class="category-chip"
 <h3 style="padding:0;margin:0;font-weight:bolder;margin-bottom:15px;">MENU</h3>
 <div class="section">
 <div class="menu-items">
+
+
+
+
+
+
+    
+
 <div v-for="item in filteredMenuItems" 
 :key="item.id"
 class="menu-item-card"
@@ -40,17 +49,20 @@ class="menu-item-card"
 <div class="item-content">
 <div class="item-header">
 <h3 class="item-name">{{ item.name }}</h3>
-<div class="item-price">${{ item.price }}</div>
+<!-- <div class="item-price">Shs. {{ item.price }}</div> -->
 </div>
 <p class="item-description">{{ item.description }}</p>
-
+<div class="item-price">
+Shs. {{ item.price }}
+</div>
 <div class="item-footer">
+
 <div class="item-meta">
 <span v-if="item.rating" class="item-rating">
 <ion-icon :icon="starSharp"></ion-icon>
 {{ item.rating }}
 </span>
-<span class="item-size">{{ item.size }}</span>
+<span class="item-size">{{ item.weight }}</span>
 </div>
 <button class="add-item-btn" @click.stop="addToCart(item.id)">
 <ion-icon :icon="addOutline"></ion-icon>
@@ -58,14 +70,32 @@ class="menu-item-card"
 </div>
 </div>
 </div>
-</div>
-</div>
-</div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+</div>
+</div>
+</div>
+<skeleton v-else style="margin:20px;"/>
+
+
+</div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed,onMounted,  } from 'vue';
 import { useRouter } from 'vue-router';
 import {
 IonButtons,
@@ -96,8 +126,11 @@ fastFoodOutline,
 ellipsisHorizontalOutline,
 } from "ionicons/icons";
 import CoffeeShopHeading from '../template/CoffeeShopHeading.vue';
-
+import CoffeeShopService from '../../service/CoffeeShopService';
+import Skeleton from '../template/Skeleton.vue';
+import { useRoute } from 'vue-router';
 const router = useRouter();
+
 
 // Search & Categories State
 const searchQuery = ref('');
@@ -127,74 +160,7 @@ icon: fastFoodOutline,
 },
 ];
 
-const menuItems = ref([
-{
-id: 1,
-name: 'Cappuccino',
-description: 'Rich espresso with steamed milk and foam',
-price: 4.50,
-size: '12 oz',
-rating: 4.9,
-image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400',
-category: 'espresso',
-popular: true
-},
-{
-id: 2,
-name: 'Latte',
-description: 'Smooth espresso with steamed milk',
-price: 4.00,
-size: '12 oz',
-rating: 4.8,
-image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400',
-category: 'espresso',
-popular: true
-},
-{
-id: 3,
-name: 'Cold Brew',
-description: 'Smooth cold-steeped coffee',
-price: 5.00,
-size: '16 oz',
-rating: 4.7,
-image: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400',
-category: 'cold',
-popular: true
-},
-{
-id: 4,
-name: 'Croissant',
-description: 'Buttery, flaky French pastry',
-price: 3.50,
-size: 'Regular',
-rating: 4.6,
-image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400',
-category: 'food',
-popular: true
-},
-{
-id: 5,
-name: 'Americano',
-description: 'Espresso with hot water',
-price: 3.50,
-size: '12 oz',
-rating: 4.5,
-image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400',
-category: 'espresso',
-popular: false
-},
-{
-id: 6,
-name: 'Iced Latte',
-description: 'Espresso with cold milk over ice',
-price: 4.50,
-size: '16 oz',
-rating: 4.8,
-image: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400',
-category: 'cold',
-popular: false
-}
-]);
+const menuItems = ref([]);
 
 // Filtered Menu Items
 const filteredMenuItems = computed(() => {
@@ -240,6 +206,76 @@ const addToCart = (itemId) => {
 console.log('Add to cart:', itemId);
 alert('Added to cart!');
 };
+
+
+//get props
+
+const header=ref({});
+const products=ref([]);
+const error=ref();
+const isLoading=ref(false);
+let url=useRoute();
+
+onMounted(async ()=>{
+const id=url.params.id;
+try{
+isLoading.value=true;
+const service=new CoffeeShopService();
+const response=await service.getCoffeeShopMenu(id);
+if(response.status===200){
+const data=response.data;
+let content=data[0];
+
+//header
+header.value={
+name:content.name,
+tel:content.tel,
+rating:'0.5',
+distance:'0.5'
+};
+
+//product
+const prod=content.business.product;
+products.value=prod;
+let items=[];
+prod.forEach(element => {
+items.push({
+id: element.id,
+name: element.name,
+description: element.description,
+price: element.price,
+weight: element.weight,
+rating: 4.9,
+image: element.image,
+category: 'espresso',
+popular: true
+})
+});
+
+menuItems.value=items;
+
+
+
+console.log(items);
+
+
+
+}else{
+console.log(response.error);
+}
+
+}catch(e){
+console.log(e);
+}finally{
+isLoading.value=false;
+}
+
+
+});
+
+
+
+
 
 </script>
 
