@@ -1,8 +1,7 @@
 <template>
 <div>
 <div v-if="isLoading===false">
-<coffee-shop-heading style="margin-bottom:20px;" :header="header"/>
-<div class="content-container" style="padding-top:0px;">
+<div class="content-container" style="padding-top:15px;">
 <div class="search-categories-section">
 <!-- Categories -->
 <div class="categories-row">

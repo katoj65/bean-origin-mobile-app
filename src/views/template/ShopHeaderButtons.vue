@@ -15,7 +15,7 @@ router.push('/profile');
 </script>
 <template>
 <div>
-<ion-button @click="profileNav">
+<ion-button>
 <ion-icon slot="icon-only" :md="locationSharp" class="icon"></ion-icon>
 </ion-button> 
 </div>

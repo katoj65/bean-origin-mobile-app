@@ -22,7 +22,7 @@ title: String
 </ion-button>
 </ion-buttons>
 <ion-title>
-mkmk
+some title
 </ion-title>
 </ion-toolbar>
 </ion-header>

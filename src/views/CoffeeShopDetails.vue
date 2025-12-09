@@ -1,83 +1,20 @@
 <template>
-<shop-layout title="0.2 km away">
+<shop-layout title="Buy coffee here">
 <template #header-buttons>
 <shop-header-buttons/>
 </template>
 <template #content>
 
-<div style="margin-top:-20px;" v-if="isLoading===false">
+
+<div v-if="isLoading===false">
+<coffee-shop-heading :heading="product"/>
+
+
+
 <div class="coffee-shop-page">
-<!-- Hero Image -->
-<div class="hero-container">
-<img :src="shopDetails.product.heroImage" :alt="shopDetails.product.name" class="hero-image"/>
-<button class="favorite-button" style="margin-top:20px;">
-<ion-icon :icon="heartOutline"></ion-icon>
-</button>
-</div>
-
-
-
-
-
-
 
 <!-- Main Content -->
 <div class="content-container">
-
-<!-- Shop Info -->
-<div class="shop-header">
-<h1 class="shop-name">{{ shopDetails.product.name }}</h1>
-<div class="info-row">
-<div class="rating-section">
-<ion-icon :icon="star"></ion-icon>
-<span class="rating-value">5.1</span>
-<span class="review-count">(20)</span>
-</div>
-<div class="status-label open">
-<span class="status-dot"></span>
-Open Now
-</div>
-</div>
-</div>
-
-
-
-
-
-
-
-<!-- Compact Info Row -->
-<div class="info-card">
-<div class="info-item">
-<ion-icon :icon="locationSharp" class="info-icon"></ion-icon>
-<div class="info-text">
-<span class="info-main">{{ shopDetails.product.address }}</span>
-<span class="info-sub">0.5 km away</span>
-</div>
-</div>
-<button class="directions-button" @click="setOpen(true)">
-<ion-icon :icon="navigateOutline"></ion-icon>
-Directions
-</button>
-</div>
-
-
-
-
-
-<!-- Opening Hours -->
-<div class="simple-card">
-<div class="card-header">
-<ion-icon :icon="timeOutline" class="header-icon"></ion-icon>
-<span class="card-title">Opening Hours</span>
-</div>
-<div class="hours-text">{{ shopDetails.product.hours }}</div>
-</div>
-
-
-
-
-
 <!-- Quick Actions -->
 <div class="action-buttons">
 <button class="action-btn call" @click="callShop">
@@ -99,10 +36,10 @@ Directions
 
 
 <!-- Menu Section -->
-<div class="section" v-if="shopDetails.menu.length">
+<div class="section" v-if="menu.length">
 <h2 class="section-title">Menu</h2>
 <div class="menu-list">
-<div v-for="(i,key) in shopDetails.menu" :key="key" class="menu-item">
+<div v-for="(i,key) in menu" :key="key" class="menu-item">
 <img :src="i.image" :alt="i.name" class="menu-item-image" />
 <div class="menu-item-content">
 <h3 class="menu-item-name">{{ i.name }}</h3>
@@ -125,7 +62,7 @@ Directions
 <div class="section">
 <h2 class="section-title">About</h2>
 <div class="simple-card">
-<p class="description-text">{{ shopDetails.product.description }}</p>
+<p class="description-text">{{ product.about}}</p>
 </div>
 </div>
 
@@ -138,10 +75,10 @@ Directions
 
 
 <!-- Amenities -->
-<div class="section" v-if="shopDetails.amenity.length>0">
+<div class="section" v-if="amenity.length>0">
 <h2 class="section-title">Amenities</h2>
 <div class="amenities-list">
-<div v-for="amenity in shopDetails.product.amenity" :key="amenity.name" class="amenity-box">
+<div v-for="amenity in amenity" :key="amenity.name" class="amenity-box">
 <ion-icon :icon="amenity.icon" class="amenity-icon"></ion-icon>
 <span class="amenity-label">{{ amenity.name }}</span>
 </div>
@@ -164,7 +101,7 @@ Directions
 <ion-icon :icon="locationSharp"></ion-icon>
 </div>
 <div class="map-text">
-<div class="map-address">{{ shopDetails.product.address }}</div>
+<div class="map-address">{{ product.address }}</div>
 <div class="map-action">Tap to open map</div>
 </div>
 </div>
@@ -180,16 +117,16 @@ Directions
 
 
 <!-- Reviews -->
-<div class="section" v-if="shopDetails.rating.length>0">
+<div class="section" v-if="rating.length>0">
 <div class="reviews-header">
 <h2 class="section-title">Reviews</h2>
 <div class="rating-badge">
 <ion-icon :icon="star"></ion-icon>
-<span>5.1</span>
+<span>{{ rating.length }} </span>
 </div>
 </div>
 <div class="reviews-container">
-<div v-for="review in shopDetails.rating.slice(0, 2)" :key="review.id" class="review-card">
+<div v-for="review in rating.slice(0, 2)" :key="review.id" class="review-card">
 <div class="review-top">
 <span class="reviewer-name text-capitalize">{{ review.names }}</span>
 <div class="review-stars">
@@ -254,7 +191,7 @@ Directions
 
 <!-----Modal 2------->
 <ion-modal :is-open="isMenu" @didDismiss="isMenu=false">
-<shop-layout title="Our menu">
+<shop-layout :title="title" :subtitle="subtitle" :image="image">
 <template #header-buttons>
 <ion-button @click="setMenu(false)">
 <ion-icon :icon="close" class="icon"></ion-icon>
@@ -274,7 +211,7 @@ Directions
 
 <!-----Modal 3------->
 <ion-modal :is-open="isOrder" @didDismiss="isOrder=false">
-<shop-layout title="Make orders">
+<shop-layout :title="title">
 <template #header-buttons>
 <ion-buttons slot="end">
 <ion-button @click="setOrder(false)">
@@ -312,6 +249,7 @@ import DateService from '../service/DateService';
 import MapModalContent from './model/MapModalContent.vue';
 import CoffeeShopMenuModal from './model/CoffeeShopMenuModal.vue';
 import CoffeeShopOrderModal from './model/CoffeeShopOrderModal.vue';
+import CoffeeShopHeading from './template/CoffeeShopHeading.vue';
 
 import {
 heart,
@@ -342,20 +280,24 @@ const openMap = () => console.log('Opening map');
 const addToCart = (item) => console.log('Adding to cart:', item.name);
 
 
+//product details
+const product=ref('');
+const menu=ref([]);
+const amenity=ref([]);
+const rating=ref([]);
 
 
-const shopDetails=reactive({
-product:{},
-menu:[],
-rating:[],
-amenity:[]
-});
 
-
+const title=ref('');
+const subtitle=ref('');
+const image=ref('');
 const isLoading=ref(false);
 const error=ref(false);
+
 onMounted(async ()=>{
+
 try{
+
 isLoading.value=true;
 const url=useRoute();
 const id=url.params.id;
@@ -364,28 +306,25 @@ const response = await service.coffeeShopDetails(id);
 if(response.status===200){
 const data=response.data[0];
 
-//shop details
-shopDetails.product={
-name: data.name,
-heroImage: data.image,
-rating: 4.8,
-reviewCount: 342,
-isOpen: true,
-address: data.address,
-distance: '3.2 km',
-hours: data.open_hours,
-description: data.about,
-
-//amenity
-amenity:'',
-
-
-};
-
-
+//get all details
+const prod={
+name:data.name,
+image:data.image,
+address:data.address,
+tel:data.tel,
+open_hours:data.open_hours,
+about:data.about,
+location:data.location,
+rating:data.coffee_shop_rating.length,
+distance:'0.5 km away from your location',
+reviews:'20 Reviews'
+}
+title.value=prod.name;
+product.value=prod;
+menu.value=data.business.product;
 
 //format amenity
-const amenity=[];
+const amenities=[];
 data.coffee_shop_amenity.forEach(element => {
 const itemName=element.icon;
 let icon='';
@@ -402,16 +341,15 @@ icon=sunny;
 }else if(itemName=='water'){
 icon=water;
 }
-amenity.push({
+
+amenities.push({
 name:itemName,
 icon:icon
 });
 });
 
-//
-shopDetails.product.amenity=amenity;
-shopDetails.menu=data.business.product;
-shopDetails.amenity=data.coffee_shop_amenity;
+amenity.value=amenities;
+
 
 //format rating date
 const dateFormatService = new DateService ();
@@ -425,7 +363,8 @@ date:dateFormatService.formatDate(element.created_at)
 });  
 });
 
-shopDetails.rating=rateDate;
+//format header
+rating.value=rateDate;
 
 
 }else{
@@ -438,6 +377,10 @@ isLoading.value=false;
 }
 
 });
+
+
+
+
 
 //get the modal
 const isOpen = ref(false);
