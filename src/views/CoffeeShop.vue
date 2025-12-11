@@ -1,17 +1,144 @@
+<template>
+<ShopLayout :title="business.name">
+<template #header-buttons>
+<ShopHeaderButtons/>
+</template>
+<template #content>
+<div>
+<div v-if="isLoading==false">
+
+<div class="quick-stats" style="margin-top:-20px;padding-top:35px;">
+<div class="stat-item" @click="handleCall">
+<ion-icon :icon="callOutline"></ion-icon>
+<span>CALL</span>
+</div>
+
+<div class="stat-item" @click="handleMenu">
+<ion-icon :icon="fastFoodOutline"></ion-icon>
+<span>MENU</span>
+</div>
+
+<div class="stat-item" @click="handleOrders">
+<ion-icon :icon="bagHandleOutline"></ion-icon>
+<span>ORDERS</span>
+</div>
+</div>
+
+<div class="content-bg" >
+
+
+<!-- COFFEE TYPE LINKS -->
+<div class="type-links">
+<div v-for="type in coffeeTypes" :key="type.id" :class="['type-link',]" @click="selectedType = type.id">
+<div class="type-icon-box" :style="{ background: type.color }">
+<ion-icon :icon="type.icon" class="type-icon"></ion-icon>
+</div>
+<span class="type-name">{{ type.name }}</span>
+</div>
+</div>
+
+
+
+<!-- SECTION HEADER -->
+<div class="section-header">
+<h2 class="section-title">Menu</h2>
+<span class="product-count">{{ products.length }} products</span>
+</div>
+
+<div class="products-container" v-if="products.length>1">
+
+
+
+
+<div v-for="(product, index) in products" 
+:key="product.id" class="product-card" :style="{ animationDelay: `${index * 0.05}s` }">
+
+<!-- Image Container -->
+<div class="image-container">
+<img :src="product.image" :alt="product.name" class="product-image" />
+<div class="image-overlay"></div>
+<ion-button fill="clear" class="fav-btn" :class="{ active: product.favorite }">
+<ion-icon :icon="product.favorite ? heart : heartOutline"></ion-icon>
+</ion-button>
+<div class="product-badge" v-if="product.badge">{{ product.badge }}</div>
+</div>
+
+<!-- Content -->
+<div class="card-content">
+<h3 class="product-name">{{ product.name }}</h3>
+<!-- <p class="product-type">{{ product.type }}</p> -->
+
+<div class="product-meta">
+<span class="meta-item">
+<ion-icon :icon="locationOutline" class="meta-icon"></ion-icon>
+{{ product.type }}
+</span>
+<span class="meta-divider">•</span>
+<span class="meta-item">
+<ion-icon :icon="flameOutline" class="meta-icon"></ion-icon>
+{{ product.roast_level }}
+</span>
+</div>
+
+<div class="card-footer">
+<div class="price-section">
+<span class="price">Shs. {{ product.price }}</span>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+</div>
+
+</div>
+<Skeleton v-else style="margin:20px;"/>
+
+
+
+
+
+
+
+</div>
+</template>
+</ShopLayout>
+</template>
 <script setup>
-import AppLayout from './template/AppLayout.vue';
-import HeadButtonsDefault from './template/HeadButtonsDefault.vue';
+import ShopLayout from './template/ShopLayout.vue';
+import ShopHeaderButtons from './template/ShopHeaderButtons.vue';
 import Skeleton from './template/Skeleton.vue';
-import { ref, computed, onMounted } from 'vue';
-import { useIonRouter } from '@ionic/vue';
-import ProductService from '@/service/ProductService';
+import { ref,onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import BusinessService from '../service/BusinessService';
+import { IonIcon,IonButton } from '@ionic/vue';
 import {
-IonButton,
-IonContent,
-IonIcon,
-} from "@ionic/vue";
-import {
-arrowBackOutline,
+callOutline,
+fastFoodOutline,
+bagHandleOutline,
+
 cartOutline,
 heartOutline,
 heart,
@@ -24,12 +151,13 @@ cafeOutline,
 flashOutline,
 moonOutline,
 sunnyOutline,
-} from "ionicons/icons";
+} from 'ionicons/icons';
 
-const router = useIonRouter();
-const selectedType = ref('all');
 
-const coffeeTypes = [
+
+
+
+const coffeeTypes = ref([
 { 
 id: 'all', 
 name: 'All Coffee', 
@@ -54,226 +182,147 @@ name: 'Dark Roast',
 icon: moonOutline,
 color: 'linear-gradient(135deg, #2c1810 0%, #4a2c2a 100%)'
 },
-];
+]);
 
-const products = ref('');
-
-const filteredProducts = computed(() => {
-if (selectedType.value === 'all') {
-return products.value;
-}
-return products.value.filter(p => p.category === selectedType.value);
-});
-
-const currentTypeTitle = computed(() => {
-const type = coffeeTypes.find(t => t.id === selectedType.value);
-return type ? type.name : 'All Coffee';
-});
-
-const goBack = () => {
-router.back();
-};
-
-const viewProduct = (product) => {
-console.log('View product:', product);
-};
-
-const toggleFavorite = (product) => {
-product.favorite = !product.favorite;
-};
-
-const addToCart = (product) => {
-console.log('Add to cart:', product);
-};
-
+const url=useRoute();
+const business=ref('');
 const isLoading=ref(false);
 const error=ref(null);
+const products=ref([]);
+
 
 onMounted(async()=>{
 try{
-isLoading.value = true;
-const database = new ProductService();
-const response = await database.getProducts();
-
+isLoading.value=true;
+const id=url.params.id;
+const service=new BusinessService();
+const response=await service.businessDetails(id);
 if(response.status===200){
-const items=[];
-response.data.forEach(element => {
-items.push({
-id: element.id,
-name: element.name,
-type: element.type,
-price: element.price,
-rating: 4.8,
-origin: "Elgon",
-roast: element.roast_level,
-category: "arabica",
-image: element.image,
-favorite: false,
-badge: "Organic"
-})    
-});
+let data=response.data;
+data=data[0];
+business.value=data;
+products.value=data.product;
 
-products.value=items;
+console.log(products.value);
+
 
 }else{
-console.log(response.error);
-error.value='Unable to complete, please try again.';
+error.value=response.error;
 }
-
 }catch(e){
 console.log(e);
-error.value=e;
 }finally{
 isLoading.value=false;
 }
+
+
+
+
 });
+
 </script>
-
-<template>
-<app-layout title="Buy Coffee">
-<template #header-buttons>
-<head-buttons-default/>
-</template>
-
-<template #content>
-<div class="content-bg" v-if="isLoading==false">
-<!-- COFFEE TYPE LINKS -->
-<div class="type-links">
-<div 
-v-for="type in coffeeTypes" 
-:key="type.id"
-:class="['type-link', { active: selectedType === type.id }]"
-@click="selectedType = type.id">
-<div class="type-icon-box" :style="{ background: type.color }">
-<ion-icon :icon="type.icon" class="type-icon"></ion-icon>
-</div>
-<span class="type-name">{{ type.name }}</span>
-</div>
-</div>
-
-<!-- SECTION HEADER -->
-<div class="section-header">
-<h2 class="section-title">{{ currentTypeTitle }}</h2>
-<span class="product-count">{{ filteredProducts.length }} products</span>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- PRODUCTS GRID (TILE FORMAT) -->
-<div class="products-container">
-
-
-<div v-for="(product, index) in filteredProducts" 
-:key="product.id" 
-class="product-card"
-:style="{ animationDelay: `${index * 0.05}s` }"
-@click="viewProduct(product)">
-
-<!-- Image Container -->
-<div class="image-container">
-<img :src="product.image" :alt="product.name" class="product-image" />
-<div class="image-overlay"></div>
-<ion-button 
-fill="clear" 
-class="fav-btn"
-:class="{ active: product.favorite }"
-@click.stop="toggleFavorite(product)">
-<ion-icon :icon="product.favorite ? heart : heartOutline"></ion-icon>
-</ion-button>
-<div class="product-badge" v-if="product.badge">{{ product.badge }}</div>
-<div class="rating-overlay">
-<ion-icon :icon="star" class="star-icon"></ion-icon>
-<span>{{ product.rating }}</span>
-</div>
-</div>
-
-<!-- Content -->
-<div class="card-content">
-<h3 class="product-name">{{ product.name }}</h3>
-<p class="product-type">{{ product.type }}</p>
-
-<div class="product-meta">
-<span class="meta-item">
-<ion-icon :icon="locationOutline" class="meta-icon"></ion-icon>
-{{ product.origin }}
-</span>
-<span class="meta-divider">•</span>
-<span class="meta-item">
-<ion-icon :icon="flameOutline" class="meta-icon"></ion-icon>
-{{ product.roast }}
-</span>
-</div>
-
-<div class="card-footer">
-<div class="price-section">
-<span class="price">Shs. {{ product.price }}</span>
-</div>
-<ion-button 
-fill="solid"
-class="add-btn"
-@click.stop="addToCart(product)">
-<ion-icon :icon="addOutline"></ion-icon>
-</ion-button>
-</div>
-</div>
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- EMPTY STATE -->
-<div v-if="filteredProducts.length === 0" class="empty-state">
-<ion-icon :icon="searchOutline" class="empty-icon"></ion-icon>
-<p class="empty-text">No products found</p>
-</div>
-
-<!-- SPACER -->
-<div class="bottom-spacer"></div>
-</div>
-<skeleton v-else style="margin:20px;"/>
-</template>
-</app-layout>   
-</template>
-
 <style scoped>
+.quick-stats {
+display: flex;
+justify-content: space-around;
+padding: 16px 0;
+margin: 0;
+border-radius: 0 0 20px 20px;
+background: white;
+}
+
+.stat-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 6px;
+padding: 8px 16px;
+cursor: pointer;
+border-radius: 12px;
+transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+background: rgba(139, 111, 71, 0.05);
+}
+
+.stat-item:active {
+transform: scale(0.95);
+background: rgba(139, 111, 71, 0.1);
+}
+
+.stat-item ion-icon {
+font-size: 30px;
+color: #8B6F47;
+transition: transform 0.3s ease;
+}
+
+.stat-item:active ion-icon {
+transform: scale(1.1);
+}
+
+.stat-item span {
+font-size: 15px;
+font-weight: 600;
+color: #666;
+text-align: center;
+transition: color 0.3s ease;
+}
+
+.stat-item:active span {
+color: #8B6F47;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 400px) {
+.quick-stats {
+padding: 12px 0;
+}
+
+.stat-item {
+padding: 6px 12px;
+}
+
+.stat-item ion-icon {
+font-size: 26px;
+}
+
+.stat-item span {
+font-size: 13px;
+}
+}
+
+@media (max-width: 320px) {
+.stat-item {
+padding: 6px 8px;
+}
+
+.stat-item ion-icon {
+font-size: 24px;
+}
+
+.stat-item span {
+font-size: 12px;
+}
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+.stat-item,
+.stat-item ion-icon {
+transition: none !important;
+}
+}
+
+.stat-item:focus-visible {
+outline: 3px solid #8B6F47;
+outline-offset: 2px;
+}
+
+
+
+
+
 /* ===== CSS VARIABLES ===== */
 :root {
 --coffee-dark: #4a2c2a;
@@ -663,4 +712,16 @@ font-size: 14px;
 font-size: 15px;
 }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 </style>

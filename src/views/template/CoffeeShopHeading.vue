@@ -1,438 +1,648 @@
 <template>
-<div class="shop-info-section">
-<!-- Shop Header -->
-<div class="info-header" v-if="head">
-<div class="header-content">
-<div class="name-container">
-<h1 class="shop-name">{{ head.name }}  </h1>
-<div class="verified-badge">
-<ion-icon :icon="checkmarkCircle"></ion-icon>
-</div>
-</div>
-<p class="shop-tagline">
-{{ head.distance }}
-</p>
+<div class="coffee-heading-component" style="padding-bottom:0;">
 
-<!-- Rating Inline -->
-<div class="inline-rating">
-<div class="stars">
-<ion-icon :icon="star"></ion-icon>
-<ion-icon :icon="star"></ion-icon>
-<ion-icon :icon="star"></ion-icon>
-<ion-icon :icon="star"></ion-icon>
-<ion-icon :icon="starHalf"></ion-icon>
-</div>
-<span class="rating-text">{{ head.rating }} </span>
-<span class="divider">•</span>
-<span class="reviews-link">{{ head.reviews }} </span>
-</div>
-</div>
-<ion-button 
-fill="clear" 
-class="favorite-button"
->
-<ion-icon 
-slot="icon-only" 
-:icon="heartOutline"
-></ion-icon>
-</ion-button>
+<!-- Shop Info Section -->
+<div class="shop-info-card" style="border-radius: 30px;">
+<!-- Header -->
+<div class="shop-header" style="padding-top:25px;">
+<div class="header-left">
+<div class="name-row">
+  <h1 class="shop-name"> {{ head.name }} </h1>
+  <!-- <div class="verified-badge" v-if="shopData.verified">
+    <ion-icon :icon="checkmarkCircle"></ion-icon>
+  </div> -->
 </div>
 
+<div class="location-row">
+  <ion-icon :icon="locationOutline"></ion-icon>
+  <span>
+  {{ head.address }}
+  </span>
+  <span class="distance">• 
+  10 km away
+  </span>
+</div>
+
+<!-- Rating -->
+<div class="rating-row">
+  <div class="stars">
+    <ion-icon :icon="star"></ion-icon>
+    <ion-icon :icon="star"></ion-icon>
+    <ion-icon :icon="star"></ion-icon>
+    <ion-icon :icon="star"></ion-icon>
+    <ion-icon :icon="starHalf"></ion-icon>
+  </div>
+  <span class="rating-value">{{ 4.5 }} rating</span>
+  <span class="divider">•</span>
+  <span class="reviews">100 reviews</span>
+</div>
+</div>
+</div>
+
+<!-- Quick Stats -->
+<div class="quick-stats" style="padding-bottom: 0;margin:0;border-radius: 20px;">
+<div class="stat-item" style="padding-bottom: 0;margin:0">
+<ion-icon :icon="callOutline" style="font-size:30px;"></ion-icon>
+<span style="font-size:15px;">CALL</span>
+</div>
+<div class="stat-item" style="padding-bottom: 0;margin:0">
+<ion-icon :icon="fastFoodOutline" style="font-size:30px;">></ion-icon>
+<span style="font-size:15px;">MENU</span>
+</div>
+<div class="stat-item" style="padding-bottom: 0;margin:0;">
+<ion-icon :icon="bagHandleOutline" style="font-size:30px;"></ion-icon>
+<span style="font-size:15px;">ORDERS</span>
+</div>
+</div>
+
+
+
+</div>
 
 </div>
 </template>
 
 <script setup>
+import { ref, defineProps, defineEmits,onMounted } from 'vue';
+import { IonIcon } from '@ionic/vue';
 import {
-  IonIcon,
-  IonChip,
-  IonLabel,
-  IonButton,
-} from '@ionic/vue';
-import {
-  locationOutline,
-  heart,
-  heartOutline,
-  star,
-  starHalf,
-  timeOutline,
-  bicycleOutline,
-  callOutline,
-  navigateOutline,
-  shareOutline,
-  checkmarkCircle,
-  walletOutline,
-  wifiOutline,
-  leafOutline,
-  cardOutline,
+heart,
+heartOutline,
+star,
+starHalf,
+checkmarkCircle,
+locationOutline,
+timeOutline,
+bicycleOutline,
+walletOutline,
+callOutline,
+restaurantOutline,
+bagHandleOutline,
+arrowBack,
+fastFoodOutline,
+cartOutline,
 } from 'ionicons/icons';
-import { defineProps,onMounted,ref } from 'vue';
 
-
-const props=defineProps({
-heading: ''
+const props = defineProps({
+heading:''
 });
-const head=ref(props.heading);
+
+
+const head=ref('');
+onMounted(()=>{
+head.value=props.heading;
+});
 
 
 
 
+
+
+
+const emit = defineEmits(['back', 'call', 'menu', 'order', 'favorite']);
+const isFavorite = ref(false);
+
+const handleBack = () => {
+emit('back');
+if ('vibrate' in navigator) {
+navigator.vibrate(10);
+}
+};
+
+const toggleFavorite = () => {
+isFavorite.value = !isFavorite.value;
+emit('favorite', isFavorite.value);
+if ('vibrate' in navigator) {
+navigator.vibrate(15);
+}
+};
+
+const handleCall = () => {
+emit('call');
+if ('vibrate' in navigator) {
+navigator.vibrate(10);
+}
+};
+
+const handleMenu = () => {
+emit('menu');
+if ('vibrate' in navigator) {
+navigator.vibrate(10);
+}
+};
+
+const handleOrder = () => {
+emit('order');
+if ('vibrate' in navigator) {
+navigator.vibrate(15);
+}
+};
 </script>
 
 <style scoped>
-.shop-info-section {
-  background: white;
-  margin-top:-10px;
-  padding: 28px 24px;
-  margin-bottom: 0px;
-  border-radius: 0 0 20px 20px;
+.coffee-heading-component {
+position: relative;
+background: #ffffff;
+border-radius: 0 0 20px 20px;
 }
 
-/* Header Section */
-.info-header {
-
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0px;
-  padding-top:10px;
+/* ============ HERO SECTION ============ */
+.hero-section {
+position: relative;
+width: 100%;
+height: 240px;
+overflow: hidden;
 }
 
-.header-content {
-  flex: 1;
-  min-width: 0;
+.hero-image {
+width: 100%;
+height: 100%;
+background-size: cover;
+background-position: center;
+position: relative;
 }
 
-.name-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+.hero-overlay {
+position: absolute;
+inset: 0;
+background: linear-gradient(
+to bottom,
+rgba(0, 0, 0, 0.3) 0%,
+rgba(0, 0, 0, 0.1) 50%,
+rgba(0, 0, 0, 0.4) 100%
+);
 }
 
-.shop-name {
-  font-size: 32px;
-  font-weight: 800;
-  margin: 0;
-  color: #0a0a0a;
-  line-height: 1.1;
-  letter-spacing: -0.5px;
+/* Hero Buttons */
+.back-button,
+.favorite-button {
+position: absolute;
+top: 16px;
+width: 40px;
+height: 40px;
+background: rgba(255, 255, 255, 0.95);
+backdrop-filter: blur(10px);
+border: none;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: all 0.3s ease;
+z-index: 10;
 }
 
-.verified-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.verified-badge ion-icon {
-  font-size: 24px;
-  color: #4CAF50;
-}
-
-.shop-tagline {
-  font-size: 15px;
-  font-weight: 500;
-  color: #666;
-  margin: 0 0 12px 0;
-  line-height: 1.4;
-}
-
-/* Inline Rating */
-.inline-rating {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.stars {
-  display: flex;
-  gap: 2px;
-}
-
-.stars ion-icon {
-  font-size: 16px;
-  color: #FFA726;
-}
-
-.rating-text {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0a0a0a;
-  margin-left: 2px;
-}
-
-.divider {
-  color: #ccc;
-  font-size: 14px;
-}
-
-.reviews-link {
-  font-size: 14px;
-  color: #666;
-  font-weight: 500;
+.back-button {
+left: 16px;
 }
 
 .favorite-button {
-  --padding-start: 8px;
-  --padding-end: 8px;
-  margin: -4px 0 0 0;
-  flex-shrink: 0;
+right: 16px;
+}
+
+.back-button:active,
+.favorite-button:active {
+transform: scale(0.9);
+background: white;
+}
+
+.back-button ion-icon {
+font-size: 24px;
+color: #0a0a0a;
 }
 
 .favorite-button ion-icon {
-  font-size: 30px;
-  color: #d0d0d0;
-  transition: all 0.2s ease;
+font-size: 24px;
+color: #e74c3c;
 }
 
-.favorite-button:active ion-icon {
-  color: #e74c3c;
-  transform: scale(1.15);
+/* ============ SHOP INFO CARD ============ */
+.shop-info-card {
+background: white;
+margin-top: -24px;
+border-radius: 24px 24px 0 0;
+padding: 24px;
+position: relative;
+z-index: 2;
 }
 
-/* Location Bar */
-.location-bar {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 20px;
+/* Shop Header */
+.shop-header {
+margin-bottom: 20px;
 }
 
-.location-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.header-left {
+display: flex;
+flex-direction: column;
+gap: 8px;
 }
 
-.location-item > ion-icon {
-  font-size: 24px;
-  color: #2196F3;
-  flex-shrink: 0;
+.name-row {
+display: flex;
+align-items: center;
+gap: 8px;
 }
 
-.location-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.shop-name {
+font-size: 28px;
+font-weight: 900;
+color: #0a0a0a;
+margin: 0;
+letter-spacing: -0.5px;
+line-height: 1.1;
 }
 
-.location-main {
-  font-size: 15px;
-  font-weight: 600;
-  color: #0a0a0a;
-  line-height: 1.3;
+.verified-badge {
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
 }
 
-.location-sub {
-  font-size: 13px;
-  color: #666;
-  font-weight: 500;
+.verified-badge ion-icon {
+font-size: 22px;
+color: #4CAF50;
 }
 
-/* Status Cards */
-.status-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
+.location-row {
+display: flex;
+align-items: center;
+gap: 6px;
+font-size: 14px;
+color: #666;
+font-weight: 500;
 }
 
-.status-card {
-  background: #ffffff;
-  border: 2px solid #f0f0f0;
-  border-radius: 16px;
-  padding: 16px 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  transition: all 0.2s ease;
+.location-row ion-icon {
+font-size: 16px;
+color: #8B6F47;
 }
 
-.status-card:active {
-  transform: scale(0.96);
-  border-color: #e0e0e0;
+.distance {
+color: #999;
 }
 
-.card-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
+.rating-row {
+display: flex;
+align-items: center;
+gap: 6px;
 }
 
-.open-card .card-icon {
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+.stars {
+display: flex;
+gap: 2px;
 }
 
-.open-card .card-icon ion-icon {
-  font-size: 22px;
-  color: #2e7d32;
+.stars ion-icon {
+font-size: 15px;
+color: #FFA726;
 }
 
-.delivery-card .card-icon {
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+.rating-value {
+font-size: 14px;
+font-weight: 700;
+color: #0a0a0a;
+margin-left: 2px;
 }
 
-.delivery-card .card-icon ion-icon {
-  font-size: 22px;
-  color: #1565c0;
+.divider {
+color: #ccc;
+font-size: 14px;
 }
 
-.price-card .card-icon {
-  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+.reviews {
+font-size: 13px;
+color: #666;
+font-weight: 500;
 }
 
-.price-card .card-icon ion-icon {
-  font-size: 22px;
-  color: #ef6c00;
+/* Quick Stats */
+.quick-stats {
+display: flex;
+justify-content: space-around;
+padding: 16px 0;
+margin-bottom: 16px;
+border-radius: 16px;
 }
 
-.card-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.stat-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 6px;
+
 }
 
-.card-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #999;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.stat-item ion-icon {
+font-size: 20px;
+color: #8B6F47;
 }
 
-.card-value {
-  font-size: 14px;
-  font-weight: 700;
-  color: #0a0a0a;
-  line-height: 1.2;
+.stat-item span {
+font-size: 11px;
+font-weight: 600;
+color: #666;
+text-align: center;
 }
 
-/* Features Section */
-.features-section {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
+/* ============ ACTION BUTTONS ============ */
+.action-buttons {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+padding: 0;
+margin: 0;
 }
 
-.feature-tag {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #f8f9fa;
-  border: 1.5px solid #e9ecef;
-  border-radius: 24px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #495057;
-  transition: all 0.2s ease;
+.action-btn {
+position: relative;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 0;
+background: white;
+border: none;
+border-radius: 16px;
+cursor: pointer;
+overflow: hidden;
+transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+min-height: 70px;
 }
 
-.feature-tag:active {
-  transform: scale(0.95);
-  background: #e9ecef;
+.action-btn::before {
+content: '';
+position: absolute;
+inset: 0;
+border-radius: 16px;
+padding: 1.5px;
+-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+-webkit-mask-composite: xor;
+mask-composite: exclude;
+opacity: 0;
+transition: opacity 0.3s ease;
 }
 
-.feature-tag ion-icon {
-  font-size: 16px;
-  color: #6c757d;
+.action-btn:active::before {
+opacity: 1;
 }
 
-/* Description */
-.shop-description {
-  margin-bottom: 24px;
+.btn-background {
+position: absolute;
+inset: 0;
+background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+opacity: 0;
+transition: opacity 0.4s ease;
 }
 
-.description-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #0a0a0a;
-  margin: 0 0 12px 0;
-  letter-spacing: -0.3px;
+.action-btn:active .btn-background {
+opacity: 1;
 }
 
-.description-text {
-  font-size: 15px;
-  color: #495057;
-  line-height: 1.6;
-  margin: 0;
+.btn-glow {
+position: absolute;
+inset: -2px;
+background: radial-gradient(circle at 50% 50%, rgba(139, 111, 71, 0.15) 0%, transparent 60%);
+opacity: 0;
+filter: blur(10px);
+transition: opacity 0.4s ease;
 }
 
-/* Quick Actions */
-.quick-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
+.action-btn:active .btn-glow {
+opacity: 1;
+animation: glow-pulse 0.6s ease-out;
 }
 
-.action-button {
-  --border-radius: 14px;
-  --padding-top: 14px;
-  --padding-bottom: 14px;
-  --border-width: 2px;
-  font-size: 15px;
-  font-weight: 600;
-  text-transform: none;
-  letter-spacing: -0.2px;
-  height: 52px;
+@keyframes glow-pulse {
+0% { transform: scale(0.8); opacity: 0; }
+50% { opacity: 1; }
+100% { transform: scale(1.2); opacity: 0; }
 }
 
-.primary-action {
-  --background: #0a0a0a;
-  --background-activated: #2a2a2a;
+.btn-content {
+position: relative;
+z-index: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 6px;
+transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.action-button ion-icon {
-  font-size: 20px;
+.action-btn:active .btn-content {
+transform: translateY(-2px) scale(1.02);
 }
 
-.share-button {
-  --color: #6c757d;
-  --padding-top: 12px;
-  --padding-bottom: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: none;
-  letter-spacing: -0.1px;
+.icon-badge {
+position: relative;
+width: 40px;
+height: 40px;
+display: flex;
+align-items: center;
+justify-content: center;
+border-radius: 12px;
+transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.share-button ion-icon {
-  font-size: 18px;
+.action-btn:active .icon-badge {
+transform: scale(1.12);
 }
 
-/* Responsive Design */
-@media (max-width: 360px) {
-  .shop-info-section {
-    padding: 24px 20px;
-  }
-
-  .shop-name {
-    font-size: 28px;
-  }
-
-  .status-cards {
-    grid-template-columns: 1fr;
-  }
-
-  .quick-actions {
-    grid-template-columns: 1fr;
-  }
+.icon-badge ion-icon {
+font-size: 20px;
+position: relative;
+z-index: 2;
+transition: all 0.3s ease;
 }
 
-@media (min-width: 768px) {
-  .shop-info-section {
-    border-radius: 20px;
-    margin: 12px;
-  }
+.action-btn:active .icon-badge ion-icon {
+transform: rotate(-8deg);
 }
+
+.icon-ripple {
+position: absolute;
+inset: -3px;
+border-radius: 12px;
+opacity: 0;
+transition: all 0.5s ease;
+}
+
+.action-btn:active .icon-ripple {
+opacity: 1;
+animation: ripple-expand 0.6s ease-out;
+}
+
+@keyframes ripple-expand {
+0% { 
+transform: scale(0.8);
+opacity: 0.8;
+}
+100% { 
+transform: scale(1.4);
+opacity: 0;
+}
+}
+
+.btn-label {
+font-size: 11px;
+font-weight: 800;
+letter-spacing: -0.2px;
+transition: all 0.3s ease;
+}
+
+.action-btn:active .btn-label {
+transform: translateY(-1px);
+}
+
+/* Call Button */
+.call-btn .icon-badge {
+background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+}
+
+.call-btn .icon-badge ion-icon {
+color: #1565C0;
+}
+
+.call-btn .icon-ripple {
+background: radial-gradient(circle, rgba(25, 118, 210, 0.3) 0%, transparent 70%);
+}
+
+.call-btn .btn-label {
+color: #1565C0;
+}
+
+.call-btn:active {
+transform: translateY(-3px);
+}
+
+/* Menu Button */
+.menu-btn .icon-badge {
+background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+}
+
+.menu-btn .icon-badge ion-icon {
+color: #EF6C00;
+}
+
+.menu-btn .icon-ripple {
+background: radial-gradient(circle, rgba(245, 124, 0, 0.3) 0%, transparent 70%);
+}
+
+.menu-btn .btn-label {
+color: #EF6C00;
+}
+
+.menu-btn:active {
+transform: translateY(-3px);
+}
+
+/* Order Button */
+.order-btn .icon-badge {
+background: linear-gradient(135deg, #8B6F47 0%, #6B563D 100%);
+}
+
+.order-btn .icon-badge ion-icon {
+color: white;
+}
+
+.order-btn .icon-ripple {
+background: radial-gradient(circle, rgba(139, 111, 71, 0.3) 0%, transparent 70%);
+}
+
+.order-btn .btn-label {
+color: #8B6F47;
+}
+
+.order-btn:active {
+transform: translateY(-4px) scale(1.02);
+}
+
+.order-btn .btn-glow {
+background: radial-gradient(circle at 50% 50%, rgba(139, 111, 71, 0.15) 0%, transparent 60%);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 400px) {
+.hero-section {
+height: 220px;
+}
+
+.shop-info-card {
+padding: 20px;
+margin-top: -20px;
+}
+
+.shop-name {
+font-size: 24px;
+}
+
+.action-buttons {
+gap: 8px;
+}
+
+.action-btn {
+min-height: 60px;
+border-radius: 14px;
+}
+
+.icon-badge {
+width: 36px;
+height: 36px;
+border-radius: 10px;
+}
+
+.icon-badge ion-icon {
+font-size: 18px;
+}
+
+.btn-label {
+font-size: 10px;
+}
+}
+
+@media (max-width: 320px) {
+.hero-section {
+height: 200px;
+}
+
+.action-buttons {
+grid-template-columns: 1fr;
+gap: 8px;
+}
+
+.action-btn {
+flex-direction: row;
+justify-content: center;
+min-height: 50px;
+}
+
+.btn-content {
+flex-direction: row;
+gap: 10px;
+}
+
+.icon-badge {
+width: 36px;
+height: 36px;
+}
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+.action-btn,
+.btn-content,
+.icon-badge,
+.icon-ripple {
+animation: none !important;
+transition: none !important;
+}
+}
+
+.action-btn:focus-visible,
+.back-button:focus-visible,
+.favorite-button:focus-visible {
+outline: 3px solid #8B6F47;
+outline-offset: 2px;
+}
+
 </style>

@@ -16,31 +16,28 @@ image:String
 <ion-header translucent class="header ion-no-border">
 <ion-toolbar style="padding-top:30px;">
 <!-- TITLE -->
-<ion-title style="font-weight:bold;">
-<!-- <ion-item class="item">
-<ion-avatar slot="start" v-if="image">
+<ion-title style="font-weight:bold;text-transform: capitalize;">
+<ion-item class="item">
+<!-- <ion-avatar slot="start" v-if="image">
 <img :alt="title" :src="image"/>
-</ion-avatar>
-<ion-label style="font-size:20px;font-weight:bold;"> 
-<div>{{ title }} </div>
+</ion-avatar> -->
+<ion-label style="font-size:20px;font-weight:bold;text-transform: capitalize;"> 
+<div> {{ title }} </div>
 <p style="color:white;font-weight: normal;">  
-{{ subtitle }}
+<!-- {{ subtitle }} -->
 </p>
 </ion-label>
-</ion-item> -->
-{{ title }}
+</ion-item>
+
+
+<!-- {{ title }} -->
+
+
 </ion-title>
 <!-- RIGHT ICONS -->
 <ion-buttons slot="end" class="button">
-<!-- <ion-button>
-<ion-icon :icon="search"/>
-</ion-button>
-<ion-button>
-<ion-icon :icon="ellipsisVertical"/>
-</ion-button> -->
 <slot name="header-buttons"/>
 </ion-buttons>
-
 </ion-toolbar>
 </ion-header>
 

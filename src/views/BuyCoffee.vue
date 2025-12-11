@@ -5,9 +5,9 @@ import Skeleton from './template/Skeleton.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useIonRouter } from '@ionic/vue';
 import ProductService from '@/service/ProductService';
+
 import {
 IonButton,
-IonContent,
 IonIcon,
 } from "@ionic/vue";
 import {
@@ -124,6 +124,7 @@ badge: "Organic"
 
 products.value=items;
 
+
 }else{
 console.log(response.error);
 error.value='Unable to complete, please try again.';
@@ -194,6 +195,12 @@ v-for="type in coffeeTypes"
 <span class="product-count">{{ filteredProducts.length }} products</span>
 </div>
 
+
+
+
+
+
+
 <!-- PRODUCTS GRID -->
 <div class="products-container">
 <div 
@@ -252,6 +259,16 @@ class="fav-btn"
 </div>
 </div>
 </div>
+
+
+
+
+
+
+
+
+
+
 
 <!-- EMPTY STATE -->
 <div v-if="filteredProducts.length === 0" class="empty-state">

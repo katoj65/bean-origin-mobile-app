@@ -4,6 +4,7 @@ import { ref,reactive,onMounted } from 'vue';
 import AppLayout from './template/AppLayout.vue';
 import CoffeeShopService from '../service/CoffeeShopService';
 import Skeleton from './template/Skeleton.vue';
+import BusinessService from '../service/BusinessService';
 
 import {
 IonButtons,
@@ -34,23 +35,24 @@ navigateOutline,
 
 const router=useIonRouter();
 function navigateToShop(id){
-router.push('/coffee-shop/'+id);
+router.push('/shop/'+id);
 }
-
-
 
 const coffeeShops=ref([]);
 const isLoading=ref(false);
 const error=ref(null);
-onMounted(async ()=>{
+
+onMounted(async()=>{
 try{
 isLoading.value=true;
-const service=new CoffeeShopService();
-const response=await service.getCoffeeShop(); 
+const service = new BusinessService();
+const response = await service.coffeeShopBusiness();
 if(response.status===200){
-if(response.data.length>0){
+const data=response.data;
+console.log(data);
 const items=[];
-response.data.forEach(element => {
+data.forEach(element => {
+   
 let item = {
 id: element.id,
 name: element.name,
@@ -63,20 +65,36 @@ tags: ["WiFi", "Outdoor Seating"],
 image: element.image
 }
 items.push(item);
+
+
 });
+
 
 coffeeShops.value=items;
 
-}
+
+
 }else{
 console.log(response.error);
 }
+
 }catch(e){
 console.log(e);
 }finally{
 isLoading.value=false;
 }
+
+
+
+
+
+
 });
+
+
+
+
+
 
 
 
