@@ -52,7 +52,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path:'/shop/:id',
     name:'Coffee Shop',
-    component:() => import('../views/CoffeeShop.vue')
+    component:() => import('../views/CoffeeShopLayout.vue')
   },
   {
     path:'/product-details/:id',

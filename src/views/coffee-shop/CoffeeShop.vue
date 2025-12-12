@@ -1,11 +1,6 @@
 <template>
-<ShopLayout :title="business.name">
-<template #header-buttons>
-<ShopHeaderButtons/>
-</template>
-<template #content>
 <div>
-<div v-if="isLoading==false">
+
 
 <div class="quick-stats" style="margin-top:-20px;padding-top:35px;">
 <div class="stat-item" @click="handleCall">
@@ -24,12 +19,11 @@
 </div>
 </div>
 
-<div class="content-bg" >
-
+<div class="content-bg" style="padding-bottom: 35px;">
 
 <!-- COFFEE TYPE LINKS -->
 <div class="type-links">
-<div v-for="type in coffeeTypes" :key="type.id" :class="['type-link',]" @click="selectedType = type.id">
+<div v-for="type in coffeeTypes" :key="type.id" :class="['type-link']">
 <div class="type-icon-box" :style="{ background: type.color }">
 <ion-icon :icon="type.icon" class="type-icon"></ion-icon>
 </div>
@@ -38,17 +32,14 @@
 </div>
 
 
-
-<!-- SECTION HEADER -->
 <div class="section-header">
 <h2 class="section-title">Menu</h2>
-<span class="product-count">{{ products.length }} products</span>
+<span class="product-count">{{ products.length }} Products</span>
 </div>
 
+
+
 <div class="products-container" v-if="products.length>1">
-
-
-
 
 <div v-for="(product, index) in products" 
 :key="product.id" class="product-card" :style="{ animationDelay: `${index * 0.05}s` }">
@@ -93,52 +84,19 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-
-
-
-
 </div>
 
 </div>
-<Skeleton v-else style="margin:20px;"/>
-
-
-
-
-
-
-
 </div>
-</template>
-</ShopLayout>
 </template>
 <script setup>
-import ShopLayout from './template/ShopLayout.vue';
-import ShopHeaderButtons from './template/ShopHeaderButtons.vue';
-import Skeleton from './template/Skeleton.vue';
-import { ref,onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import BusinessService from '../service/BusinessService';
-import { IonIcon,IonButton } from '@ionic/vue';
+import { defineProps,ref, onMounted } from 'vue';
+import { IonIcon, IonButton } from '@ionic/vue';
+
 import {
 callOutline,
 fastFoodOutline,
 bagHandleOutline,
-
 cartOutline,
 heartOutline,
 heart,
@@ -153,6 +111,10 @@ moonOutline,
 sunnyOutline,
 } from 'ionicons/icons';
 
+const products=ref([]);
+const props=defineProps({
+products:Array
+});
 
 
 
@@ -184,41 +146,17 @@ color: 'linear-gradient(135deg, #2c1810 0%, #4a2c2a 100%)'
 },
 ]);
 
-const url=useRoute();
-const business=ref('');
-const isLoading=ref(false);
-const error=ref(null);
-const products=ref([]);
 
 
-onMounted(async()=>{
-try{
-isLoading.value=true;
-const id=url.params.id;
-const service=new BusinessService();
-const response=await service.businessDetails(id);
-if(response.status===200){
-let data=response.data;
-data=data[0];
-business.value=data;
-products.value=data.product;
 
+
+
+onMounted(async ()=>{
+products.value=await props.products;
 console.log(products.value);
-
-
-}else{
-error.value=response.error;
-}
-}catch(e){
-console.log(e);
-}finally{
-isLoading.value=false;
-}
-
-
-
-
 });
+
+
 
 </script>
 <style scoped>
@@ -715,8 +653,18 @@ font-size: 15px;
 
 
 
+ ion-toolbar.tb{
+    --background: #19422d;
+    --color: white;
 
+    --border-color: #f24aec;
+    --border-width: 4px 0;
+    --border-style: double;
 
+    --min-height: 80px;
+    --padding-top: 20px;
+    --padding-bottom: 20px;
+  }
 
 
 
