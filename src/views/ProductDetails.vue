@@ -1,212 +1,312 @@
 <template>
 <app-layout title="Product Details">
-<template #header-buttons>
-<head-buttons-default/>
-</template>
-
 <template #content>
-<div class="content-wrapper" style="margin-top:20px;" v-if="isLoading===false">
+<div v-if="isLoading===false">
 
-<!-- PRODUCT HERO -->
-<div class="hero-section">
-<div class="product-image-wrapper">
-<img :src="item.image" :alt="product.name" class="product-image" />
-<div class="product-badge" v-if="product_standard.length>0">{{product_standard[0].standard }}</div>
+<div class="product-details-page">
+<!-- Product Card -->
+<div class="product-card">
+<!-- Product Image -->
+<div class="product-image-section">
+<img :src="product.image" alt="Coffee" class="product-image" />
+<div class="premium-badge">
+<ion-icon :icon="starOutline" class="premium-icon"></ion-icon>
+<span>Premium</span>
+</div>
+<div class="image-badge">
+<ion-icon :icon="heartOutline" class="heart-icon"></ion-icon>
 </div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- BASIC INFO -->
-<div class="info-card">
+<!-- Product Info -->
+<div class="product-info-content">
 <div class="product-header">
-<div class="product-meta">
 <h1 class="product-name">
-{{ item.name }}
+{{ product.name }}
 </h1>
-<div class="product-type-row">
-<span class="coffee-type" style="text-transform: capitalize;">
-  {{ item.type }}
-</span>
-<span class="roast-pill" :class="getRoastClass(product.roastLevel)">
-{{ item.roast_level }} Roast
-</span>
-</div>
-</div>
-
-<div class="rating-section">
-<div class="stars">
-<ion-icon 
-v-for="i in 5" 
-:key="i"
-:icon="i <= Math.floor(product.rating) ? starSharp : starOutline"
-class="star-icon"
-></ion-icon>
-</div>
-<span class="rating-text">
-  
-{{ product.rating }} ({{ product.reviews }})
-
-</span>
+<div class="product-rating">
+<ion-icon :icon="starOutline" class="star-icon"></ion-icon>
+<span class="rating-value">4.8</span>
+<span class="rating-count">(245)</span>
 </div>
 </div>
 
 <div class="price-section">
-<div class="price-row">
-<span class="price">Shs. {{ item.price }}</span>
-<span v-if="product.originalPrice" class="original-price">
-Shs. {{ product.originalPrice }}</span>
-<span v-if="product.discount" class="discount-badge">{{ product.discount }}% OFF</span>
-</div>
-</div>
+<span class="price-value">Shs. {{ product.price }} </span>
 </div>
 
+<p class="product-description">
+{{ product.description }}
+</p>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- DESCRIPTION -->
-<div class="description-card">
-<h2 class="section-title">About the product</h2>
-<p class="description-text">{{ item.description}}</p>
-
-<div class="tasting-notes" v-if="product_taste.length>0">
-<h3 class="subsection-title">Tasting Notes</h3>
-<div class="notes-grid">
-<div class="note-item" v-for="(taste,key) in product_taste" :key="key">
-<span class="note-label">{{ taste.type }} </span>
-<span class="note-value">{{ taste.taste }} </span>
-</div>
+<!-- Add to Cart Button -->
+<ion-button expand="block" class="add-cart-btn">
+<ion-icon :icon="cartOutline" slot="start"></ion-icon>
+Add to Cart
+</ion-button>
 </div>
 </div>
 
+<!-- Product Info Section -->
+<div class="product-info-section">
+<!-- Origin Info -->
 
 
-<div class="origin-section" v-for="(origin,key) in product_origin" :key="key">
-<h3 class="subsection-title">Origin</h3>
-<div class="origin-details">
-<div class="origin-item">
+<div class="origin-card" v-if="productOrigin.length>0">
 <ion-icon :icon="locationOutline" class="origin-icon"></ion-icon>
-<div class="origin-content">
-<span class="origin-label">Region</span>
-<span class="origin-value">{{ origin.region }}</span>
-</div>
-</div>
-<div class="origin-item">
-<ion-icon :icon="trendingUpOutline" class="origin-icon"></ion-icon>
-<div class="origin-content">
-<span class="origin-label">Altitude</span>
-<span class="origin-value">{{ origin.altitude}}</span>
-</div>
-</div>
-<div class="origin-item">
-<ion-icon :icon="leafOutline" class="origin-icon"></ion-icon>
-<div class="origin-content">
-<span class="origin-label">Farm</span>
-<span class="origin-value">{{ origin.farm.name }}</span>
-</div>
-</div>
+<div class="origin-info" v-for="(origin,key) in productOrigin" :key="key">
+<h4 class="origin-label">Origin</h4>
+<p class="origin-value">{{ origin.farm.name }} </p>
 </div>
 </div>
 
 
+
+
+<!-- Tasting Notes Card -->
+<div class="tasting-notes-card">
+<div class="notes-header">
+<h3 class="notes-title">Tasting Notes</h3>
+<span class="notes-subtitle">Flavor Profile</span>
+</div>
+<div class="notes-grid">
+<div class="note-item">
+<ion-icon :icon="sparklesOutline" class="note-icon"></ion-icon>
+<span class="note-label">Citrus</span>
+</div>
+<div class="note-item">
+<ion-icon :icon="flowerOutline" class="note-icon"></ion-icon>
+<span class="note-label">Floral</span>
+</div>
+<div class="note-item">
+<ion-icon :icon="cafeOutline" class="note-icon"></ion-icon>
+<span class="note-label">Chocolate</span>
+</div>
+<div class="note-item">
+<ion-icon :icon="waterOutline" class="note-icon"></ion-icon>
+<span class="note-label">Honey</span>
+</div>
+<div class="note-item">
+<ion-icon :icon="nutritionOutline" class="note-icon"></ion-icon>
+<span class="note-label">Berry</span>
+</div>
+<div class="note-item">
+<ion-icon :icon="leafOutline" class="note-icon"></ion-icon>
+<span class="note-label">Nutty</span>
+</div>
+</div>
+<div class="intensity-section">
+<div class="intensity-row">
+<span class="intensity-label">Body</span>
+<div class="intensity-bar">
+<div class="intensity-fill" style="width: 75%"></div>
+</div>
+<span class="intensity-value">Medium-Full</span>
+</div>
+<div class="intensity-row">
+<span class="intensity-label">Acidity</span>
+<div class="intensity-bar">
+<div class="intensity-fill" style="width: 85%"></div>
+</div>
+<span class="intensity-value">Bright</span>
+</div>
+<div class="intensity-row">
+<span class="intensity-label">Sweetness</span>
+<div class="intensity-bar">
+<div class="intensity-fill" style="width: 70%"></div>
+</div>
+<span class="intensity-value">Medium</span>
+</div>
+</div>
+</div>
+
+<!-- Grind Type Card -->
+<div class="grind-type-card">
+<div class="grind-header">
+<h3 class="grind-title">Select Grind Type</h3>
+<span class="grind-subtitle">Choose your brewing method</span>
+</div>
+<div class="grind-options">
+<button class="grind-option active">
+<ion-icon :icon="cafeOutline" class="grind-icon"></ion-icon>
+<div class="grind-info">
+<span class="grind-name">Whole Bean</span>
+<span class="grind-desc">For all methods</span>
+</div>
+<div class="grind-check">
+<ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+</div>
+</button>
+<button class="grind-option">
+<ion-icon :icon="cafeOutline" class="grind-icon"></ion-icon>
+<div class="grind-info">
+<span class="grind-name">Espresso</span>
+<span class="grind-desc">Fine grind</span>
+</div>
+<div class="grind-check">
+<ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+</div>
+</button>
+<button class="grind-option">
+<ion-icon :icon="waterOutline" class="grind-icon"></ion-icon>
+<div class="grind-info">
+<span class="grind-name">Pour Over</span>
+<span class="grind-desc">Medium-fine grind</span>
+</div>
+<div class="grind-check">
+<ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+</div>
+</button>
+<button class="grind-option">
+<ion-icon :icon="beakerOutline" class="grind-icon"></ion-icon>
+<div class="grind-info">
+<span class="grind-name">French Press</span>
+<span class="grind-desc">Coarse grind</span>
+</div>
+<div class="grind-check">
+<ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+</div>
+</button>
+<button class="grind-option">
+<ion-icon :icon="filterOutline" class="grind-icon"></ion-icon>
+<div class="grind-info">
+<span class="grind-name">Drip Coffee</span>
+<span class="grind-desc">Medium grind</span>
+</div>
+<div class="grind-check">
+<ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+</div>
+</button>
+<button class="grind-option">
+<ion-icon :icon="flaskOutline" class="grind-icon"></ion-icon>
+<div class="grind-info">
+<span class="grind-name">Cold Brew</span>
+<span class="grind-desc">Extra coarse</span>
+</div>
+<div class="grind-check">
+<ion-icon :icon="checkmarkCircleOutline"></ion-icon>
+</div>
+</button>
+</div>
 </div>
 
 
 
 
-
-
-
-
-
-
-
-
-<!-- SPECS -->
-<div class="specs-card" v-if="product_specification.length>0">
-<h2 class="section-title">Specifications</h2>
-<div class="specs-grid">
-
-<div class="spec-item" v-for="(spec,key) in product_specification" :key="key">
-<span class="spec-label capitalize">{{ spec.name }}</span>
-<span class="spec-value capitalize">{{ spec.description }}</span>
-</div>
-
-</div>
-</div>
-
-<!-- FARMER PROFILE -->
+<!-- Farmer Summary -->
 <div class="farmer-card">
 <div class="farmer-content">
 <div class="farmer-image-wrapper">
-<img :src="product.farmer.image" :alt="product.farmer.name" class="farmer-image" />
+<img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=120" alt="Farmer" class="farmer-image" />
 </div>
 <div class="farmer-info">
 <span class="farmer-label">Sourced from</span>
-<h3 class="farmer-name">{{ product.farmer.name }}</h3>
-<span class="farmer-region">{{ product.farmer.region }}</span>
+<h3 class="farmer-name">Abebe Kebede</h3>
+<span class="farmer-region">Yirgacheffe, Ethiopia</span>
 </div>
 </div>
-<button class="farmer-profile-btn" @click="viewFarmerProfile">
+<button class="farmer-profile-btn">
 <span>View Farmer Profile</span>
 <ion-icon :icon="arrowForwardOutline"></ion-icon>
 </button>
 </div>
 
-<!-- ACTIONS -->
-<div class="actions-section">
-<div class="quick-actions">
-<button class="quick-action-btn" @click="addToCart">
-<ion-icon :icon="cartOutline"></ion-icon>
-<span>Add to Cart</span>
-</button>
-<button class="quick-action-btn" @click="addToSubscription">
-<ion-icon :icon="refreshOutline"></ion-icon>
-<span>Subscribe</span>
-</button>
-<button class="quick-action-btn" @click="viewBrewGuide">
-<ion-icon :icon="cafeOutline"></ion-icon>
-<span>Brew Guide</span>
-</button>
+<!-- Farm Summary -->
+<div class="farm-section">
+<div class="section-header-row">
+<h3 class="section-label">Farm Details</h3>
+<span class="certification-badge">
+<ion-icon :icon="leafOutline"></ion-icon>
+<span>Organic Certified</span>
+</span>
+</div>
+<div class="farm-details-grid">
+<div class="farm-detail-card">
+<ion-icon :icon="waterOutline" class="detail-icon"></ion-icon>
+<div class="detail-info">
+<h4 class="detail-label">Processing</h4>
+<p class="detail-value">Washed</p>
+</div>
+</div>
+<div class="farm-detail-card">
+<ion-icon :icon="sunnyOutline" class="detail-icon"></ion-icon>
+<div class="detail-info">
+<h4 class="detail-label">Altitude</h4>
+<p class="detail-value">1,800-2,000m</p>
+</div>
+</div>
+<div class="farm-detail-card">
+<ion-icon :icon="leafOutline" class="detail-icon"></ion-icon>
+<div class="detail-info">
+<h4 class="detail-label">Variety</h4>
+<p class="detail-value">Heirloom</p>
+</div>
+</div>
+<div class="farm-detail-card">
+<ion-icon :icon="calendarOutline" class="detail-icon"></ion-icon>
+<div class="detail-info">
+<h4 class="detail-label">Harvest</h4>
+<p class="detail-value">Oct - Dec 2024</p>
+</div>
+</div>
+</div>
+<div class="sustainability-card">
+<div class="sustainability-header">
+<ion-icon :icon="leafOutline" class="sustainability-icon"></ion-icon>
+<h4 class="sustainability-title">Sustainability Practices</h4>
+</div>
+<div class="sustainability-tags">
+<span class="tag">Organic Farming</span>
+<span class="tag">Water Conservation</span>
+<span class="tag">Fair Trade</span>
+<span class="tag">Biodiversity</span>
+</div>
+</div>
 </div>
 
-<button class="order-now-btn" @click="orderNow">
-<span>Order Now</span>
-<ion-icon :icon="arrowForwardOutline"></ion-icon>
-</button>
+<!-- Quick Action Buttons -->
+<div class="action-buttons-section">
+<ion-button expand="block" class="action-btn subscription-btn">
+<ion-icon :icon="reloadOutline" slot="start"></ion-icon>
+<div class="btn-content">
+<span class="btn-main-text">Subscribe</span>
+<span class="btn-sub-text">Save 15%</span>
+</div>
+</ion-button>
+<ion-button expand="block" fill="outline" class="action-btn brew-guide-btn">
+<ion-icon :icon="cafeOutline" slot="start"></ion-icon>
+<span>Brew Guide</span>
+</ion-button>
+</div>
+
+<!-- Nutritional Info -->
+<div class="nutrition-section">
+<h3 class="section-label">Nutritional Information</h3>
+<div class="nutrition-grid">
+<div class="nutrition-item">
+<span class="nutrition-value">150</span>
+<span class="nutrition-label">Calories</span>
+</div>
+<div class="nutrition-item">
+<span class="nutrition-value">8g</span>
+<span class="nutrition-label">Protein</span>
+</div>
+<div class="nutrition-item">
+<span class="nutrition-value">6g</span>
+<span class="nutrition-label">Fat</span>
+</div>
+<div class="nutrition-item">
+<span class="nutrition-value">12g</span>
+<span class="nutrition-label">Carbs</span>
+</div>
+</div>
 </div>
 
 <!-- RECOMMENDED PRODUCTS -->
 <div class="recommended-section">
 <div class="recommended-header">
 <h2 class="section-title">You May Also Like</h2>
-<button class="view-all-link" @click="viewAllRecommended">
+<button class="view-all-link">
 <span>View All</span>
 <ion-icon :icon="chevronForwardOutline"></ion-icon>
 </button>
@@ -217,7 +317,6 @@ Shs. {{ product.originalPrice }}</span>
 v-for="item in recommendedProducts" 
 :key="item.id"
 class="recommended-card"
-@click="viewProduct(item.id)"
 >
 <div class="recommended-image-wrapper">
 <img :src="item.image" :alt="item.name" class="recommended-image" />
@@ -238,10 +337,9 @@ class="recommended-card"
 </div>
 
 </div>
+</div>
+</div>
 <skeleton v-else style="margin:20px;"/>
-
-
-
 
 </template>
 </app-layout>
@@ -249,79 +347,39 @@ class="recommended-card"
 
 <script setup>
 import { ref,onMounted } from 'vue';
-import { useIonRouter } from '@ionic/vue';
 import { useRoute } from 'vue-router';
 import AppLayout from './template/AppLayout.vue';
-import HeadButtonsDefault from './template/HeadButtonsDefault.vue';
-import Skeleton from './template/Skeleton.vue';
 import ProductService from '../service/ProductService';
+import Skeleton from './template/Skeleton.vue';
 import {
-IonPage,
-IonHeader,
-IonToolbar,
-IonButtons,
-IonButton,
-IonTitle,
-IonContent,
-IonIcon,
-} from "@ionic/vue";
+  IonButton,
+  IonIcon
+} from '@ionic/vue';
 import {
-arrowBackOutline,
-shareOutline,
-heartOutline,
-heartSharp,
-starSharp,
-starOutline,
-locationOutline,
-trendingUpOutline,
-leafOutline,
-arrowForwardOutline,
-cartOutline,
-refreshOutline,
-cafeOutline,
-chevronForwardOutline,
-} from "ionicons/icons";
-
-
-const router =  useIonRouter();
-const isFavorite = ref(false);
-
-const product = ref({
-id: 1,
-name: 'Ethiopian Yirgacheffe',
-coffeeType: 'Single Origin Arabica',
-roastLevel: 'Medium',
-rating: 4.8,
-reviews: 234,
-price: 18.99,
-originalPrice: 24.99,
-discount: 25,
-badge: 'Premium',
-image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800',
-description: 'A vibrant and complex coffee from the birthplace of coffee. This Ethiopian Yirgacheffe offers bright citrus notes with floral undertones and a wine-like acidity that makes it perfect for pour-over brewing.',
-tastingNotes: {
-acidity: 'Bright Citrus',
-aroma: 'Floral & Fruity',
-body: 'Light & Delicate',
-aftertaste: 'Clean & Sweet'
-},
-origin: {
-region: 'Yirgacheffe, Ethiopia',
-altitude: '1,800 - 2,200m',
-farm: 'Kochere Cooperative'
-},
-specs: {
-weight: '250g',
-processing: 'Washed',
-packaging: 'Resealable Bag',
-harvestYear: '2024'
-},
-farmer: {
-name: 'Alem Bekele',
-region: 'Gedeo Zone, Ethiopia',
-image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200'
-}
-});
+  heartOutline,
+  starOutline,
+  locationOutline,
+  cartOutline,
+  arrowForwardOutline,
+  leafOutline,
+  waterOutline,
+  sunnyOutline,
+  calendarOutline,
+  sparklesOutline,
+  flowerOutline,
+  nutritionOutline,
+  checkmarkCircleOutline,
+  timeOutline,
+  resizeOutline,
+  ribbonOutline,
+  reloadOutline,
+  cafeOutline,
+  chevronForwardOutline,
+  starSharp,
+  beakerOutline,
+  filterOutline,
+  flaskOutline
+} from 'ionicons/icons';
 
 const recommendedProducts = ref([
 {
@@ -358,779 +416,947 @@ image: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400'
 }
 ]);
 
-const getRoastClass = (roastLevel) => {
-return roastLevel.toLowerCase().replace(' ', '-');
-};
 
 
 
-const shareProduct = () => {
-console.log('Share product');
-};
-
-const toggleFavorite = () => {
-isFavorite.value = !isFavorite.value;
-};
-
-const viewFarmerProfile = () => {
-console.log('View farmer profile');
-};
-
-const addToCart = () => {
-console.log('Add to cart');
-};
-
-const addToSubscription = () => {
-console.log('Add to subscription');
-};
-
-const viewBrewGuide = () => {
-console.log('View brew guide');
-};
-
-const orderNow = () => {
-console.log('Order now');
-};
-
-const viewAllRecommended = () => {
-console.log('View all recommended');
-};
-
-const viewProduct = (id) => {
-console.log('View product:', id);
-};
-
-
-
-
-
-const item=ref('');
-const product_taste=ref('');
-const product_origin=ref([]);
-const product_specification=ref([]);
-const product_standard=ref('');
-
-const isLoading=ref(false);
-const error=ref(null);
-const url=useRoute();
+const isLoading = ref(false);
+const product=ref([]);
+const routes=useRoute();
+const id=routes.params.id;
+const productOrigin=ref('');
+const farmerDetails=ref([]);
+const farm=ref([]);
 
 onMounted(async ()=>{
-const id=url.params.id;
 try{
-
 isLoading.value=true;
 const service=new ProductService();
-const response = await service.getProductDetails(id);
+const response=await service.getProductDetails(id);
 if(response.status===200){
 const data=response.data;
-data.forEach(element => {
-item.value=element;
-product_taste.value=element.product_taste;
-product_origin.value=element.product_origin;
-product_specification.value=element.product_specification;
-product_standard.value=element.product_standard;
-});
+product.value=data[0];
+const origin=data[0].product_origin;
+productOrigin.value=origin;
+const farm=data[0].product_origin[0].farm;
+const farmer=farm.profile;
+farmerDetails.value=farmer;
 
-console.log(product_origin.value);
+console.log(farmerDetails.value);
 
-}else{
-console.log(response.error);
-error.value='Could not retrieve data, please try again';
+
 }
+
+
 
 }catch(e){
-console.log(e);
-error.value='Could not complete action, please try again.';
+  console.log(e);
 }finally{
-isLoading.value=false;
+  isLoading.value=false;  
 }
 
 
-
-
 });
-
-
-
-
-
-
-
-
-
-
-
 
 </script>
 
 <style scoped>
 /* ===== VARIABLES ===== */
 :root {
---bean-primary: #6b4226;
---bean-secondary: #3d2317;
---bean-accent: #d4a574;
---bean-light: #f5f1ed;
---bean-cream: #faf8f5;
---text-dark: #2d1810;
---text-medium: #5d4e46;
---text-light: #8b7c74;
---orange: #ff9800;
---green: #27ae60;
---red: #ef4444;
+  --coffee-900: #3d2419;
+  --coffee-800: #4a2c2a;
+  --coffee-700: #5d3a2f;
+  --coffee-600: #6b4226;
+  --coffee-500: #8b5a3c;
+  
+  --cream-50: #ffffff;
+  --cream-100: #fdfcfa;
+  --cream-200: #faf8f5;
+  --cream-300: #f5f1e8;
+  
+  --text-900: #1a0f0a;
+  --text-800: #2c1810;
+  --text-600: #6b5444;
+  --text-500: #8b7355;
+  
+  --gold: #fbbf24;
+  --green: #10b981;
 }
 
-/* ===== HEADER ===== */
-
-.product-title {
-font-size: 18px;
-font-weight: 800;
-color: var(--text-dark);
-letter-spacing: -0.2px;
+.product-details-page {
+  background: var(--cream-200);
+  min-height: 100%;
+  padding-bottom: 120px;
 }
 
-.header-btn {
---background: rgba(107, 66, 38, 0.08);
---color: var(--text-dark);
-width: 44px;
-height: 44px;
-margin: 4px;
-border-radius: 50%;
-transition: all 0.3s ease;
+/* ===== PRODUCT CARD ===== */
+.product-card {
+  background: white;
+  margin: 20px 20px 10px 20px;
+  border-radius: 20px;
+  overflow: hidden;
 }
 
-.header-btn:active {
-transform: scale(0.92);
-}
-
-.favorite-btn.active {
---color: var(--red);
---background: rgba(239, 68, 68, 0.12);
-}
-
-/* ===== CONTENT ===== */
-.product-content {
---background: var(--bean-cream);
-}
-
-.content-wrapper {
-padding: 0 0 100px;
-}
-
-/* ===== HERO SECTION ===== */
-.hero-section {
-padding: 0 20px 20px;
-animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes fadeSlideUp {
-from {
-opacity: 0;
-transform: translateY(20px);
-}
-to {
-opacity: 1;
-transform: translateY(0);
-}
-}
-
-.product-image-wrapper {
-position: relative;
-width: 100%;
-aspect-ratio: 1;
-border-radius: 32px;
-overflow: hidden;
-background: linear-gradient(135deg, #f5f1ed, #ebe4dc);
-
+/* ===== PRODUCT IMAGE ===== */
+.product-image-section {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
 }
 
 .product-image {
-width: 100%;
-height: 100%;
-object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.product-badge {
-position: absolute;
-top: 20px;
-right: 20px;
-padding: 10px 18px;
-background: rgba(255, 255, 255, 0.95);
-backdrop-filter: blur(10px);
-border-radius: 16px;
-font-size: 13px;
-font-weight: 900;
-color: var(--bean-primary);
-text-transform: uppercase;
-letter-spacing: 0.5px;
-
+.image-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-/* ===== INFO CARD ===== */
-.info-card {
-margin: 0 20px 16px;
-padding: 24px;
-background: white;
-border-radius: 28px;
+.image-badge:hover {
+  transform: scale(1.1);
+  background: var(--cream-100);
+}
 
-animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s backwards;
+.heart-icon {
+  font-size: 24px;
+  color: var(--coffee-600);
+}
+
+.premium-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--gold) 0%, #f59e0b 100%);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 900;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.premium-icon {
+  font-size: 18px;
+  color: white;
+}
+
+/* ===== PRODUCT INFO ===== */
+.product-info-content {
+  padding: 20px;
+}
+
+.product-info-section {
+  padding: 0 20px 20px 20px;
 }
 
 .product-header {
-margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
 }
 
 .product-name {
-font-size: 28px;
-font-weight: 900;
-color: var(--text-dark);
-margin: 0 0 12px 0;
-line-height: 1.2;
-letter-spacing: -0.5px;
+  font-size: 24px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0;
+  letter-spacing: -0.5px;
+  flex: 1;
 }
 
-.product-type-row {
-display: flex;
-align-items: center;
-gap: 10px;
-flex-wrap: wrap;
-}
-
-.coffee-type {
-font-size: 14px;
-font-weight: 700;
-color: var(--text-medium);
-letter-spacing: 0.3px;
-}
-
-.roast-pill {
-padding: 6px 14px;
-border-radius: 12px;
-font-size: 12px;
-font-weight: 900;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-}
-
-.roast-pill.light {
-background: linear-gradient(135deg, rgba(212, 165, 116, 0.15), rgba(212, 165, 116, 0.10));
-color: var(--bean-accent);
-}
-
-.roast-pill.medium {
-background: linear-gradient(135deg, rgba(107, 66, 38, 0.15), rgba(107, 66, 38, 0.10));
-color: var(--bean-primary);
-}
-
-.roast-pill.dark {
-background: linear-gradient(135deg, rgba(61, 35, 23, 0.20), rgba(61, 35, 23, 0.15));
-color: var(--bean-secondary);
-}
-
-.rating-section {
-display: flex;
-align-items: center;
-gap: 10px;
-margin-top: 12px;
-}
-
-.stars {
-display: flex;
-gap: 4px;
+.product-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .star-icon {
-font-size: 18px;
-color: var(--orange);
+  font-size: 18px;
+  color: var(--gold);
 }
 
-.rating-text {
-font-size: 14px;
-font-weight: 700;
-color: var(--text-light);
+.rating-value {
+  font-size: 16px;
+  font-weight: 900;
+  color: #000000;
+}
+
+.rating-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-600);
 }
 
 .price-section {
-padding-top: 20px;
-border-top: 1px solid rgba(107, 66, 38, 0.08);
+  margin-bottom: 12px;
 }
 
-.price-row {
-display: flex;
-align-items: center;
-gap: 12px;
-flex-wrap: wrap;
+.price-value {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--coffee-600);
+  letter-spacing: -0.5px;
 }
 
-.price {
-font-size: 32px;
-font-weight: 900;
-color: var(--bean-primary);
-letter-spacing: -0.5px;
+.product-description {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-600);
+  line-height: 1.6;
+  margin: 0 0 16px 0;
 }
 
-.original-price {
-font-size: 20px;
-font-weight: 700;
-color: var(--text-light);
-text-decoration: line-through;
+.add-cart-btn {
+  --background: #6b4226;
+  --background-activated: #5d3a2f;
+  --background-hover: #5d3a2f;
+  --border-radius: 16px;
+  height: 56px;
+  font-size: 16px;
+  font-weight: 900;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  margin: 0;
 }
 
-.discount-badge {
-padding: 6px 12px;
-background: linear-gradient(135deg, #ff9800, #ff5722);
-border-radius: 10px;
-font-size: 12px;
-font-weight: 900;
-color: white;
-text-transform: uppercase;
-letter-spacing: 0.5px;
+.add-cart-btn ion-icon {
+  font-size: 22px;
 }
 
-/* ===== DESCRIPTION CARD ===== */
-.description-card {
-margin: 0 20px 16px;
-padding: 24px;
-background: white;
-border-radius: 28px;
-
-animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s backwards;
-}
-
-.section-title {
-font-size: 22px;
-font-weight: 900;
-color: var(--text-dark);
-margin: 0 0 16px 0;
-letter-spacing: -0.3px;
-}
-
-.description-text {
-font-size: 15px;
-line-height: 1.7;
-color: var(--text-medium);
-margin: 0 0 24px 0;
-font-weight: 500;
-}
-
-.tasting-notes {
-margin-bottom: 24px;
-}
-
-.subsection-title {
-font-size: 17px;
-font-weight: 800;
-color: var(--text-dark);
-margin: 0 0 14px 0;
-letter-spacing: -0.2px;
-}
-
-.notes-grid {
-display: grid;
-grid-template-columns: repeat(2, 1fr);
-gap: 14px;
-}
-
-.note-item {
-display: flex;
-flex-direction: column;
-gap: 6px;
-padding: 16px;
-background: linear-gradient(135deg, rgba(245, 241, 237, 0.6), rgba(235, 228, 220, 0.4));
-border-radius: 16px;
-}
-
-.note-label {
-font-size: 12px;
-font-weight: 800;
-color: var(--text-light);
-text-transform: uppercase;
-letter-spacing: 0.5px;
-}
-
-.note-value {
-font-size: 15px;
-font-weight: 800;
-color: var(--text-dark);
-}
-
-.origin-section {
-padding-top: 24px;
-border-top: 1px solid rgba(107, 66, 38, 0.08);
-}
-
-.origin-details {
-display: flex;
-flex-direction: column;
-gap: 14px;
-}
-
-.origin-item {
-display: flex;
-align-items: center;
-gap: 14px;
-padding: 14px;
-background: linear-gradient(135deg, rgba(245, 241, 237, 0.6), rgba(235, 228, 220, 0.4));
-border-radius: 16px;
+/* ===== ORIGIN CARD ===== */
+.origin-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 24px;
 }
 
 .origin-icon {
-font-size: 24px;
-color: var(--bean-primary);
-flex-shrink: 0;
+  font-size: 28px;
+  color: var(--coffee-600);
+  flex-shrink: 0;
 }
 
-.origin-content {
-display: flex;
-flex-direction: column;
-gap: 4px;
-flex: 1;
+.origin-info {
+  flex: 1;
 }
 
 .origin-label {
-font-size: 12px;
-font-weight: 800;
-color: var(--text-light);
-text-transform: uppercase;
-letter-spacing: 0.5px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-600);
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .origin-value {
-font-size: 15px;
-font-weight: 800;
-color: var(--text-dark);
+  font-size: 16px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0;
 }
 
-/* ===== SPECS CARD ===== */
-.specs-card {
-margin: 0 20px 16px;
-padding: 24px;
-background: white;
-border-radius: 28px;
-
-animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s backwards;
+/* ===== TASTING NOTES CARD ===== */
+.tasting-notes-card {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
-.specs-grid {
-display: grid;
-grid-template-columns: repeat(2, 1fr);
-gap: 14px;
+.notes-header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--cream-200);
 }
 
-.spec-item {
-display: flex;
-flex-direction: column;
-gap: 6px;
-padding: 16px;
-background: linear-gradient(135deg, rgba(245, 241, 237, 0.6), rgba(235, 228, 220, 0.4));
-border-radius: 16px;
+.notes-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
 }
 
-.spec-label {
-font-size: 12px;
-font-weight: 800;
-color: var(--text-light);
-text-transform: uppercase;
-letter-spacing: 0.5px;
+.notes-subtitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.spec-value {
-font-size: 15px;
-font-weight: 800;
-color: var(--text-dark);
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.note-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 10px;
+  background: var(--cream-200);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.note-item:active {
+  transform: scale(0.95);
+  background: var(--cream-300);
+}
+
+.note-icon {
+  font-size: 36px;
+  color: var(--coffee-600);
+}
+
+.note-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--coffee-700);
+  text-align: center;
+}
+
+.intensity-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  background: var(--cream-200);
+  border-radius: 16px;
+}
+
+.intensity-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.intensity-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--coffee-700);
+  min-width: 80px;
+}
+
+.intensity-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--cream-300);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.intensity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--coffee-600) 0%, var(--gold) 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.intensity-value {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--coffee-600);
+  min-width: 90px;
+  text-align: right;
+}
+
+/* ===== GRIND TYPE CARD ===== */
+.grind-type-card {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.grind-header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--cream-200);
+}
+
+.grind-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
+}
+
+.grind-subtitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.grind-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.grind-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--cream-200);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.grind-option:active {
+  transform: scale(0.97);
+}
+
+.grind-option.active {
+  background: white;
+  border-color: var(--coffee-600);
+  box-shadow: 0 2px 8px rgba(107, 66, 38, 0.15);
+}
+
+.grind-icon {
+  font-size: 28px;
+  color: var(--coffee-600);
+  flex-shrink: 0;
+}
+
+.grind-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.grind-name {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--text-900);
+  line-height: 1.2;
+}
+
+.grind-desc {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-600);
+}
+
+.grind-check {
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.grind-option.active .grind-check {
+  opacity: 1;
+}
+
+.grind-check ion-icon {
+  font-size: 24px;
+  color: var(--coffee-600);
+}
+
+/* ===== FARMER SECTION ===== */
+.farmer-section,
+.farm-section {
+  margin-bottom: 24px;
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
 /* ===== FARMER CARD ===== */
 .farmer-card {
-margin: 0 20px 16px;
-padding: 24px;
-background: white;
-border-radius: 28px;
-
-animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s backwards;
+  padding: 24px;
+  background: white;
+  border-radius: 20px;
+  margin-bottom: 20px;
 }
 
 .farmer-content {
-display: flex;
-align-items: center;
-gap: 16px;
-margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .farmer-image-wrapper {
-width: 72px;
-height: 72px;
-border-radius: 50%;
-overflow: hidden;
-background: linear-gradient(135deg, #f5f1ed, #ebe4dc);
-flex-shrink: 0;
-
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f5f1ed, #ebe4dc);
+  flex-shrink: 0;
 }
 
 .farmer-image {
-width: 100%;
-height: 100%;
-object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .farmer-info {
-display: flex;
-flex-direction: column;
-gap: 4px;
-flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
 }
 
 .farmer-label {
-font-size: 11px;
-font-weight: 800;
-color: var(--text-light);
-text-transform: uppercase;
-letter-spacing: 0.5px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .farmer-name {
-font-size: 20px;
-font-weight: 900;
-color: var(--text-dark);
-margin: 0;
-letter-spacing: -0.3px;
+  font-size: 20px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0;
+  letter-spacing: -0.3px;
 }
 
 .farmer-region {
-font-size: 14px;
-font-weight: 600;
-color: var(--text-medium);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-600);
 }
 
 .farmer-profile-btn {
-width: 100%;
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 10px;
-padding: 16px;
-background: linear-gradient(135deg, rgba(107, 66, 38, 0.10), rgba(107, 66, 38, 0.06));
-border: none;
-border-radius: 16px;
-font-size: 15px;
-font-weight: 900;
-color: var(--bean-primary);
-cursor: pointer;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(107, 66, 38, 0.10), rgba(107, 66, 38, 0.06));
+  border: none;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--coffee-600);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .farmer-profile-btn:active {
-transform: scale(0.97);
-background: linear-gradient(135deg, rgba(107, 66, 38, 0.15), rgba(107, 66, 38, 0.10));
+  transform: scale(0.97);
+  background: linear-gradient(135deg, rgba(107, 66, 38, 0.15), rgba(107, 66, 38, 0.10));
 }
 
 .farmer-profile-btn ion-icon {
-font-size: 20px;
+  font-size: 20px;
 }
 
-/* ===== ACTIONS SECTION ===== */
-.actions-section {
-margin: 0 20px 24px;
-animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.5s backwards;
+/* ===== ACTION BUTTONS ===== */
+.action-buttons-section {
+  margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
-.quick-actions {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 10px;
-margin-bottom: 12px;
+.action-btn {
+  height: 64px;
+  font-weight: 900;
+  font-size: 15px;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  margin: 0;
+  transition: all 0.3s ease;
 }
 
-.quick-action-btn {
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-gap: 8px;
-padding: 18px 10px;
-background: white;
-border: none;
-border-radius: 20px;
-font-size: 12px;
-font-weight: 900;
-color: var(--text-dark);
-cursor: pointer;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-letter-spacing: 0.2px;
+.subscription-btn {
+  --background: linear-gradient(135deg, #6b4226 0%, #8b5a3c 50%, #6b4226 100%);
+  --border-radius: 16px;
+  position: relative;
+  overflow: visible;
 }
 
-.quick-action-btn:active {
-transform: scale(0.95);
+.subscription-btn::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  padding: 4px 10px;
+  background: var(--gold);
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 900;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.quick-action-btn ion-icon {
-font-size: 28px;
-color: var(--bean-primary);
+.subscription-btn .btn-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 
-.order-now-btn {
-width: 100%;
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 10px;
-padding: 20px;
-background: linear-gradient(135deg, #6b4226, #3d2317);
-border: none;
-border-radius: 20px;
-font-size: 17px;
-font-weight: 900;
-color: white;
-cursor: pointer;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-letter-spacing: 0.3px;
+.btn-main-text {
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
 }
 
-.order-now-btn:active {
-transform: scale(0.97);
+.btn-sub-text {
+  font-size: 11px;
+  font-weight: 800;
+  opacity: 0.95;
+  letter-spacing: 0.5px;
 }
 
-.order-now-btn ion-icon {
-font-size: 24px;
+.subscription-btn:hover {
+  transform: translateY(-2px);
+  --background: linear-gradient(135deg, #8b5a3c 0%, #6b4226 50%, #8b5a3c 100%);
+}
+
+.brew-guide-btn {
+  --border-color: var(--coffee-600);
+  --color: var(--coffee-700);
+  --background: white;
+  --border-radius: 16px;
+  --border-width: 2px;
+}
+
+.brew-guide-btn:hover {
+  --background: var(--cream-100);
+  transform: translateY(-2px);
+}
+
+/* ===== FARM SECTION ===== */
+.certification-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.certification-badge ion-icon {
+  font-size: 16px;
+}
+
+.farm-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.farm-detail-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 16px;
+}
+
+.detail-icon {
+  font-size: 28px;
+  color: var(--coffee-600);
+  flex-shrink: 0;
+}
+
+.detail-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 15px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0;
+}
+
+.sustainability-card {
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
+  border-radius: 16px;
+}
+
+.sustainability-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.sustainability-icon {
+  font-size: 24px;
+  color: var(--green);
+}
+
+.sustainability-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0;
+}
+
+.sustainability-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  padding: 8px 14px;
+  background: white;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--green);
+}
+
+/* ===== OPTIONS SECTION ===== */
+.options-section {
+  margin-bottom: 24px;
+}
+
+.section-label {
+  font-size: 18px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.5px;
+}
+
+/* ===== NUTRITION ===== */
+.nutrition-section {
+  margin-bottom: 24px;
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.nutrition-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px;
+  background: white;
+  border-radius: 16px;
+}
+
+.nutrition-value {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--coffee-600);
+  margin-bottom: 4px;
+}
+
+.nutrition-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
+  text-align: center;
 }
 
 /* ===== RECOMMENDED SECTION ===== */
 .recommended-section {
-margin: 0 0 0 20px;
-animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s backwards;
+  margin: 0 0 20px 0;
 }
 
 .recommended-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 0 20px 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px 16px 0;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0;
+  letter-spacing: -0.5px;
 }
 
 .view-all-link {
-display: flex;
-align-items: center;
-gap: 6px;
-padding: 8px 14px;
-background: linear-gradient(135deg, rgba(107, 66, 38, 0.08), rgba(107, 66, 38, 0.05));
-border: none;
-border-radius: 12px;
-font-size: 14px;
-font-weight: 900;
-color: var(--bean-primary);
-cursor: pointer;
-transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, rgba(107, 66, 38, 0.08), rgba(107, 66, 38, 0.05));
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--coffee-600);
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .view-all-link:active {
-transform: scale(0.95);
-background: linear-gradient(135deg, rgba(107, 66, 38, 0.12), rgba(107, 66, 38, 0.08));
+  transform: scale(0.95);
+  background: linear-gradient(135deg, rgba(107, 66, 38, 0.12), rgba(107, 66, 38, 0.08));
 }
 
 .view-all-link ion-icon {
-font-size: 18px;
+  font-size: 18px;
 }
 
 .recommended-carousel {
-display: flex;
-gap: 14px;
-overflow-x: auto;
--webkit-overflow-scrolling: touch;
-padding: 0 20px 4px 0;
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 20px 4px 0;
 }
 
 .recommended-carousel::-webkit-scrollbar {
-display: none;
+  display: none;
 }
 
 .recommended-card {
-flex-shrink: 0;
-width: 180px;
-background: white;
-border-radius: 24px;
-overflow: hidden;
-cursor: pointer;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  width: 180px;
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .recommended-card:active {
-transform: scale(0.97);
+  transform: scale(0.97);
 }
 
 .recommended-image-wrapper {
-width: 100%;
-height: 180px;
-background: linear-gradient(135deg, #f5f1ed, #ebe4dc);
-overflow: hidden;
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(135deg, #f5f1ed, #ebe4dc);
+  overflow: hidden;
 }
 
 .recommended-image {
-width: 100%;
-height: 100%;
-object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .recommended-info {
-padding: 16px;
+  padding: 16px;
 }
 
 .recommended-name {
-font-size: 16px;
-font-weight: 900;
-color: var(--text-dark);
-margin: 0 0 8px 0;
-line-height: 1.3;
-letter-spacing: -0.2px;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
+  font-size: 16px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .recommended-meta {
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
 .recommended-type {
-font-size: 12px;
-font-weight: 700;
-color: var(--text-light);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
 }
 
 .recommended-rating {
-display: flex;
-align-items: center;
-gap: 4px;
-font-size: 13px;
-font-weight: 800;
-color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #000000;
 }
 
 .recommended-rating ion-icon {
-font-size: 14px;
-color: var(--orange);
+  font-size: 14px;
+  color: var(--gold);
 }
 
 .recommended-price {
-font-size: 18px;
-font-weight: 900;
-color: var(--bean-primary);
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--coffee-600);
 }
 
 /* ===== RESPONSIVE ===== */
-@media (min-width: 480px) {
-.notes-grid,
-.specs-grid {
-grid-template-columns: repeat(2, 1fr);
-}
-}
-
-@media (min-width: 768px) {
-.content-wrapper {
-max-width: 600px;
-margin: 0 auto;
-}
+@media (max-width: 640px) {
+  .product-info-section {
+    padding: 16px;
+  }
+  
+  .nutrition-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .size-options {
+    flex-direction: column;
+  }
 }
 </style>

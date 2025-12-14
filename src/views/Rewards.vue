@@ -1,793 +1,507 @@
 <template>
-  <ion-page>
-    <!-- HEADER -->
-    <ion-header class="ion-no-border">
-      <ion-toolbar class="page-toolbar">
-        <ion-buttons slot="start">
-          <ion-button @click="goBack" class="header-button">
-            <ion-icon :icon="arrowBackOutline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-        <ion-title class="header-title">Rewards</ion-title>
-        <ion-buttons slot="end">
-          <ion-button @click="showHistory" class="header-button">
-            <ion-icon :icon="timeOutline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
+<app-layout title="Rewards">
+<template #content>
+<div class="rewards-page">
 
-    <ion-content class="page-content">
-      <div class="content-container">
-
-        <!-- POINTS BALANCE CARD -->
-        <div class="content-card balance-card">
-          <div class="balance-header">
-            <div class="balance-icon">⭐</div>
-            <div class="balance-info">
-              <span class="balance-label">Your Points</span>
-              <div class="balance-amount">
-                <span class="points-number">{{ currentPoints }}</span>
-                <span class="points-label">pts</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="balance-progress">
-            <div class="progress-info">
-              <span class="progress-label">Next Reward</span>
-              <span class="progress-value">{{ pointsToNextReward }} pts away</span>
-            </div>
-            <div class="progress-bar-container">
-              <div class="progress-bar-fill" :style="{ width: progressToNextReward + '%' }"></div>
-            </div>
-          </div>
-
-          <div class="quick-actions">
-            <button class="quick-action-btn" @click="earnPoints">
-              <ion-icon :icon="trendingUpOutline"></ion-icon>
-              <span>Earn Points</span>
-            </button>
-            <button class="quick-action-btn" @click="viewAllRewards">
-              <ion-icon :icon="giftOutline"></ion-icon>
-              <span>All Rewards</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- TIER STATUS CARD -->
-        <div class="content-card tier-card">
-          <div class="tier-header">
-            <div class="tier-badge" :style="{ background: currentTier.color }">
-              <span class="tier-icon">{{ currentTier.icon }}</span>
-            </div>
-            <div class="tier-info">
-              <h3 class="tier-name">{{ currentTier.name }} Member</h3>
-              <p class="tier-description">{{ currentTier.description }}</p>
-            </div>
-          </div>
-
-          <div class="tier-benefits">
-            <div class="benefit-item" v-for="(benefit, index) in currentTier.benefits" :key="index">
-              <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
-              <span>{{ benefit }}</span>
-            </div>
-          </div>
-
-          <div class="next-tier-progress" v-if="nextTier">
-            <div class="next-tier-info">
-              <span class="next-tier-label">{{ pointsToNextTier }} pts to {{ nextTier.name }}</span>
-              <span class="next-tier-badge">{{ nextTier.icon }}</span>
-            </div>
-            <div class="tier-progress-bar">
-              <div class="tier-progress-fill" :style="{ width: tierProgress + '%' }"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ELIGIBLE REWARDS SECTION -->
-        <div class="section-header">
-          <h2 class="section-title">Your Eligible Rewards</h2>
-          <span class="section-count">{{ eligibleRewards.length }} available</span>
-        </div>
-
-        <div v-if="eligibleRewards.length === 0" class="empty-state">
-          <div class="empty-icon">🎁</div>
-          <h3 class="empty-title">No Eligible Rewards Yet</h3>
-          <p class="empty-message">Keep earning points to unlock amazing rewards!</p>
-        </div>
-
-        <div v-for="reward in eligibleRewards" :key="reward.id" class="content-card reward-card eligible">
-          <div class="reward-image-wrapper">
-            <img :src="reward.image" :alt="reward.name" class="reward-image" />
-            <div class="eligible-badge">
-              <ion-icon :icon="checkmarkCircleOutline"></ion-icon>
-              <span>Eligible</span>
-            </div>
-          </div>
-
-          <div class="reward-content">
-            <div class="reward-header-section">
-              <h3 class="reward-name">{{ reward.name }}</h3>
-              <div class="reward-category" :style="{ background: reward.categoryColor }">
-                {{ reward.category }}
-              </div>
-            </div>
-
-            <p class="reward-description">{{ reward.description }}</p>
-
-            <div class="reward-footer">
-              <div class="reward-points">
-                <span class="points-icon">⭐</span>
-                <span class="points-cost">{{ reward.points }} pts</span>
-              </div>
-              <button class="redeem-btn" @click="redeemReward(reward.id)">
-                <ion-icon :icon="giftOutline"></ion-icon>
-                <span>Redeem Now</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- LOCKED REWARDS SECTION -->
-        <div class="section-header">
-          <h2 class="section-title">Unlock More Rewards</h2>
-          <span class="section-count">{{ lockedRewards.length }} locked</span>
-        </div>
-
-        <div v-for="reward in lockedRewards" :key="reward.id" class="content-card reward-card locked">
-          <div class="reward-image-wrapper">
-            <img :src="reward.image" :alt="reward.name" class="reward-image locked-image" />
-            <div class="locked-overlay">
-              <ion-icon :icon="lockClosedOutline"></ion-icon>
-            </div>
-          </div>
-
-          <div class="reward-content">
-            <div class="reward-header-section">
-              <h3 class="reward-name">{{ reward.name }}</h3>
-              <div class="reward-category" :style="{ background: reward.categoryColor }">
-                {{ reward.category }}
-              </div>
-            </div>
-
-            <p class="reward-description">{{ reward.description }}</p>
-
-            <div class="reward-footer">
-              <div class="reward-points">
-                <span class="points-icon">⭐</span>
-                <span class="points-cost">{{ reward.points }} pts</span>
-              </div>
-              <div class="points-needed">
-                <ion-icon :icon="informationCircleOutline"></ion-icon>
-                <span>Need {{ reward.points - currentPoints }} more pts</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- WAYS TO EARN SECTION -->
-        <div class="content-card earn-card">
-          <div class="earn-header">
-            <div class="earn-icon">💰</div>
-            <div class="earn-info">
-              <h3 class="earn-title">Ways to Earn Points</h3>
-              <p class="earn-subtitle">Complete activities to earn more rewards</p>
-            </div>
-          </div>
-
-          <div class="earn-list">
-            <div v-for="way in waysToEarn" :key="way.id" class="earn-item">
-              <div class="earn-item-icon" :style="{ background: way.color }">
-                <span>{{ way.icon }}</span>
-              </div>
-              <div class="earn-item-content">
-                <h4 class="earn-item-title">{{ way.title }}</h4>
-                <p class="earn-item-description">{{ way.description }}</p>
-              </div>
-              <div class="earn-item-points">
-                <span class="earn-points-value">+{{ way.points }}</span>
-                <span class="earn-points-label">pts</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- RECENT ACTIVITY -->
-        <div class="content-card activity-card">
-          <div class="activity-header">
-            <h3 class="activity-title">Recent Activity</h3>
-            <button class="view-all-btn" @click="showHistory">
-              <span>View All</span>
-              <ion-icon :icon="chevronForwardOutline"></ion-icon>
-            </button>
-          </div>
-
-          <div class="activity-list">
-            <div v-for="activity in recentActivity" :key="activity.id" class="activity-item">
-              <div class="activity-icon" :class="activity.type">
-                <ion-icon :icon="activity.icon"></ion-icon>
-              </div>
-              <div class="activity-content">
-                <span class="activity-description">{{ activity.description }}</span>
-                <span class="activity-date">{{ activity.date }}</span>
-              </div>
-              <div class="activity-points" :class="activity.type">
-                <span>{{ activity.type === 'earned' ? '+' : '-' }}{{ activity.points }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- REFERRAL BONUS CARD -->
-        <div class="content-card referral-card">
-          <div class="referral-content">
-            <div class="referral-icon">🎉</div>
-            <div class="referral-text">
-              <h3 class="referral-title">Refer a Friend</h3>
-              <p class="referral-description">Get 500 points when they make their first purchase</p>
-            </div>
-          </div>
-          <button class="referral-btn" @click="shareReferral">
-            <ion-icon :icon="shareOutline"></ion-icon>
-            <span>Share</span>
-          </button>
-        </div>
-
+<!-- Hero Header Section -->
+<div class="hero-header">
+  <div class="hero-content">
+    <div class="title-row">
+      <div class="hero-icon-wrapper">
+        <ion-icon :icon="trophyOutline" class="hero-icon"></ion-icon>
       </div>
-    </ion-content>
-  </ion-page>
+      <div class="text-content">
+        <h1 class="hero-title">Rewards Program</h1>
+        <p class="hero-subtitle">Earn points with every purchase and unlock exclusive benefits</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Points Balance Section -->
+<div class="balance-section">
+  <div class="balance-card">
+    <div class="balance-icon-wrapper">
+      <ion-icon :icon="starOutline" class="balance-icon"></ion-icon>
+    </div>
+    <div class="balance-content">
+      <span class="balance-label">Your Points</span>
+      <span class="balance-value">{{ currentPoints }}</span>
+    </div>
+  </div>
+  
+  <div class="progress-card">
+    <div class="progress-header">
+      <span class="progress-label">Next Reward</span>
+      <span class="progress-value">{{ pointsToNext }} pts</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Tier Status -->
+<div class="tier-section">
+  <div class="tier-badge" :class="currentTier.class">
+    <div class="tier-icon-wrapper">
+      <ion-icon :icon="currentTier.icon" class="tier-icon"></ion-icon>
+    </div>
+    <div class="tier-info">
+      <h3 class="tier-name">{{ currentTier.name }}</h3>
+      <p class="tier-level">{{ currentTier.level }}</p>
+    </div>
+  </div>
+  
+  <div class="tier-benefits">
+    <div 
+      v-for="benefit in currentTier.benefits" 
+      :key="benefit" 
+      class="benefit-item"
+    >
+      <ion-icon :icon="checkmarkCircleOutline" class="benefit-icon"></ion-icon>
+      <span class="benefit-text">{{ benefit }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Available Rewards -->
+<div class="rewards-section">
+  <h2 class="section-title">Available Rewards</h2>
+  
+  <div class="rewards-grid">
+    <div 
+      v-for="reward in availableRewards" 
+      :key="reward.id" 
+      class="reward-card"
+    >
+      <div class="reward-image">
+        <img :src="reward.image" :alt="reward.name" />
+        <div class="reward-points-badge">
+          <ion-icon :icon="starOutline"></ion-icon>
+          <span>{{ reward.points }}</span>
+        </div>
+      </div>
+      
+      <div class="reward-content">
+        <h3 class="reward-name">{{ reward.name }}</h3>
+        <p class="reward-description">{{ reward.description }}</p>
+        
+        <button 
+          class="redeem-btn" 
+          :disabled="currentPoints < reward.points"
+          @click="redeemReward(reward)"
+        >
+          <span>Redeem</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Earn More Points -->
+<div class="earn-section">
+  <h2 class="section-title">Earn More Points</h2>
+  
+  <div 
+    v-for="action in earnActions" 
+    :key="action.id" 
+    class="earn-card"
+  >
+    <div class="earn-icon-wrapper" :class="action.colorClass">
+      <ion-icon :icon="action.icon" class="earn-icon"></ion-icon>
+    </div>
+    
+    <div class="earn-content">
+      <h4 class="earn-title">{{ action.title }}</h4>
+      <p class="earn-description">{{ action.description }}</p>
+    </div>
+    
+    <div class="earn-points">
+      <span class="earn-value">+{{ action.points }}</span>
+      <span class="earn-label">pts</span>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="activity-section">
+  <h2 class="section-title">Recent Activity</h2>
+  
+  <div 
+    v-for="activity in recentActivity" 
+    :key="activity.id" 
+    class="activity-item"
+  >
+    <div class="activity-icon" :class="activity.type">
+      <ion-icon :icon="activity.icon"></ion-icon>
+    </div>
+    
+    <div class="activity-info">
+      <h4 class="activity-title">{{ activity.title }}</h4>
+      <p class="activity-date">{{ activity.date }}</p>
+    </div>
+    
+    <div class="activity-points" :class="activity.type">
+      <span>{{ activity.points > 0 ? '+' : '' }}{{ activity.points }}</span>
+    </div>
+  </div>
+</div>
+
+</div>
+</template>
+</app-layout>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import AppLayout from './template/AppLayout.vue';
+import { IonIcon } from '@ionic/vue';
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonButton,
-  IonContent,
-  IonIcon,
-  alertController,
-} from "@ionic/vue";
-import {
-  arrowBackOutline,
-  timeOutline,
-  trendingUpOutline,
-  giftOutline,
+  starOutline,
   checkmarkCircleOutline,
-  lockClosedOutline,
-  informationCircleOutline,
-  chevronForwardOutline,
+  timeOutline,
+  arrowForwardOutline,
+  trophyOutline,
+  cartOutline,
+  personAddOutline,
   shareOutline,
-  addOutline,
+  heartOutline,
   chatbubbleOutline,
-} from "ionicons/icons";
+  addCircleOutline,
+  removeCircleOutline
+} from 'ionicons/icons';
 
-const router = useRouter();
-
+// Data
 const currentPoints = ref(1250);
+const pointsToNext = ref(250);
 
-const tiers = [
-  {
-    id: 'bronze',
-    name: 'Bronze',
-    icon: '🥉',
-    color: 'linear-gradient(135deg, #cd7f32, #b87333)',
-    minPoints: 0,
-    benefits: [
-      'Earn 1 point per $1 spent',
-      'Birthday reward',
-      'Early sale access'
-    ],
-    description: 'Welcome to the community!'
-  },
-  {
-    id: 'silver',
-    name: 'Silver',
-    icon: '🥈',
-    color: 'linear-gradient(135deg, #c0c0c0, #a8a8a8)',
-    minPoints: 1000,
-    benefits: [
-      'Earn 1.5 points per $1 spent',
-      'Birthday reward',
-      'Early sale access',
-      'Free shipping on orders $50+'
-    ],
-    description: 'You\'re making great progress!'
-  },
-  {
-    id: 'gold',
-    name: 'Gold',
-    icon: '🥇',
-    color: 'linear-gradient(135deg, #ffd700, #ffcc00)',
-    minPoints: 2500,
-    benefits: [
-      'Earn 2 points per $1 spent',
-      'Birthday reward + gift',
-      'Priority early sale access',
-      'Free shipping on all orders',
-      'Exclusive monthly offers'
-    ],
-    description: 'Elite status unlocked!'
-  },
-  {
-    id: 'platinum',
-    name: 'Platinum',
-    icon: '💎',
-    color: 'linear-gradient(135deg, #e5e4e2, #bcc6cc)',
-    minPoints: 5000,
-    benefits: [
-      'Earn 3 points per $1 spent',
-      'Birthday reward + premium gift',
-      'VIP early sale access',
-      'Free shipping + priority handling',
-      'Exclusive monthly offers',
-      'Personal coffee consultant'
-    ],
-    description: 'You\'re a VIP member!'
-  }
-];
-
-const currentTier = computed(() => {
-  return [...tiers].reverse().find(tier => currentPoints.value >= tier.minPoints);
+const currentTier = ref({
+  name: 'Gold Member',
+  level: 'Level 3',
+  class: 'gold',
+  icon: trophyOutline,
+  benefits: [
+    '10% off all purchases',
+    'Free shipping on orders over $30',
+    'Early access to new coffees',
+    'Birthday reward'
+  ]
 });
 
-const nextTier = computed(() => {
-  const currentIndex = tiers.findIndex(t => t.id === currentTier.value.id);
-  return currentIndex < tiers.length - 1 ? tiers[currentIndex + 1] : null;
-});
-
-const pointsToNextTier = computed(() => {
-  return nextTier.value ? nextTier.value.minPoints - currentPoints.value : 0;
-});
-
-const tierProgress = computed(() => {
-  if (!nextTier.value) return 100;
-  const current = currentPoints.value - currentTier.value.minPoints;
-  const total = nextTier.value.minPoints - currentTier.value.minPoints;
-  return Math.min((current / total) * 100, 100);
-});
-
-const allRewards = [
+const availableRewards = ref([
   {
     id: 1,
     name: 'Free Coffee Bag',
-    description: 'Get any 250g bag of your choice absolutely free',
-    image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400',
+    description: 'Redeem for any 250g coffee bag',
+    image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800',
     points: 500,
-    category: 'Coffee',
-    categoryColor: 'linear-gradient(135deg, #6b4226, #4a2c2a)'
+    expiry: 'Valid for 30 days'
   },
   {
     id: 2,
-    name: '$10 Off Next Order',
-    description: 'Save $10 on your next purchase of $30 or more',
-    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400',
-    points: 750,
-    category: 'Discount',
-    categoryColor: 'linear-gradient(135deg, #27ae60, #2ecc71)'
+    name: '$10 Off Voucher',
+    description: 'Use on your next purchase',
+    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800',
+    points: 800,
+    expiry: 'Valid for 60 days'
   },
   {
     id: 3,
-    name: 'Premium Grinder',
-    description: 'High-quality burr grinder for perfect consistency',
-    image: 'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=400',
-    points: 2000,
-    category: 'Equipment',
-    categoryColor: 'linear-gradient(135deg, #667eea, #764ba2)'
+    name: 'Premium Brewing Kit',
+    description: 'Complete coffee brewing starter kit',
+    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800',
+    points: 1500,
+    expiry: 'Valid for 90 days'
   },
   {
     id: 4,
-    name: 'Coffee Tasting Kit',
-    description: 'Sample pack of 5 premium single-origin coffees',
-    image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400',
+    name: 'Coffee Grinder',
+    description: 'Professional burr grinder',
+    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800',
     points: 1200,
-    category: 'Experience',
-    categoryColor: 'linear-gradient(135deg, #f093fb, #f5576c)'
-  },
-  {
-    id: 5,
-    name: 'Free Shipping - 1 Year',
-    description: 'Enjoy free shipping on all orders for a full year',
-    image: 'https://images.unsplash.com/photo-1578374173713-d8c19b84aeb8?w=400',
-    points: 3000,
-    category: 'Membership',
-    categoryColor: 'linear-gradient(135deg, #fa709a, #fee140)'
-  },
-  {
-    id: 6,
-    name: 'Espresso Machine',
-    description: 'Professional-grade espresso machine for home',
-    image: 'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=400',
-    points: 8000,
-    category: 'Equipment',
-    categoryColor: 'linear-gradient(135deg, #667eea, #764ba2)'
-  },
-  {
-    id: 7,
-    name: '20% Off Entire Order',
-    description: 'Get 20% off your entire purchase, no minimum',
-    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400',
-    points: 1000,
-    category: 'Discount',
-    categoryColor: 'linear-gradient(135deg, #27ae60, #2ecc71)'
-  },
-  {
-    id: 8,
-    name: 'Barista Workshop',
-    description: 'Private 2-hour workshop with a master barista',
-    image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400',
-    points: 5000,
-    category: 'Experience',
-    categoryColor: 'linear-gradient(135deg, #f093fb, #f5576c)'
+    expiry: 'Valid for 60 days'
   }
-];
+]);
 
-const eligibleRewards = computed(() => {
-  return allRewards.filter(reward => reward.points <= currentPoints.value);
-});
-
-const lockedRewards = computed(() => {
-  return allRewards.filter(reward => reward.points > currentPoints.value);
-});
-
-const nextReward = computed(() => {
-  return lockedRewards.value[0];
-});
-
-const pointsToNextReward = computed(() => {
-  return nextReward.value ? nextReward.value.points - currentPoints.value : 0;
-});
-
-const progressToNextReward = computed(() => {
-  if (!nextReward.value) return 100;
-  const previousReward = eligibleRewards.value[eligibleRewards.value.length - 1];
-  const basePoints = previousReward ? previousReward.points : 0;
-  const current = currentPoints.value - basePoints;
-  const total = nextReward.value.points - basePoints;
-  return Math.min((current / total) * 100, 100);
-});
-
-const waysToEarn = [
+const earnActions = ref([
   {
     id: 1,
-    icon: '☕',
     title: 'Make a Purchase',
-    description: 'Earn points with every order',
-    points: 10,
-    color: 'linear-gradient(135deg, rgba(107, 66, 38, 0.12), rgba(107, 66, 38, 0.08))'
+    description: 'Earn 1 point per dollar spent',
+    points: '1 per $',
+    icon: cartOutline,
+    colorClass: 'blue'
   },
   {
     id: 2,
-    icon: '📝',
-    title: 'Write a Review',
-    description: 'Share your coffee experience',
-    points: 50,
-    color: 'linear-gradient(135deg, rgba(39, 174, 96, 0.12), rgba(39, 174, 96, 0.08))'
+    title: 'Refer a Friend',
+    description: 'Get points when they make first purchase',
+    points: 200,
+    icon: personAddOutline,
+    colorClass: 'green'
   },
   {
     id: 3,
-    icon: '🎂',
-    title: 'Birthday Bonus',
-    description: 'Special gift on your birthday',
-    points: 200,
-    color: 'linear-gradient(135deg, rgba(255, 152, 0, 0.12), rgba(255, 152, 0, 0.08))'
+    title: 'Share on Social',
+    description: 'Share your favorite coffee',
+    points: 50,
+    icon: shareOutline,
+    colorClass: 'purple'
   },
   {
     id: 4,
-    icon: '📱',
-    title: 'Share on Social',
-    description: 'Post about your favorite coffee',
-    points: 25,
-    color: 'linear-gradient(135deg, rgba(33, 150, 243, 0.12), rgba(33, 150, 243, 0.08))'
-  },
-  {
-    id: 5,
-    icon: '👥',
-    title: 'Refer a Friend',
-    description: 'Invite friends to join',
-    points: 500,
-    color: 'linear-gradient(135deg, rgba(155, 81, 224, 0.12), rgba(155, 81, 224, 0.08))'
+    title: 'Write a Review',
+    description: 'Review a product you purchased',
+    points: 75,
+    icon: chatbubbleOutline,
+    colorClass: 'orange'
   }
-];
+]);
 
 const recentActivity = ref([
   {
     id: 1,
-    type: 'earned',
-    description: 'Purchase reward',
-    date: 'Today',
+    title: 'Purchase Reward',
+    date: 'Dec 10, 2025',
     points: 45,
-    icon: addOutline
+    type: 'earned',
+    icon: addCircleOutline
   },
   {
     id: 2,
+    title: 'Redeemed Free Coffee',
+    date: 'Dec 5, 2025',
+    points: -500,
     type: 'redeemed',
-    description: 'Redeemed: $10 Off coupon',
-    date: 'Yesterday',
-    points: 750,
-    icon: giftOutline
+    icon: removeCircleOutline
   },
   {
     id: 3,
-    type: 'earned',
-    description: 'Product review',
-    date: '2 days ago',
-    points: 50,
-    icon: chatbubbleOutline
-  },
-  {
-    id: 4,
-    type: 'earned',
-    description: 'Birthday bonus',
-    date: '1 week ago',
+    title: 'Referral Bonus',
+    date: 'Dec 1, 2025',
     points: 200,
-    icon: addOutline
+    type: 'earned',
+    icon: addCircleOutline
   }
 ]);
 
-const goBack = () => {
-  router.back();
-};
+// Computed
+const progressPercent = computed(() => {
+  const total = currentPoints.value + pointsToNext.value;
+  return (currentPoints.value / total) * 100;
+});
 
-const showHistory = () => {
-  alert('Full history feature coming soon!');
-};
-
-const earnPoints = () => {
-  alert('Earn points feature coming soon!');
-};
-
-const viewAllRewards = () => {
-  alert('View all rewards feature coming soon!');
-};
-
-const redeemReward = async (rewardId) => {
-  const reward = allRewards.find(r => r.id === rewardId);
-  
-  const alert = await alertController.create({
-    header: 'Redeem Reward?',
-    message: `Do you want to redeem "${reward.name}" for ${reward.points} points?`,
-    buttons: [
-      {
-        text: 'Cancel',
-        role: 'cancel'
-      },
-      {
-        text: 'Redeem',
-        handler: () => {
-          currentPoints.value -= reward.points;
-          recentActivity.value.unshift({
-            id: Date.now(),
-            type: 'redeemed',
-            description: `Redeemed: ${reward.name}`,
-            date: 'Just now',
-            points: reward.points,
-            icon: giftOutline
-          });
-          
-          alertController.create({
-            header: 'Success!',
-            message: `You've redeemed ${reward.name}. Check your email for details.`,
-            buttons: ['OK']
-          }).then(a => a.present());
-        }
-      }
-    ]
-  });
-  
-  await alert.present();
-};
-
-const shareReferral = () => {
-  alert('Referral sharing feature coming soon!');
+// Methods
+const redeemReward = (reward) => {
+  console.log('Redeeming reward:', reward);
+  // Add redemption logic here
 };
 </script>
 
 <style scoped>
-/* ===== VARIABLES ===== */
 :root {
-  --coffee-dark: #4a2c2a;
-  --coffee-medium: #6b4226;
-  --coffee-light: #a87b54;
-  --text-dark: #2c1810;
-  --text-light: #8b7355;
-  --green: #27ae60;
-  --blue: #2196f3;
-  --purple: #9b51e0;
-  --orange: #ff9800;
-  --red: #ef4444;
+  --coffee-900: #3d2419;
+  --coffee-600: #6b4226;
+  --cream-200: #faf8f5;
+  --cream-300: #f5f1e8;
+  --text-900: #1a0f0a;
+  --text-600: #6b5444;
+  --gold: #fbbf24;
+  --gold-dark: #f59e0b;
+  --blue: #3b82f6;
+  --green: #10b981;
+  --purple: #8b5cf6;
+  --orange: #f97316;
 }
 
-* {
-  -webkit-tap-highlight-color: transparent;
+.rewards-page {
+  background: var(--cream-200);
+  min-height: 100vh;
+  padding-bottom: 20px;
 }
 
-/* ===== HEADER ===== */
-.page-toolbar {
-  --background: white;
-  --border-width: 0;
-  padding: 8px 4px;
-}
-
-.header-button {
-  --background: rgba(107, 66, 38, 0.08);
-  --color: var(--coffee-dark);
-  width: 42px;
-  height: 42px;
-  margin: 4px;
-  border-radius: 50%;
-}
-
-.header-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--coffee-dark);
-}
-
-/* ===== CONTENT ===== */
-.page-content {
-  --background: #f5f5f5;
-}
-
-.content-container {
-  padding: 12px;
-  padding-bottom: 24px;
-}
-
-/* ===== CONTENT CARD ===== */
-.content-card {
+/* ===== HERO HEADER ===== */
+.hero-header {
   background: white;
-  border-radius: 20px;
-  margin-bottom: 16px;
-  box-shadow: none;
-  border: none;
-  overflow: hidden;
+  padding: 28px 20px 24px;
+  margin-bottom: 12px;
 }
 
-/* ===== BALANCE CARD ===== */
-.balance-card {
-  padding: 24px;
-  background: linear-gradient(135deg, #fff5e6, #ffe4cc);
-}
-
-.balance-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.balance-icon {
-  font-size: 56px;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-.balance-info {
-  flex: 1;
-}
-
-.balance-label {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-light);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.balance-amount {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.points-number {
-  font-size: 48px;
-  font-weight: 900;
-  color: var(--coffee-dark);
-  line-height: 1;
-}
-
-.points-label {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--coffee-medium);
-}
-
-.balance-progress {
-  margin-bottom: 20px;
-}
-
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.progress-label {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--coffee-dark);
-}
-
-.progress-value {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--orange);
-}
-
-.progress-bar-container {
+.hero-content {
   width: 100%;
-  height: 10px;
-  background: rgba(255, 152, 0, 0.15);
-  border-radius: 10px;
-  overflow: hidden;
 }
 
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--orange), #ffb84d);
-  border-radius: 10px;
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.quick-actions {
+.title-row {
   display: flex;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 16px;
 }
 
-.quick-action-btn {
-  flex: 1;
+.hero-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 14px;
+  flex-shrink: 0;
+}
+
+.hero-icon {
+  font-size: 28px;
+  color: var(--gold);
+}
+
+.text-content {
+  flex: 1;
+  padding-top: 2px;
+}
+
+.hero-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-600);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ===== BALANCE SECTION ===== */
+.balance-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px 20px 12px;
+  margin-bottom: 8px;
+}
+
+.balance-card {
   background: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--coffee-dark);
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
-.quick-action-btn:active {
-  transform: scale(0.95);
+.balance-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.quick-action-btn ion-icon {
-  font-size: 20px;
+.balance-icon {
+  font-size: 32px;
+  color: var(--gold);
 }
 
-/* ===== TIER CARD ===== */
-.tier-card {
-  padding: 24px;
+.balance-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
-.tier-header {
+.balance-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balance-value {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--text-900);
+  line-height: 1;
+}
+
+.progress-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-value {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--gold);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--cream-300);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+  border-radius: 8px;
+  transition: width 0.5s ease;
+}
+
+/* ===== TIER SECTION ===== */
+.tier-section {
+  background: white;
+  margin: 0 20px 20px;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.tier-badge {
   display: flex;
   align-items: center;
   gap: 16px;
   margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 12px;
 }
 
-.tier-badge {
-  width: 64px;
-  height: 64px;
+.tier-badge.gold {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05));
+}
+
+.tier-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: var(--gold);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -796,7 +510,8 @@ const shareReferral = () => {
 }
 
 .tier-icon {
-  font-size: 36px;
+  font-size: 28px;
+  color: white;
 }
 
 .tier-info {
@@ -806,449 +521,296 @@ const shareReferral = () => {
 .tier-name {
   font-size: 20px;
   font-weight: 900;
-  color: var(--coffee-dark);
+  color: #000000;
   margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
 }
 
-.tier-description {
+.tier-level {
   font-size: 13px;
-  color: var(--text-light);
+  font-weight: 700;
+  color: var(--text-600);
   margin: 0;
-  font-weight: 600;
 }
 
 .tier-benefits {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 16px;
-  background: linear-gradient(135deg, #fafafa, #f8f8f8);
-  border-radius: 12px;
-  margin-bottom: 20px;
+  gap: 12px;
 }
 
 .benefit-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
-  color: var(--coffee-dark);
-  font-weight: 700;
+  padding: 12px;
+  background: var(--cream-200);
+  border-radius: 10px;
 }
 
-.benefit-item ion-icon {
-  font-size: 18px;
-  color: var(--green);
+.benefit-icon {
+  font-size: 20px;
+  color: var(--gold);
   flex-shrink: 0;
 }
 
-.next-tier-progress {
-  padding: 16px;
-  background: linear-gradient(135deg, rgba(255, 152, 0, 0.08), rgba(255, 152, 0, 0.05));
-  border-radius: 12px;
+.benefit-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-900);
 }
 
-.next-tier-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.next-tier-label {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--coffee-dark);
-}
-
-.next-tier-badge {
-  font-size: 24px;
-}
-
-.tier-progress-bar {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 152, 0, 0.15);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.tier-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--orange), #ffb84d);
-  border-radius: 8px;
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ===== SECTION HEADER ===== */
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 4px 12px;
+/* ===== REWARDS SECTION ===== */
+.rewards-section {
+  padding: 0 20px;
+  margin-bottom: 20px;
 }
 
 .section-title {
   font-size: 20px;
-  font-weight: 800;
-  color: var(--coffee-dark);
-  margin: 0;
+  font-weight: 900;
+  color: #000000;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.5px;
 }
 
-.section-count {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text-light);
-  padding: 6px 12px;
-  background: linear-gradient(135deg, #fafafa, #f8f8f8);
-  border-radius: 10px;
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
 }
 
-/* ===== EMPTY STATE ===== */
-.empty-state {
-  text-align: center;
-  padding: 48px 24px;
-  background: white;
-  border-radius: 20px;
-  margin-bottom: 16px;
-}
-
-.empty-icon {
-  font-size: 72px;
-  margin-bottom: 16px;
-  opacity: 0.5;
-}
-
-.empty-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--coffee-dark);
-  margin: 0 0 8px 0;
-}
-
-.empty-message {
-  font-size: 14px;
-  color: var(--text-light);
-  margin: 0;
-  font-weight: 600;
-}
-
-/* ===== REWARD CARD ===== */
 .reward-card {
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
 }
 
-.reward-image-wrapper {
-  position: relative;
-  width: 100%;
-  height: 160px;
-  background: #e8e8e8;
-  overflow: hidden;
+.reward-card:active {
+  transform: scale(0.98);
 }
 
 .reward-image {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+}
+
+.reward-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.reward-image.locked-image {
-  opacity: 0.4;
-  filter: grayscale(100%);
-}
-
-.eligible-badge {
+.reward-points-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 8px;
+  right: 8px;
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  background: var(--green);
-  border-radius: 10px;
-  color: white;
+  gap: 4px;
+  padding: 6px 10px;
+  background: rgba(251, 191, 36, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
   font-size: 12px;
-  font-weight: 800;
-}
-
-.eligible-badge ion-icon {
-  font-size: 16px;
-}
-
-.locked-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.locked-overlay ion-icon {
-  font-size: 48px;
+  font-weight: 900;
   color: white;
+}
+
+.reward-points-badge ion-icon {
+  font-size: 14px;
 }
 
 .reward-content {
-  padding: 20px;
-}
-
-.reward-header-section {
+  padding: 14px;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .reward-name {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--coffee-dark);
+  font-size: 15px;
+  font-weight: 900;
+  color: #000000;
   margin: 0;
+  letter-spacing: -0.3px;
   line-height: 1.3;
-  flex: 1;
-}
-
-.reward-category {
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 800;
-  color: white;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  flex-shrink: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 38px;
 }
 
 .reward-description {
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--text-light);
-  margin: 0 0 16px 0;
+  font-size: 12px;
   font-weight: 600;
-}
-
-.reward-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.reward-points {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
-  background: linear-gradient(135deg, #fafafa, #f8f8f8);
-  border-radius: 10px;
-}
-
-.points-icon {
-  font-size: 20px;
-}
-
-.points-cost {
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--coffee-dark);
+  color: var(--text-600);
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .redeem-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 10px 18px;
-  background: linear-gradient(135deg, var(--coffee-medium), var(--coffee-dark));
+  padding: 10px 14px;
+  background: var(--gold);
+  color: white;
   border: none;
   border-radius: 10px;
-  color: white;
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 900;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.redeem-btn:active {
+.redeem-btn:disabled {
+  background: var(--cream-300);
+  color: var(--text-600);
+  cursor: not-allowed;
+}
+
+.redeem-btn:not(:disabled):active {
   transform: scale(0.95);
+  background: var(--gold-dark);
 }
 
 .redeem-btn ion-icon {
   font-size: 18px;
 }
 
-.points-needed {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--orange);
-}
-
-.points-needed ion-icon {
-  font-size: 16px;
-}
-
-/* ===== EARN CARD ===== */
-.earn-card {
-  padding: 24px;
-}
-
-.earn-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+/* ===== EARN SECTION ===== */
+.earn-section {
+  padding: 0 20px;
   margin-bottom: 20px;
 }
 
-.earn-icon {
-  font-size: 48px;
-}
-
-.earn-info {
-  flex: 1;
-}
-
-.earn-title {
-  font-size: 19px;
-  font-weight: 800;
-  color: var(--coffee-dark);
-  margin: 0 0 4px 0;
-}
-
-.earn-subtitle {
-  font-size: 13px;
-  color: var(--text-light);
-  margin: 0;
-  font-weight: 600;
-}
-
-.earn-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.earn-item {
+.earn-card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px;
-  background: linear-gradient(135deg, #fafafa, #f8f8f8);
-  border-radius: 12px;
+  gap: 16px;
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: transform 0.3s ease;
 }
 
-.earn-item-icon {
+.earn-card:active {
+  transform: scale(0.98);
+}
+
+.earn-icon-wrapper {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
   flex-shrink: 0;
 }
 
-.earn-item-content {
+.earn-icon-wrapper.blue {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+}
+
+.earn-icon-wrapper.green {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+}
+
+.earn-icon-wrapper.purple {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05));
+}
+
+.earn-icon-wrapper.orange {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05));
+}
+
+.earn-icon {
+  font-size: 24px;
+}
+
+.earn-icon-wrapper.blue .earn-icon {
+  color: var(--blue);
+}
+
+.earn-icon-wrapper.green .earn-icon {
+  color: var(--green);
+}
+
+.earn-icon-wrapper.purple .earn-icon {
+  color: var(--purple);
+}
+
+.earn-icon-wrapper.orange .earn-icon {
+  color: var(--orange);
+}
+
+.earn-content {
   flex: 1;
 }
 
-.earn-item-title {
+.earn-title {
   font-size: 15px;
-  font-weight: 800;
-  color: var(--coffee-dark);
+  font-weight: 900;
+  color: #000000;
   margin: 0 0 4px 0;
 }
 
-.earn-item-description {
+.earn-description {
   font-size: 12px;
-  color: var(--text-light);
+  font-weight: 700;
+  color: var(--text-600);
   margin: 0;
-  font-weight: 600;
 }
 
-.earn-item-points {
+.earn-points {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
 
-.earn-points-value {
+.earn-value {
   font-size: 20px;
   font-weight: 900;
-  color: var(--green);
+  color: var(--gold);
   line-height: 1;
 }
 
-.earn-points-label {
+.earn-label {
   font-size: 11px;
   font-weight: 700;
-  color: var(--text-light);
-  text-transform: uppercase;
+  color: var(--text-600);
 }
 
-/* ===== ACTIVITY CARD ===== */
-.activity-card {
-  padding: 24px;
-}
-
-.activity-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* ===== ACTIVITY SECTION ===== */
+.activity-section {
+  padding: 0 20px;
   margin-bottom: 20px;
-}
-
-.activity-title {
-  font-size: 19px;
-  font-weight: 800;
-  color: var(--coffee-dark);
-  margin: 0;
-}
-
-.view-all-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
-  background: transparent;
-  border: none;
-  color: var(--coffee-medium);
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.view-all-btn ion-icon {
-  font-size: 16px;
-}
-
-.activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
 .activity-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  background: linear-gradient(135deg, #fafafa, #f8f8f8);
-  border-radius: 10px;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
 }
 
 .activity-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1257,36 +819,35 @@ const shareReferral = () => {
 }
 
 .activity-icon.earned {
-  background: linear-gradient(135deg, rgba(39, 174, 96, 0.12), rgba(39, 174, 96, 0.08));
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
   color: var(--green);
 }
 
 .activity-icon.redeemed {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.08));
-  color: var(--red);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05));
+  color: var(--orange);
 }
 
 .activity-icon ion-icon {
-  font-size: 20px;
+  font-size: 22px;
 }
 
-.activity-content {
+.activity-info {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
 }
 
-.activity-description {
+.activity-title {
   font-size: 14px;
-  font-weight: 700;
-  color: var(--coffee-dark);
+  font-weight: 900;
+  color: #000000;
+  margin: 0 0 2px 0;
 }
 
 .activity-date {
   font-size: 12px;
-  font-weight: 600;
-  color: var(--text-light);
+  font-weight: 700;
+  color: var(--text-600);
+  margin: 0;
 }
 
 .activity-points {
@@ -1299,80 +860,6 @@ const shareReferral = () => {
 }
 
 .activity-points.redeemed {
-  color: var(--red);
-}
-
-/* ===== REFERRAL CARD ===== */
-.referral-card {
-  padding: 20px;
-  background: linear-gradient(135deg, #e3f2e1, #f0f8ee);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.referral-content {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex: 1;
-}
-
-.referral-icon {
-  font-size: 48px;
-}
-
-.referral-text {
-  flex: 1;
-}
-
-.referral-title {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--coffee-dark);
-  margin: 0 0 4px 0;
-}
-
-.referral-description {
-  font-size: 13px;
-  color: var(--text-light);
-  margin: 0;
-  font-weight: 600;
-}
-
-.referral-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 18px;
-  background: linear-gradient(135deg, var(--coffee-medium), var(--coffee-dark));
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-
-.referral-btn:active {
-  transform: scale(0.95);
-}
-
-.referral-btn ion-icon {
-  font-size: 18px;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 400px) {
-  .referral-card {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .referral-content {
-    flex-direction: column;
-  }
+  color: var(--orange);
 }
 </style>

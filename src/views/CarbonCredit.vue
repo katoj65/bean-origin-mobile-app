@@ -20,30 +20,6 @@
     <ion-content class="page-content">
       <div class="content-container">
 
-        <!-- HERO CARD -->
-        <div class="content-card hero-card">
-          <div class="hero-icon">☕</div>
-          <h1 class="hero-title">Offset Your Coffee's Carbon Footprint</h1>
-          <p class="hero-subtitle">Every cup has a carbon footprint. From farm to cup, help make your coffee carbon neutral.</p>
-          
-          <div class="hero-stats">
-            <div class="stat-item">
-              <span class="stat-value">{{ totalPurchases }}</span>
-              <span class="stat-label">Bags Purchased</span>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <span class="stat-value">{{ totalEmissions }}</span>
-              <span class="stat-label">kg CO₂</span>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <span class="stat-value">{{ offsetPercentage }}%</span>
-              <span class="stat-label">Offset</span>
-            </div>
-          </div>
-        </div>
-
         <!-- YOUR IMPACT CARD -->
         <div class="content-card impact-card">
           <div class="card-header">

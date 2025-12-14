@@ -61,46 +61,32 @@
   <!-- Product Image -->
   <div class="subscription-image">
     <img :src="subscription.image" :alt="subscription.name" />
-    <div class="image-overlay"></div>
     <div class="subscription-badge" :class="subscription.status">
-      <ion-icon :icon="checkmarkCircleOutline" class="badge-icon"></ion-icon>
-      <span>{{ subscription.status }}</span>
+      {{ subscription.status }}
     </div>
   </div>
 
   <!-- Product Info -->
   <div class="subscription-content">
-    <div class="content-top">
-      <h3 class="product-name">{{ subscription.name }}</h3>
-      <div class="product-meta">
-        <div class="roast-badge">
-          <ion-icon :icon="flameOutline"></ion-icon>
-          <span class="roast-type">{{ subscription.roast }}</span>
-        </div>
+    <h3 class="product-name">{{ subscription.name }}</h3>
+    <div class="product-meta">
+      <span class="roast-type">{{ subscription.roast }}</span>
+    </div>
+    
+    <div class="product-stats">
+      <div class="stat-item">
+        <ion-icon :icon="cubeOutline"></ion-icon>
+        <span>{{ subscription.size }}</span>
       </div>
-      
-      <div class="product-stats">
-        <div class="stat-item">
-          <ion-icon :icon="cubeOutline"></ion-icon>
-          <span>{{ subscription.size }}</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <ion-icon :icon="reloadOutline"></ion-icon>
-          <span>{{ subscription.frequency }}</span>
-        </div>
+      <div class="stat-item">
+        <ion-icon :icon="reloadOutline"></ion-icon>
+        <span>{{ subscription.frequency }}</span>
       </div>
     </div>
 
     <div class="price-row">
-      <div class="price-info">
-        <span class="price-label">Price</span>
-        <span class="price">${{ subscription.price }}</span>
-      </div>
-      <div class="savings-badge">
-        <ion-icon :icon="trendingDownOutline"></ion-icon>
-        <span>${{ subscription.savings }}</span>
-      </div>
+      <span class="price">${{ subscription.price }}</span>
+      <span class="savings">Save ${{ subscription.savings }}</span>
     </div>
   </div>
 </div>
@@ -147,43 +133,11 @@ import {
   pauseOutline,
   eyeOutline,
   addCircleOutline,
-  arrowForwardOutline,
-  checkmarkCircleOutline,
-  flameOutline
+  arrowForwardOutline
 } from 'ionicons/icons';
 
 // Subscriptions data
 const subscriptions = ref([
-  {
-    id: 1,
-    name: 'Ethiopian Yirgacheffe',
-    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800',
-    roast: 'Medium Roast',
-    origin: 'Ethiopia',
-    rating: 4.9,
-    size: '500g',
-    frequency: 'Every 2 weeks',
-    grind: 'Whole Bean',
-    nextDelivery: 'Dec 20',
-    price: 21.24,
-    savings: 3.75,
-    status: 'active'
-  },
-  {
-    id: 2,
-    name: 'Colombian Supremo',
-    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800',
-    roast: 'Dark Roast',
-    origin: 'Colombia',
-    rating: 4.8,
-    size: '1kg',
-    frequency: 'Monthly',
-    grind: 'Espresso',
-    nextDelivery: 'Dec 28',
-    price: 39.09,
-    savings: 6.90,
-    status: 'active'
-  },
   {
     id: 3,
     name: 'Costa Rican Tarrazu',
@@ -421,71 +375,52 @@ const totalSaved = computed(() => {
 
 /* ===== SUBSCRIPTIONS LIST ===== */
 .subscriptions-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 16px;
   padding: 0 20px;
   margin-bottom: 20px;
 }
 
 .subscription-card {
+  display: flex;
+  flex-direction: row;
   background: white;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s ease;
 }
 
 .subscription-card:active {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  transform: scale(0.98);
 }
 
 /* Product Image */
 .subscription-image {
   position: relative;
-  width: 100%;
-  height: 180px;
+  width: 110px;
+  min-width: 110px;
+  height: auto;
   overflow: hidden;
-  background: var(--cream-300);
 }
 
 .subscription-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.subscription-card:active .subscription-image img {
-  transform: scale(1.05);
-}
-
-.image-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.1) 100%);
 }
 
 .subscription-badge {
   position: absolute;
-  bottom: 10px;
-  left: 10px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
-  border-radius: 20px;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  border-radius: 8px;
   font-size: 10px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.badge-icon {
-  font-size: 12px;
 }
 
 .subscription-badge.active {
@@ -500,140 +435,41 @@ const totalSaved = computed(() => {
 
 /* Product Content */
 .subscription-content {
-  padding: 16px;
+  flex: 1;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.content-top {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  justify-content: space-between;
 }
 
 .product-name {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--text-900);
-  margin: 0;
+  margin: 0 0 4px 0;
   letter-spacing: -0.3px;
-  line-height: 1.3;
+  line-height: 1.2;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 38px;
 }
 
 .product-meta {
-  margin: 0;
-}
-
-.roast-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
-  background: linear-gradient(135deg, rgba(107, 66, 38, 0.08), rgba(107, 66, 38, 0.04));
-  border-radius: 8px;
-}
-
-.roast-badge ion-icon {
-  font-size: 13px;
-  color: var(--coffee-600);
-}
-
-.roast-type {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--coffee-600);
-}
-
-.product-stats {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.stat-divider {
-  width: 1px;
-  height: 14px;
-  background: var(--cream-300);
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-600);
-}
-
-.stat-item ion-icon {
-  font-size: 14px;
-  color: var(--coffee-600);
-}
-
-.price-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid var(--cream-300);
-  margin-top: auto;
-}
-
-.price-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.price-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-600);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.price {
-  font-size: 20px;
-  font-weight: 900;
-  color: var(--coffee-600);
-  letter-spacing: -0.5px;
-  line-height: 1;
-}
-
-.savings-badge {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.08));
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 900;
-  color: var(--green);
-}
-
-.savings-badge ion-icon {
-  font-size: 14px;
-}
-
-.roast-type {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-600);
-}
-
-.product-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   margin-bottom: 12px;
+}
+
+.roast-type {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
+}
+
+.product-stats {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .stat-item {
@@ -654,7 +490,7 @@ const totalSaved = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 12px;
+  padding-top: 0;
   border-top: 1px solid var(--cream-300);
 }
 

@@ -1,959 +1,865 @@
 <template>
-<app-layout title="Product Details">
+<app-layout title="Rewards">
 <template #content>
-<div class="product-details-page">
-<!-- Product Card -->
-<div class="product-card">
-<!-- Product Image -->
-<div class="product-image-section">
-<img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800" alt="Coffee" class="product-image" />
-<div class="premium-badge">
-<ion-icon :icon="starOutline" class="premium-icon"></ion-icon>
-<span>Premium</span>
-</div>
-<div class="image-badge">
-<ion-icon :icon="heartOutline" class="heart-icon"></ion-icon>
-</div>
+<div class="rewards-page">
+
+<!-- Hero Header Section -->
+<div class="hero-header">
+  <div class="hero-content">
+    <div class="title-row">
+      <div class="hero-icon-wrapper">
+        <ion-icon :icon="trophyOutline" class="hero-icon"></ion-icon>
+      </div>
+      <div class="text-content">
+        <h1 class="hero-title">Rewards Program</h1>
+        <p class="hero-subtitle">Earn points with every purchase and unlock exclusive benefits</p>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Product Info -->
-<div class="product-info-content">
-<div class="product-header">
-<h1 class="product-name">Cappuccino</h1>
-<div class="product-rating">
-<ion-icon :icon="starOutline" class="star-icon"></ion-icon>
-<span class="rating-value">4.8</span>
-<span class="rating-count">(245)</span>
-</div>
-</div>
-
-<div class="price-section">
-<span class="price-value">$5.50</span>
-</div>
-
-<p class="product-description">
-A classic Italian coffee drink made with espresso, steamed milk, and a thick layer of milk foam. 
-Rich and creamy with a perfect balance of coffee and milk.
-</p>
-
-<!-- Add to Cart Button -->
-<ion-button expand="block" class="add-cart-btn">
-<ion-icon :icon="cartOutline" slot="start"></ion-icon>
-Add to Cart
-</ion-button>
-</div>
+<!-- Points Balance Section -->
+<div class="balance-section">
+  <div class="balance-card">
+    <div class="balance-icon-wrapper">
+      <ion-icon :icon="starOutline" class="balance-icon"></ion-icon>
+    </div>
+    <div class="balance-content">
+      <span class="balance-label">Your Points</span>
+      <span class="balance-value">{{ currentPoints }}</span>
+    </div>
+  </div>
+  
+  <div class="progress-card">
+    <div class="progress-header">
+      <span class="progress-label">Next Reward</span>
+      <span class="progress-value">{{ pointsToNext }} pts</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
+    </div>
+  </div>
 </div>
 
-<!-- Product Info Section -->
-<div class="product-info-section">
-<!-- Origin Info -->
-<div class="origin-card">
-<ion-icon :icon="locationOutline" class="origin-icon"></ion-icon>
-<div class="origin-info">
-<h4 class="origin-label">Origin</h4>
-<p class="origin-value">Ethiopia, Yirgacheffe</p>
-</div>
-</div>
-
-<!-- Farmer Summary -->
-<div class="farmer-card">
-<div class="farmer-content">
-<div class="farmer-image-wrapper">
-<img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=120" alt="Farmer" class="farmer-image" />
-</div>
-<div class="farmer-info">
-<span class="farmer-label">Sourced from</span>
-<h3 class="farmer-name">Abebe Kebede</h3>
-<span class="farmer-region">Yirgacheffe, Ethiopia</span>
-</div>
-</div>
-<button class="farmer-profile-btn">
-<span>View Farmer Profile</span>
-<ion-icon :icon="arrowForwardOutline"></ion-icon>
-</button>
+<!-- Tier Status -->
+<div class="tier-section">
+  <div class="tier-badge" :class="currentTier.class">
+    <div class="tier-icon-wrapper">
+      <ion-icon :icon="currentTier.icon" class="tier-icon"></ion-icon>
+    </div>
+    <div class="tier-info">
+      <h3 class="tier-name">{{ currentTier.name }}</h3>
+      <p class="tier-level">{{ currentTier.level }}</p>
+    </div>
+  </div>
+  
+  <div class="tier-benefits">
+    <div 
+      v-for="benefit in currentTier.benefits" 
+      :key="benefit" 
+      class="benefit-item"
+    >
+      <ion-icon :icon="checkmarkCircleOutline" class="benefit-icon"></ion-icon>
+      <span class="benefit-text">{{ benefit }}</span>
+    </div>
+  </div>
 </div>
 
-<!-- Farm Summary -->
-<div class="farm-section">
-<div class="section-header-row">
-<h3 class="section-label">Farm Details</h3>
-<span class="certification-badge">
-<ion-icon :icon="leafOutline"></ion-icon>
-<span>Organic Certified</span>
-</span>
-</div>
-<div class="farm-details-grid">
-<div class="farm-detail-card">
-<ion-icon :icon="waterOutline" class="detail-icon"></ion-icon>
-<div class="detail-info">
-<h4 class="detail-label">Processing</h4>
-<p class="detail-value">Washed</p>
-</div>
-</div>
-<div class="farm-detail-card">
-<ion-icon :icon="sunnyOutline" class="detail-icon"></ion-icon>
-<div class="detail-info">
-<h4 class="detail-label">Altitude</h4>
-<p class="detail-value">1,800-2,000m</p>
-</div>
-</div>
-<div class="farm-detail-card">
-<ion-icon :icon="leafOutline" class="detail-icon"></ion-icon>
-<div class="detail-info">
-<h4 class="detail-label">Variety</h4>
-<p class="detail-value">Heirloom</p>
-</div>
-</div>
-<div class="farm-detail-card">
-<ion-icon :icon="calendarOutline" class="detail-icon"></ion-icon>
-<div class="detail-info">
-<h4 class="detail-label">Harvest</h4>
-<p class="detail-value">Oct - Dec 2024</p>
-</div>
-</div>
-</div>
-<div class="sustainability-card">
-<div class="sustainability-header">
-<ion-icon :icon="leafOutline" class="sustainability-icon"></ion-icon>
-<h4 class="sustainability-title">Sustainability Practices</h4>
-</div>
-<div class="sustainability-tags">
-<span class="tag">Organic Farming</span>
-<span class="tag">Water Conservation</span>
-<span class="tag">Fair Trade</span>
-<span class="tag">Biodiversity</span>
-</div>
-</div>
+<!-- Available Rewards -->
+<div class="rewards-section">
+  <h2 class="section-title">Available Rewards</h2>
+  
+  <div class="rewards-grid">
+    <div 
+      v-for="reward in availableRewards" 
+      :key="reward.id" 
+      class="reward-card"
+    >
+      <div class="reward-image">
+        <img :src="reward.image" :alt="reward.name" />
+        <div class="reward-points-badge">
+          <ion-icon :icon="starOutline"></ion-icon>
+          <span>{{ reward.points }}</span>
+        </div>
+      </div>
+      
+      <div class="reward-content">
+        <h3 class="reward-name">{{ reward.name }}</h3>
+        <p class="reward-description">{{ reward.description }}</p>
+        
+        <button 
+          class="redeem-btn" 
+          :disabled="currentPoints < reward.points"
+          @click="redeemReward(reward)"
+        >
+          <span>Redeem</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Quick Action Buttons -->
-<div class="action-buttons-section">
-<ion-button expand="block" class="action-btn subscription-btn">
-<ion-icon :icon="reloadOutline" slot="start"></ion-icon>
-<div class="btn-content">
-<span class="btn-main-text">Subscribe</span>
-<span class="btn-sub-text">Save 15%</span>
-</div>
-</ion-button>
-<ion-button expand="block" fill="outline" class="action-btn brew-guide-btn">
-<ion-icon :icon="cafeOutline" slot="start"></ion-icon>
-<span>Brew Guide</span>
-</ion-button>
-</div>
-
-<!-- Nutritional Info -->
-<div class="nutrition-section">
-<h3 class="section-label">Nutritional Information</h3>
-<div class="nutrition-grid">
-<div class="nutrition-item">
-<span class="nutrition-value">150</span>
-<span class="nutrition-label">Calories</span>
-</div>
-<div class="nutrition-item">
-<span class="nutrition-value">8g</span>
-<span class="nutrition-label">Protein</span>
-</div>
-<div class="nutrition-item">
-<span class="nutrition-value">6g</span>
-<span class="nutrition-label">Fat</span>
-</div>
-<div class="nutrition-item">
-<span class="nutrition-value">12g</span>
-<span class="nutrition-label">Carbs</span>
-</div>
-</div>
+<!-- Earn More Points -->
+<div class="earn-section">
+  <h2 class="section-title">Earn More Points</h2>
+  
+  <div 
+    v-for="action in earnActions" 
+    :key="action.id" 
+    class="earn-card"
+  >
+    <div class="earn-icon-wrapper" :class="action.colorClass">
+      <ion-icon :icon="action.icon" class="earn-icon"></ion-icon>
+    </div>
+    
+    <div class="earn-content">
+      <h4 class="earn-title">{{ action.title }}</h4>
+      <p class="earn-description">{{ action.description }}</p>
+    </div>
+    
+    <div class="earn-points">
+      <span class="earn-value">+{{ action.points }}</span>
+      <span class="earn-label">pts</span>
+    </div>
+  </div>
 </div>
 
-<!-- RECOMMENDED PRODUCTS -->
-<div class="recommended-section">
-<div class="recommended-header">
-<h2 class="section-title">You May Also Like</h2>
-<button class="view-all-link">
-<span>View All</span>
-<ion-icon :icon="chevronForwardOutline"></ion-icon>
-</button>
+<!-- Recent Activity -->
+<div class="activity-section">
+  <h2 class="section-title">Recent Activity</h2>
+  
+  <div 
+    v-for="activity in recentActivity" 
+    :key="activity.id" 
+    class="activity-item"
+  >
+    <div class="activity-icon" :class="activity.type">
+      <ion-icon :icon="activity.icon"></ion-icon>
+    </div>
+    
+    <div class="activity-info">
+      <h4 class="activity-title">{{ activity.title }}</h4>
+      <p class="activity-date">{{ activity.date }}</p>
+    </div>
+    
+    <div class="activity-points" :class="activity.type">
+      <span>{{ activity.points > 0 ? '+' : '' }}{{ activity.points }}</span>
+    </div>
+  </div>
 </div>
 
-<div class="recommended-carousel">
-<div 
-v-for="item in recommendedProducts" 
-:key="item.id"
-class="recommended-card"
->
-<div class="recommended-image-wrapper">
-<img :src="item.image" :alt="item.name" class="recommended-image" />
-</div>
-<div class="recommended-info">
-<h4 class="recommended-name">{{ item.name }}</h4>
-<div class="recommended-meta">
-<span class="recommended-type">{{ item.type }}</span>
-<div class="recommended-rating">
-<ion-icon :icon="starSharp"></ion-icon>
-<span>{{ item.rating }}</span>
-</div>
-</div>
-<span class="recommended-price">${{ item.price }}</span>
-</div>
-</div>
-</div>
-</div>
-
-</div>
 </div>
 </template>
 </app-layout>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import AppLayout from './template/AppLayout.vue';
+import { IonIcon } from '@ionic/vue';
 import {
-  IonButton,
-  IonIcon
-} from '@ionic/vue';
-import {
-  heartOutline,
   starOutline,
-  locationOutline,
-  cartOutline,
-  arrowForwardOutline,
-  leafOutline,
-  waterOutline,
-  sunnyOutline,
-  calendarOutline,
   checkmarkCircleOutline,
   timeOutline,
-  resizeOutline,
-  ribbonOutline,
-  reloadOutline,
-  cafeOutline,
-  chevronForwardOutline,
-  starSharp
+  arrowForwardOutline,
+  trophyOutline,
+  cartOutline,
+  personAddOutline,
+  shareOutline,
+  heartOutline,
+  chatbubbleOutline,
+  addCircleOutline,
+  removeCircleOutline
 } from 'ionicons/icons';
 
-const recommendedProducts = ref([
-{
-id: 2,
-name: 'Colombian Supremo',
-type: 'Medium Roast',
-rating: 4.7,
-price: 16.99,
-image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400'
-},
-{
-id: 3,
-name: 'Kenyan AA',
-type: 'Light Roast',
-rating: 4.9,
-price: 19.99,
-image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400'
-},
-{
-id: 4,
-name: 'Brazilian Santos',
-type: 'Dark Roast',
-rating: 4.6,
-price: 15.99,
-image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400'
-},
-{
-id: 5,
-name: 'Guatemala Antigua',
-type: 'Medium Roast',
-rating: 4.8,
-price: 17.99,
-image: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400'
-}
+// Data
+const currentPoints = ref(1250);
+const pointsToNext = ref(250);
+
+const currentTier = ref({
+  name: 'Gold Member',
+  level: 'Level 3',
+  class: 'gold',
+  icon: trophyOutline,
+  benefits: [
+    '10% off all purchases',
+    'Free shipping on orders over $30',
+    'Early access to new coffees',
+    'Birthday reward'
+  ]
+});
+
+const availableRewards = ref([
+  {
+    id: 1,
+    name: 'Free Coffee Bag',
+    description: 'Redeem for any 250g coffee bag',
+    image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800',
+    points: 500,
+    expiry: 'Valid for 30 days'
+  },
+  {
+    id: 2,
+    name: '$10 Off Voucher',
+    description: 'Use on your next purchase',
+    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800',
+    points: 800,
+    expiry: 'Valid for 60 days'
+  },
+  {
+    id: 3,
+    name: 'Premium Brewing Kit',
+    description: 'Complete coffee brewing starter kit',
+    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800',
+    points: 1500,
+    expiry: 'Valid for 90 days'
+  },
+  {
+    id: 4,
+    name: 'Coffee Grinder',
+    description: 'Professional burr grinder',
+    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800',
+    points: 1200,
+    expiry: 'Valid for 60 days'
+  }
 ]);
+
+const earnActions = ref([
+  {
+    id: 1,
+    title: 'Make a Purchase',
+    description: 'Earn 1 point per dollar spent',
+    points: '1 per $',
+    icon: cartOutline,
+    colorClass: 'blue'
+  },
+  {
+    id: 2,
+    title: 'Refer a Friend',
+    description: 'Get points when they make first purchase',
+    points: 200,
+    icon: personAddOutline,
+    colorClass: 'green'
+  },
+  {
+    id: 3,
+    title: 'Share on Social',
+    description: 'Share your favorite coffee',
+    points: 50,
+    icon: shareOutline,
+    colorClass: 'purple'
+  },
+  {
+    id: 4,
+    title: 'Write a Review',
+    description: 'Review a product you purchased',
+    points: 75,
+    icon: chatbubbleOutline,
+    colorClass: 'orange'
+  }
+]);
+
+const recentActivity = ref([
+  {
+    id: 1,
+    title: 'Purchase Reward',
+    date: 'Dec 10, 2025',
+    points: 45,
+    type: 'earned',
+    icon: addCircleOutline
+  },
+  {
+    id: 2,
+    title: 'Redeemed Free Coffee',
+    date: 'Dec 5, 2025',
+    points: -500,
+    type: 'redeemed',
+    icon: removeCircleOutline
+  },
+  {
+    id: 3,
+    title: 'Referral Bonus',
+    date: 'Dec 1, 2025',
+    points: 200,
+    type: 'earned',
+    icon: addCircleOutline
+  }
+]);
+
+// Computed
+const progressPercent = computed(() => {
+  const total = currentPoints.value + pointsToNext.value;
+  return (currentPoints.value / total) * 100;
+});
+
+// Methods
+const redeemReward = (reward) => {
+  console.log('Redeeming reward:', reward);
+  // Add redemption logic here
+};
 </script>
 
 <style scoped>
-/* ===== VARIABLES ===== */
 :root {
   --coffee-900: #3d2419;
-  --coffee-800: #4a2c2a;
-  --coffee-700: #5d3a2f;
   --coffee-600: #6b4226;
-  --coffee-500: #8b5a3c;
-  
-  --cream-50: #ffffff;
-  --cream-100: #fdfcfa;
   --cream-200: #faf8f5;
   --cream-300: #f5f1e8;
-  
   --text-900: #1a0f0a;
-  --text-800: #2c1810;
   --text-600: #6b5444;
-  --text-500: #8b7355;
-  
   --gold: #fbbf24;
+  --gold-dark: #f59e0b;
+  --blue: #3b82f6;
   --green: #10b981;
+  --purple: #8b5cf6;
+  --orange: #f97316;
 }
 
-.product-details-page {
+.rewards-page {
   background: var(--cream-200);
-  min-height: 100%;
-  padding-bottom: 120px;
+  min-height: 100vh;
+  padding-bottom: 20px;
 }
 
-/* ===== PRODUCT CARD ===== */
-.product-card {
+/* ===== HERO HEADER ===== */
+.hero-header {
   background: white;
-  margin: 20px 20px 10px 20px;
-  border-radius: 20px;
-  overflow: hidden;
+  padding: 28px 20px 24px;
+  margin-bottom: 12px;
 }
 
-/* ===== PRODUCT IMAGE ===== */
-.product-image-section {
-  position: relative;
+.hero-content {
   width: 100%;
-  height: 250px;
-  overflow: hidden;
 }
 
-.product-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
 }
 
-.image-badge {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 44px;
-  height: 44px;
+.hero-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero-icon {
+  font-size: 28px;
+  color: var(--gold);
+}
+
+.text-content {
+  flex: 1;
+  padding-top: 2px;
+}
+
+.hero-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-600);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ===== BALANCE SECTION ===== */
+.balance-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px 20px 12px;
+  margin-bottom: 8px;
+}
+
+.balance-card {
   background: white;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.balance-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
 }
 
-.image-badge:hover {
-  transform: scale(1.1);
-  background: var(--cream-100);
+.balance-icon {
+  font-size: 32px;
+  color: var(--gold);
 }
 
-.heart-icon {
-  font-size: 24px;
-  color: var(--coffee-600);
-}
-
-.premium-badge {
-  position: absolute;
-  top: 16px;
-  left: 16px;
+.balance-content {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, var(--gold) 0%, #f59e0b 100%);
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 900;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
-}
-
-.premium-icon {
-  font-size: 18px;
-  color: white;
-}
-
-/* ===== PRODUCT INFO ===== */
-.product-info-content {
-  padding: 20px;
-}
-
-.product-info-section {
-  padding: 0 20px 20px 20px;
-}
-
-.product-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 8px;
-}
-
-.product-name {
-  font-size: 24px;
-  font-weight: 900;
-  color: #000000;
-  margin: 0;
-  letter-spacing: -0.5px;
-  flex: 1;
-}
-
-.product-rating {
-  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 4px;
 }
 
-.star-icon {
-  font-size: 18px;
-  color: var(--gold);
-}
-
-.rating-value {
-  font-size: 16px;
-  font-weight: 900;
-  color: #000000;
-}
-
-.rating-count {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-600);
-}
-
-.price-section {
-  margin-bottom: 12px;
-}
-
-.price-value {
-  font-size: 28px;
-  font-weight: 900;
-  color: var(--coffee-600);
-  letter-spacing: -0.5px;
-}
-
-.product-description {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-600);
-  line-height: 1.6;
-  margin: 0 0 16px 0;
-}
-
-.add-cart-btn {
-  --background: #6b4226;
-  --background-activated: #5d3a2f;
-  --background-hover: #5d3a2f;
-  --border-radius: 16px;
-  height: 56px;
-  font-size: 16px;
-  font-weight: 900;
-  text-transform: none;
-  letter-spacing: 0.3px;
-  margin: 0;
-}
-
-.add-cart-btn ion-icon {
-  font-size: 22px;
-}
-
-/* ===== ORIGIN CARD ===== */
-.origin-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: white;
-  border-radius: 16px;
-  margin-bottom: 24px;
-}
-
-.origin-icon {
-  font-size: 28px;
-  color: var(--coffee-600);
-  flex-shrink: 0;
-}
-
-.origin-info {
-  flex: 1;
-}
-
-.origin-label {
-  font-size: 13px;
+.balance-label {
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-600);
-  margin: 0 0 4px 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.origin-value {
-  font-size: 16px;
+.balance-value {
+  font-size: 32px;
   font-weight: 900;
-  color: #000000;
-  margin: 0;
+  color: var(--text-900);
+  line-height: 1;
 }
 
-/* ===== FARMER SECTION ===== */
-.farmer-section,
-.farm-section {
-  margin-bottom: 24px;
+.progress-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
 }
 
-.section-header-row {
+.progress-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
 }
 
-/* ===== FARMER CARD ===== */
-.farmer-card {
-  padding: 24px;
+.progress-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-value {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--gold);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--cream-300);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+  border-radius: 8px;
+  transition: width 0.5s ease;
+}
+
+/* ===== TIER SECTION ===== */
+.tier-section {
   background: white;
-  border-radius: 20px;
-  margin-bottom: 20px;
+  margin: 0 20px 20px;
+  border-radius: 16px;
+  padding: 20px;
 }
 
-.farmer-content {
+.tier-badge {
   display: flex;
   align-items: center;
   gap: 16px;
   margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 12px;
 }
 
-.farmer-image-wrapper {
-  width: 72px;
-  height: 72px;
+.tier-badge.gold {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05));
+}
+
+.tier-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: var(--gold);
   border-radius: 50%;
-  overflow: hidden;
-  background: linear-gradient(135deg, #f5f1ed, #ebe4dc);
-  flex-shrink: 0;
-}
-
-.farmer-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.farmer-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-}
-
-.farmer-label {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--text-600);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.farmer-name {
-  font-size: 20px;
-  font-weight: 900;
-  color: #000000;
-  margin: 0;
-  letter-spacing: -0.3px;
-}
-
-.farmer-region {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-600);
-}
-
-.farmer-profile-btn {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 16px;
-  background: linear-gradient(135deg, rgba(107, 66, 38, 0.10), rgba(107, 66, 38, 0.06));
-  border: none;
-  border-radius: 16px;
-  font-size: 15px;
-  font-weight: 900;
-  color: var(--coffee-600);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.farmer-profile-btn:active {
-  transform: scale(0.97);
-  background: linear-gradient(135deg, rgba(107, 66, 38, 0.15), rgba(107, 66, 38, 0.10));
-}
-
-.farmer-profile-btn ion-icon {
-  font-size: 20px;
-}
-
-/* ===== ACTION BUTTONS ===== */
-.action-buttons-section {
-  margin-bottom: 24px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.action-btn {
-  height: 64px;
-  font-weight: 900;
-  font-size: 15px;
-  text-transform: none;
-  letter-spacing: 0.3px;
-  margin: 0;
-  transition: all 0.3s ease;
-}
-
-.subscription-btn {
-  --background: linear-gradient(135deg, #6b4226 0%, #8b5a3c 50%, #6b4226 100%);
-  --border-radius: 16px;
-  position: relative;
-  overflow: visible;
-}
-
-.subscription-btn::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  padding: 4px 10px;
-  background: var(--gold);
-  border-radius: 12px;
-  font-size: 10px;
-  font-weight: 900;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.subscription-btn .btn-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.btn-main-text {
-  font-size: 16px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.btn-sub-text {
-  font-size: 11px;
-  font-weight: 800;
-  opacity: 0.95;
-  letter-spacing: 0.5px;
-}
-
-.subscription-btn:hover {
-  transform: translateY(-2px);
-  --background: linear-gradient(135deg, #8b5a3c 0%, #6b4226 50%, #8b5a3c 100%);
-}
-
-.brew-guide-btn {
-  --border-color: var(--coffee-600);
-  --color: var(--coffee-700);
-  --background: white;
-  --border-radius: 16px;
-  --border-width: 2px;
-}
-
-.brew-guide-btn:hover {
-  --background: var(--cream-100);
-  transform: translateY(-2px);
-}
-
-/* ===== FARM SECTION ===== */
-.certification-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: rgba(16, 185, 129, 0.1);
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--green);
-}
-
-.certification-badge ion-icon {
-  font-size: 16px;
-}
-
-.farm-details-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.farm-detail-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: white;
-  border-radius: 16px;
-}
-
-.detail-icon {
-  font-size: 28px;
-  color: var(--coffee-600);
   flex-shrink: 0;
 }
 
-.detail-info {
+.tier-icon {
+  font-size: 28px;
+  color: white;
+}
+
+.tier-info {
   flex: 1;
-  min-width: 0;
 }
 
-.detail-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-600);
+.tier-name {
+  font-size: 20px;
+  font-weight: 900;
+  color: #000000;
   margin: 0 0 4px 0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.detail-value {
-  font-size: 15px;
-  font-weight: 900;
-  color: #000000;
-  margin: 0;
-}
-
-.sustainability-card {
-  padding: 20px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
-  border-radius: 16px;
-}
-
-.sustainability-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.sustainability-icon {
-  font-size: 24px;
-  color: var(--green);
-}
-
-.sustainability-title {
-  font-size: 16px;
-  font-weight: 900;
-  color: #000000;
-  margin: 0;
-}
-
-.sustainability-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.tag {
-  padding: 8px 14px;
-  background: white;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--green);
-}
-
-/* ===== OPTIONS SECTION ===== */
-.options-section {
-  margin-bottom: 24px;
-}
-
-.section-label {
-  font-size: 18px;
-  font-weight: 900;
-  color: #000000;
-  margin: 0 0 12px 0;
   letter-spacing: -0.5px;
 }
 
-/* ===== NUTRITION ===== */
-.nutrition-section {
-  margin-bottom: 24px;
+.tier-level {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-600);
+  margin: 0;
 }
 
-.nutrition-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+.tier-benefits {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
-.nutrition-item {
+.benefit-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 16px 12px;
-  background: white;
-  border-radius: 16px;
+  gap: 10px;
+  padding: 12px;
+  background: var(--cream-200);
+  border-radius: 10px;
 }
 
-.nutrition-value {
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--coffee-600);
-  margin-bottom: 4px;
+.benefit-icon {
+  font-size: 20px;
+  color: var(--gold);
+  flex-shrink: 0;
 }
 
-.nutrition-label {
-  font-size: 12px;
+.benefit-text {
+  font-size: 14px;
   font-weight: 700;
-  color: var(--text-600);
-  text-align: center;
+  color: var(--text-900);
 }
 
-/* ===== RECOMMENDED SECTION ===== */
-.recommended-section {
-  margin: 0 0 20px 0;
-}
-
-.recommended-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px 16px 0;
+/* ===== REWARDS SECTION ===== */
+.rewards-section {
+  padding: 0 20px;
+  margin-bottom: 20px;
 }
 
 .section-title {
   font-size: 20px;
   font-weight: 900;
   color: #000000;
-  margin: 0;
+  margin: 0 0 16px 0;
   letter-spacing: -0.5px;
 }
 
-.view-all-link {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: linear-gradient(135deg, rgba(107, 66, 38, 0.08), rgba(107, 66, 38, 0.05));
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 900;
-  color: var(--coffee-600);
-  cursor: pointer;
-  transition: all 0.3s ease;
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
 }
 
-.view-all-link:active {
-  transform: scale(0.95);
-  background: linear-gradient(135deg, rgba(107, 66, 38, 0.12), rgba(107, 66, 38, 0.08));
-}
-
-.view-all-link ion-icon {
-  font-size: 18px;
-}
-
-.recommended-carousel {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 0 20px 4px 0;
-}
-
-.recommended-carousel::-webkit-scrollbar {
-  display: none;
-}
-
-.recommended-card {
-  flex-shrink: 0;
-  width: 180px;
+.reward-card {
   background: white;
-  border-radius: 24px;
+  border-radius: 16px;
   overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s ease;
 }
 
-.recommended-card:active {
-  transform: scale(0.97);
+.reward-card:active {
+  transform: scale(0.98);
 }
 
-.recommended-image-wrapper {
+.reward-image {
+  position: relative;
   width: 100%;
-  height: 180px;
-  background: linear-gradient(135deg, #f5f1ed, #ebe4dc);
+  height: 100px;
   overflow: hidden;
 }
 
-.recommended-image {
+.reward-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.recommended-info {
-  padding: 16px;
-}
-
-.recommended-name {
-  font-size: 16px;
-  font-weight: 900;
-  color: #000000;
-  margin: 0 0 8px 0;
-  line-height: 1.3;
-  letter-spacing: -0.2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.recommended-meta {
+.reward-points-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  gap: 4px;
+  padding: 6px 10px;
+  background: rgba(251, 191, 36, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 900;
+  color: white;
 }
 
-.recommended-type {
+.reward-points-badge ion-icon {
+  font-size: 14px;
+}
+
+.reward-content {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reward-name {
+  font-size: 15px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0;
+  letter-spacing: -0.3px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 38px;
+}
+
+.reward-description {
   font-size: 12px;
+  font-weight: 600;
+  color: var(--text-600);
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.redeem-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: var(--gold);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.redeem-btn:disabled {
+  background: var(--cream-300);
+  color: var(--text-600);
+  cursor: not-allowed;
+}
+
+.redeem-btn:not(:disabled):active {
+  transform: scale(0.95);
+  background: var(--gold-dark);
+}
+
+.redeem-btn ion-icon {
+  font-size: 18px;
+}
+
+/* ===== EARN SECTION ===== */
+.earn-section {
+  padding: 0 20px;
+  margin-bottom: 20px;
+}
+
+.earn-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: transform 0.3s ease;
+}
+
+.earn-card:active {
+  transform: scale(0.98);
+}
+
+.earn-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.earn-icon-wrapper.blue {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+}
+
+.earn-icon-wrapper.green {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+}
+
+.earn-icon-wrapper.purple {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05));
+}
+
+.earn-icon-wrapper.orange {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05));
+}
+
+.earn-icon {
+  font-size: 24px;
+}
+
+.earn-icon-wrapper.blue .earn-icon {
+  color: var(--blue);
+}
+
+.earn-icon-wrapper.green .earn-icon {
+  color: var(--green);
+}
+
+.earn-icon-wrapper.purple .earn-icon {
+  color: var(--purple);
+}
+
+.earn-icon-wrapper.orange .earn-icon {
+  color: var(--orange);
+}
+
+.earn-content {
+  flex: 1;
+}
+
+.earn-title {
+  font-size: 15px;
+  font-weight: 900;
+  color: #000000;
+  margin: 0 0 4px 0;
+}
+
+.earn-description {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
+  margin: 0;
+}
+
+.earn-points {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.earn-value {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.earn-label {
+  font-size: 11px;
   font-weight: 700;
   color: var(--text-600);
 }
 
-.recommended-rating {
+/* ===== ACTIVITY SECTION ===== */
+.activity-section {
+  padding: 0 20px;
+  margin-bottom: 20px;
+}
+
+.activity-item {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  font-weight: 800;
-  color: #000000;
+  gap: 12px;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
 }
 
-.recommended-rating ion-icon {
+.activity-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-icon.earned {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+  color: var(--green);
+}
+
+.activity-icon.redeemed {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05));
+  color: var(--orange);
+}
+
+.activity-icon ion-icon {
+  font-size: 22px;
+}
+
+.activity-info {
+  flex: 1;
+}
+
+.activity-title {
   font-size: 14px;
-  color: var(--gold);
-}
-
-.recommended-price {
-  font-size: 18px;
   font-weight: 900;
-  color: var(--coffee-600);
+  color: #000000;
+  margin: 0 0 2px 0;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 640px) {
-  .product-info-section {
-    padding: 16px;
-  }
-  
-  .nutrition-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .size-options {
-    flex-direction: column;
-  }
+.activity-date {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
+  margin: 0;
+}
+
+.activity-points {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.activity-points.earned {
+  color: var(--green);
+}
+
+.activity-points.redeemed {
+  color: var(--orange);
 }
 </style>

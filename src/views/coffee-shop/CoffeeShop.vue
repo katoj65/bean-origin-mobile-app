@@ -51,7 +51,7 @@
 <div class="products-container" v-if="products.length>1">
 
 <div v-for="(product, index) in products" 
-:key="product.id" class="product-card" :style="{ animationDelay: `${index * 0.05}s` }">
+:key="product.id" class="product-card" :style="{ animationDelay: `${index * 0.05}s` }" @click="navigateProduct(product.id)">
 
 <!-- Image Container -->
 <div class="image-container">
@@ -128,9 +128,11 @@
 </template>
 <script setup>
 import { defineProps,ref, onMounted } from 'vue';
-import { IonIcon, IonButton,IonModal,IonContent,IonToolbar,IonTitle,IonButtons, } from '@ionic/vue';
+import { IonIcon, IonButton,IonModal } from '@ionic/vue';
 import AppLayout from '../template/AppLayout.vue';
 import Orders from './Orders.vue';
+import { useIonRouter } from '@ionic/vue';
+
 import {
 callOutline,
 fastFoodOutline,
@@ -190,7 +192,10 @@ console.log(products.value);
  var modal = document.querySelector('ion-modal');
 
 
-
+const route=useIonRouter();
+const navigateProduct=(id) => {
+route.push('/product/'+id);
+}
 
 
 
