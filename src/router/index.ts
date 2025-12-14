@@ -78,6 +78,12 @@ const routes: Array<RouteRecordRaw> = [
     path:'/profile',
     name:'Profile',
     component:()=>import('../views/UserProfile.vue')
+  },
+  {
+    path:'/checkout',
+    name:'Checkout',
+    component:()=>import('../views/CheckOut.vue')
+
   }
 ]
 

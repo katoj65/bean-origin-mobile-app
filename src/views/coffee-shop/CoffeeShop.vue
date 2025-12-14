@@ -105,18 +105,12 @@
 
 <!------Quick links modals-------->
 <ion-modal trigger="open-modal" can-dismiss="true">
-<ion-content>
-<ion-toolbar>
-<ion-title>Modal</ion-title>
-<ion-buttons slot="end">
-<ion-button color="light">Close</ion-button>
-</ion-buttons>
-</ion-toolbar>
+<app-layout title="Shop">
 
+<template #content>
 <orders/>
-
-
-</ion-content>
+</template>
+</app-layout>
 </ion-modal>
 
 
@@ -135,6 +129,7 @@
 <script setup>
 import { defineProps,ref, onMounted } from 'vue';
 import { IonIcon, IonButton,IonModal,IonContent,IonToolbar,IonTitle,IonButtons, } from '@ionic/vue';
+import AppLayout from '../template/AppLayout.vue';
 import Orders from './Orders.vue';
 import {
 callOutline,
