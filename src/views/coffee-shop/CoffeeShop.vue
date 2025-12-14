@@ -4,23 +4,34 @@
 
 <div class="quick-stats" style="margin-top:-20px;padding-top:35px;">
 <div class="stat-item" @click="handleCall">
+<div class="stat-icon-wrapper call">
 <ion-icon :icon="callOutline"></ion-icon>
-<span>CALL</span>
+</div>
+<span class="stat-label">Call Now</span>
+<span class="stat-sublabel">Quick support</span>
 </div>
 
 <div class="stat-item" @click="handleMenu">
+<div class="stat-icon-wrapper menu">
 <ion-icon :icon="fastFoodOutline"></ion-icon>
-<span>MENU</span>
+</div>
+<span class="stat-label">Menu</span>
+<span class="stat-sublabel">View options</span>
 </div>
 
-<div class="stat-item" @click="handleOrders">
+<div class="stat-item" id="open-modal">
+<div class="stat-icon-wrapper orders">
 <ion-icon :icon="bagHandleOutline"></ion-icon>
-<span>ORDERS</span>
+</div>
+<span class="stat-label">Orders</span>
+<span class="stat-sublabel">Track status</span>
 </div>
 </div>
+
+
+
 
 <div class="content-bg" style="padding-bottom: 35px;">
-
 <!-- COFFEE TYPE LINKS -->
 <div class="type-links">
 <div v-for="type in coffeeTypes" :key="type.id" :class="['type-link']">
@@ -36,8 +47,6 @@
 <h2 class="section-title">Menu</h2>
 <span class="product-count">{{ products.length }} Products</span>
 </div>
-
-
 
 <div class="products-container" v-if="products.length>1">
 
@@ -78,21 +87,55 @@
 </div>
 </div>
 </div>
-
-
-
-
-
-
+</div>
 </div>
 
-</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!------Quick links modals-------->
+<ion-modal trigger="open-modal" can-dismiss="true">
+<ion-content>
+<ion-toolbar>
+<ion-title>Modal</ion-title>
+<ion-buttons slot="end">
+<ion-button color="light">Close</ion-button>
+</ion-buttons>
+</ion-toolbar>
+
+<orders/>
+
+
+</ion-content>
+</ion-modal>
+
+
+
+
+
+
+
+
+
+
+
+
 </div>
 </template>
 <script setup>
 import { defineProps,ref, onMounted } from 'vue';
-import { IonIcon, IonButton } from '@ionic/vue';
-
+import { IonIcon, IonButton,IonModal,IonContent,IonToolbar,IonTitle,IonButtons, } from '@ionic/vue';
+import Orders from './Orders.vue';
 import {
 callOutline,
 fastFoodOutline,
@@ -115,9 +158,6 @@ const products=ref([]);
 const props=defineProps({
 products:Array
 });
-
-
-
 
 const coffeeTypes = ref([
 { 
@@ -147,14 +187,22 @@ color: 'linear-gradient(135deg, #2c1810 0%, #4a2c2a 100%)'
 ]);
 
 
-
-
-
-
 onMounted(async ()=>{
 products.value=await props.products;
 console.log(products.value);
 });
+
+ var modal = document.querySelector('ion-modal');
+
+
+
+
+
+
+
+
+
+
 
 
 

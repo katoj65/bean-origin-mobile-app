@@ -11,18 +11,18 @@
 <div class="order-card past-order compact">
 <div class="compact-header">
 <div class="compact-left">
-  <ion-avatar class="shop-avatar-small">
-    <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=80" alt="Bean Origin" />
-  </ion-avatar>
-  <div class="compact-info">
-    <h4 class="compact-shop-name">Bean Origin</h4>
-    <span class="compact-date">Dec 5, 2025 · 9:20 AM</span>
-    <span class="compact-items">2 items · Pickup</span>
-  </div>
+<ion-avatar class="shop-avatar-small">
+<img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=80" alt="Bean Origin" />
+</ion-avatar>
+<div class="compact-info">
+<h4 class="compact-shop-name">Bean Origin</h4>
+<span class="compact-date">Dec 5, 2025 · 9:20 AM</span>
+<span class="compact-items">2 items · Pickup</span>
+</div>
 </div>
 <div class="compact-right">
-  <span class="compact-total">$9.40</span>
-  <ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
+<span class="compact-total">$9.40</span>
+<ion-icon :icon="chevronForwardOutline" class="chevron-icon"></ion-icon>
 </div>
 </div>
 </div>
