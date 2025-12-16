@@ -99,7 +99,7 @@ grid-template-columns: 1fr 1.5fr;
 gap: 28px;
 padding: 28px;
 background: white;
-  border-radius: 0;
+  border-radius: 0 0 20px 20px;
   margin-bottom: 0;
 }
 

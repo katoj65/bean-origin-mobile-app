@@ -4,6 +4,11 @@
 <div v-if="isLoading===false">
 
 <div class="product-details-page">
+
+
+
+
+
 <!-- Product Card -->
 <div class="product-card">
 <!-- Product Image -->
@@ -39,6 +44,17 @@
 {{ product.description }}
 </p>
 
+<!-- Weight -->
+<div class="product-weight-section">
+<ion-icon :icon="scaleOutline" class="weight-icon"></ion-icon>
+<div class="weight-content">
+<span class="weight-label">Net Weight</span>
+<span class="weight-value">
+{{ product.weight }}
+</span>
+</div>
+</div>
+
 <!-- Add to Cart Button -->
 <ion-button expand="block" class="add-cart-btn">
 <ion-icon :icon="cartOutline" slot="start"></ion-icon>
@@ -47,16 +63,20 @@ Add to Cart
 </div>
 </div>
 
+
+
+
 <!-- Product Info Section -->
 <div class="product-info-section">
 <!-- Origin Info -->
 
-
-<div class="origin-card" v-if="productOrigin.length>0">
+<div class="origin-card" v-if="origin.length>0">
 <ion-icon :icon="locationOutline" class="origin-icon"></ion-icon>
-<div class="origin-info" v-for="(origin,key) in productOrigin" :key="key">
+<div class="origin-info" v-for="(source,key) in origin" :key="key">
 <h4 class="origin-label">Origin</h4>
-<p class="origin-value">{{ origin.farm.name }} </p>
+<p class="origin-value">
+{{ farm.name }}
+</p>
 </div>
 </div>
 
@@ -119,6 +139,9 @@ Add to Cart
 </div>
 </div>
 </div>
+
+
+
 
 <!-- Grind Type Card -->
 <div class="grind-type-card">
@@ -194,15 +217,19 @@ Add to Cart
 
 
 <!-- Farmer Summary -->
-<div class="farmer-card">
+<div class="farmer-card" v-if="farmer">
 <div class="farmer-content">
-<div class="farmer-image-wrapper">
-<img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=120" alt="Farmer" class="farmer-image" />
-</div>
+<ion-avatar>
+<img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=120" alt="Farmer" />
+</ion-avatar>
 <div class="farmer-info">
 <span class="farmer-label">Sourced from</span>
-<h3 class="farmer-name">Abebe Kebede</h3>
-<span class="farmer-region">Yirgacheffe, Ethiopia</span>
+<h3 class="farmer-name text-capitalize">
+{{ farmer.fname }} {{ farmer.lname}}
+</h3>
+<span class="farmer-region text-capitalize">
+{{ farm.name }}
+</span>
 </div>
 </div>
 <button class="farmer-profile-btn">
@@ -211,8 +238,24 @@ Add to Cart
 </button>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- Farm Summary -->
-<div class="farm-section">
+<div class="farm-section" v-if="farm_details.length>0">
 <div class="section-header-row">
 <h3 class="section-label">Farm Details</h3>
 <span class="certification-badge">
@@ -220,35 +263,26 @@ Add to Cart
 <span>Organic Certified</span>
 </span>
 </div>
+
 <div class="farm-details-grid">
-<div class="farm-detail-card">
-<ion-icon :icon="waterOutline" class="detail-icon"></ion-icon>
+
+
+
+<div class="farm-detail-card" v-for="(d,key) in farm_details" :key="key">
+<ion-icon :icon="informationCircleOutline" class="detail-icon"></ion-icon>
 <div class="detail-info">
-<h4 class="detail-label">Processing</h4>
-<p class="detail-value">Washed</p>
+<h4 class="detail-label">{{ d.name }} </h4>
+<p class="detail-value text-capitalize">
+{{ d.description }}
+</p>
 </div>
 </div>
-<div class="farm-detail-card">
-<ion-icon :icon="sunnyOutline" class="detail-icon"></ion-icon>
-<div class="detail-info">
-<h4 class="detail-label">Altitude</h4>
-<p class="detail-value">1,800-2,000m</p>
-</div>
-</div>
-<div class="farm-detail-card">
-<ion-icon :icon="leafOutline" class="detail-icon"></ion-icon>
-<div class="detail-info">
-<h4 class="detail-label">Variety</h4>
-<p class="detail-value">Heirloom</p>
-</div>
-</div>
-<div class="farm-detail-card">
-<ion-icon :icon="calendarOutline" class="detail-icon"></ion-icon>
-<div class="detail-info">
-<h4 class="detail-label">Harvest</h4>
-<p class="detail-value">Oct - Dec 2024</p>
-</div>
-</div>
+
+
+
+
+
+
 </div>
 <div class="sustainability-card">
 <div class="sustainability-header">
@@ -264,6 +298,18 @@ Add to Cart
 </div>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- Quick Action Buttons -->
 <div class="action-buttons-section">
 <ion-button expand="block" class="action-btn subscription-btn">
@@ -278,6 +324,9 @@ Add to Cart
 <span>Brew Guide</span>
 </ion-button>
 </div>
+
+
+
 
 <!-- Nutritional Info -->
 <div class="nutrition-section">
@@ -301,6 +350,13 @@ Add to Cart
 </div>
 </div>
 </div>
+
+
+
+
+
+
+
 
 <!-- RECOMMENDED PRODUCTS -->
 <div class="recommended-section">
@@ -336,6 +392,9 @@ class="recommended-card"
 </div>
 </div>
 
+
+
+
 </div>
 </div>
 </div>
@@ -353,7 +412,8 @@ import ProductService from '../service/ProductService';
 import Skeleton from './template/Skeleton.vue';
 import {
   IonButton,
-  IonIcon
+  IonIcon,
+  IonAvatar
 } from '@ionic/vue';
 import {
   heartOutline,
@@ -378,7 +438,9 @@ import {
   starSharp,
   beakerOutline,
   filterOutline,
-  flaskOutline
+  flaskOutline,
+  informationCircleOutline,
+  scaleOutline
 } from 'ionicons/icons';
 
 const recommendedProducts = ref([
@@ -418,14 +480,30 @@ image: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400'
 
 
 
-
 const isLoading = ref(false);
 const product=ref([]);
 const routes=useRoute();
 const id=routes.params.id;
-const productOrigin=ref('');
-const farmerDetails=ref([]);
-const farm=ref([]);
+const origin=ref([]);
+const farm=ref('');
+const farmer=ref('');
+const rating=ref('');
+const taste=ref('');
+const standard=ref('');
+const spacification=ref('');
+const farm_details=ref([]);
+
+//format farm details
+const farmDetails=(ar)=>{
+const row=[];
+ar.forEach(element => {
+
+
+
+});
+return row;
+}
+
 
 onMounted(async ()=>{
 try{
@@ -434,19 +512,46 @@ const service=new ProductService();
 const response=await service.getProductDetails(id);
 if(response.status===200){
 const data=response.data;
-product.value=data[0];
-const origin=data[0].product_origin;
-productOrigin.value=origin;
-const farm=data[0].product_origin[0].farm;
-const farmer=farm.profile;
-farmerDetails.value=farmer;
 
-console.log(farmerDetails.value);
+//product object
+const prod=data[0];
+product.value=prod;
+//array
+const pOrigin=prod.product_origin;
+//object
+const pFarm=pOrigin[0].farm;
+//object
+const pFarmer=pFarm.profile;
+//farm details
 
+rating.value=data[0].product_rating;
+taste.value=data[0].product_taste;
+standard.value=data[0].product_standard;
+spacification.value=data[0].product_spacification;
+farm_details.value=data[0].product_farm_details;
 
+//farm details
+
+if(pOrigin.length>0){
+origin.value=pOrigin;
+farm.value=pFarm;
+if(pFarm){
+farmer.value=pFarmer;
+//farm details section
+}
 }
 
+//format 
 
+
+console.log(farm_details.value);
+
+
+
+
+}else{
+console.log(response.error);
+}
 
 }catch(e){
   console.log(e);
@@ -456,6 +561,9 @@ console.log(farmerDetails.value);
 
 
 });
+
+
+
 
 </script>
 
@@ -491,8 +599,8 @@ console.log(farmerDetails.value);
 /* ===== PRODUCT CARD ===== */
 .product-card {
   background: white;
-  margin: 20px 20px 10px 20px;
-  border-radius: 20px;
+  margin: -20px 0 0 0;
+  border-radius: 0 0 20px 20px;
   overflow: hidden;
 }
 
@@ -500,8 +608,10 @@ console.log(farmerDetails.value);
 .product-image-section {
   position: relative;
   width: 100%;
-  height: 250px;
+  height: 350px;
   overflow: hidden;
+  margin: 0;
+  border-radius: 0 0 20px 20px;
 }
 
 .product-image {
@@ -512,7 +622,7 @@ console.log(farmerDetails.value);
 
 .image-badge {
   position: absolute;
-  top: 16px;
+  top: 32px;
   right: 16px;
   width: 44px;
   height: 44px;
@@ -537,7 +647,7 @@ console.log(farmerDetails.value);
 
 .premium-badge {
   position: absolute;
-  top: 16px;
+  top: 32px;
   left: 16px;
   display: flex;
   align-items: center;
@@ -550,7 +660,6 @@ console.log(farmerDetails.value);
   color: white;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
 }
 
 .premium-icon {
@@ -619,10 +728,49 @@ console.log(farmerDetails.value);
 
 .product-description {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--text-600);
   line-height: 1.6;
   margin: 0 0 16px 0;
+}
+
+.product-weight-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: white;
+  border: 2px solid var(--cream-300);
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+
+.weight-icon {
+  font-size: 32px;
+  color: var(--coffee-600);
+  flex-shrink: 0;
+}
+
+.weight-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.weight-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.weight-value {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--coffee-600);
+  letter-spacing: -0.3px;
 }
 
 .add-cart-btn {

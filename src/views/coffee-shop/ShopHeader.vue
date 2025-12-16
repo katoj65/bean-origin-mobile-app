@@ -131,7 +131,7 @@ import {
 
 .contact-card {
   margin: 0;
-  border-radius: 0;
+  border-radius: 0 0 20px 20px;
   background: white;
   box-shadow: none;
 }

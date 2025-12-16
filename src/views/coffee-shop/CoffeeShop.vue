@@ -19,7 +19,7 @@
 <span class="stat-sublabel">View options</span>
 </div>
 
-<div class="stat-item" id="open-modal">
+<div class="stat-item" @click="openOrdersModal">
 <div class="stat-icon-wrapper orders">
 <ion-icon :icon="bagHandleOutline"></ion-icon>
 </div>
@@ -103,10 +103,9 @@
 
 
 
-<!------Quick links modals-------->
-<ion-modal trigger="open-modal" can-dismiss="true">
+<!------Quick links modals------>
+<ion-modal ref="ordersModal" can-dismiss="true">
 <app-layout title="Shop">
-
 <template #content>
 <orders/>
 </template>
@@ -184,12 +183,16 @@ color: 'linear-gradient(135deg, #2c1810 0%, #4a2c2a 100%)'
 ]);
 
 
+const ordersModal = ref(null);
+
+const openOrdersModal = () => {
+ordersModal.value?.$el.present();
+};
+
 onMounted(async ()=>{
 products.value=await props.products;
 console.log(products.value);
 });
-
- var modal = document.querySelector('ion-modal');
 
 
 const route=useIonRouter();
