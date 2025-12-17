@@ -83,61 +83,40 @@ Add to Cart
 
 
 
+
+
+
+
+<!-- Roast Level Info -->
+<div class="origin-card" v-if=" product.roast_level">
+<ion-icon :icon="flameOutline" class="origin-icon"></ion-icon>
+<div class="origin-info">
+<h4 class="origin-label">Roast Level</h4>
+<p class="origin-value text-capitalize">
+{{ product.roast_level }}
+</p>
+</div>
+</div>
+
+
+
+
 <!-- Tasting Notes Card -->
-<div class="tasting-notes-card">
+<div class="tasting-notes-card" v-if="taste.length>0">
 <div class="notes-header">
 <h3 class="notes-title">Tasting Notes</h3>
 <span class="notes-subtitle">Flavor Profile</span>
 </div>
 <div class="notes-grid">
-<div class="note-item">
+<div class="note-item" v-for="(t,key) in taste" :key="key">
 <ion-icon :icon="sparklesOutline" class="note-icon"></ion-icon>
-<span class="note-label">Citrus</span>
+<span class="note-label text-capitalize">
+{{ t.taste }}
+</span>
 </div>
-<div class="note-item">
-<ion-icon :icon="flowerOutline" class="note-icon"></ion-icon>
-<span class="note-label">Floral</span>
+
 </div>
-<div class="note-item">
-<ion-icon :icon="cafeOutline" class="note-icon"></ion-icon>
-<span class="note-label">Chocolate</span>
-</div>
-<div class="note-item">
-<ion-icon :icon="waterOutline" class="note-icon"></ion-icon>
-<span class="note-label">Honey</span>
-</div>
-<div class="note-item">
-<ion-icon :icon="nutritionOutline" class="note-icon"></ion-icon>
-<span class="note-label">Berry</span>
-</div>
-<div class="note-item">
-<ion-icon :icon="leafOutline" class="note-icon"></ion-icon>
-<span class="note-label">Nutty</span>
-</div>
-</div>
-<div class="intensity-section">
-<div class="intensity-row">
-<span class="intensity-label">Body</span>
-<div class="intensity-bar">
-<div class="intensity-fill" style="width: 75%"></div>
-</div>
-<span class="intensity-value">Medium-Full</span>
-</div>
-<div class="intensity-row">
-<span class="intensity-label">Acidity</span>
-<div class="intensity-bar">
-<div class="intensity-fill" style="width: 85%"></div>
-</div>
-<span class="intensity-value">Bright</span>
-</div>
-<div class="intensity-row">
-<span class="intensity-label">Sweetness</span>
-<div class="intensity-bar">
-<div class="intensity-fill" style="width: 70%"></div>
-</div>
-<span class="intensity-value">Medium</span>
-</div>
-</div>
+
 </div>
 
 
@@ -269,7 +248,7 @@ Add to Cart
 
 
 <div class="farm-detail-card" v-for="(d,key) in farm_details" :key="key">
-<ion-icon :icon="informationCircleOutline" class="detail-icon"></ion-icon>
+<ion-icon :icon="iconSet(d.icon)" class="detail-icon"></ion-icon>
 <div class="detail-info">
 <h4 class="detail-label">{{ d.name }} </h4>
 <p class="detail-value text-capitalize">
@@ -405,7 +384,7 @@ class="recommended-card"
 </template>
 
 <script setup>
-import { ref,onMounted } from 'vue';
+import { ref,onMounted,computed } from 'vue';
 import { useRoute } from 'vue-router';
 import AppLayout from './template/AppLayout.vue';
 import ProductService from '../service/ProductService';
@@ -440,7 +419,8 @@ import {
   filterOutline,
   flaskOutline,
   informationCircleOutline,
-  scaleOutline
+  scaleOutline,
+  flameOutline
 } from 'ionicons/icons';
 
 const recommendedProducts = ref([
@@ -488,21 +468,38 @@ const origin=ref([]);
 const farm=ref('');
 const farmer=ref('');
 const rating=ref('');
-const taste=ref('');
+const taste=ref([]);
 const standard=ref('');
 const spacification=ref('');
 const farm_details=ref([]);
 
+
 //format farm details
 const farmDetails=(ar)=>{
 const row=[];
-ar.forEach(element => {
-
-
-
-});
 return row;
 }
+
+//icon set
+const iconSet=(option)=>{
+let icon='';
+if(option=='waterOutline'){
+icon=waterOutline;
+}else if(option=='sunnyOutline'){
+icon=sunnyOutline;
+}else if(option=='calendarOutline'){
+icon=calendarOutline;
+}else if(option=='sparklesOutline'){
+icon=sparklesOutline;
+}else if(option=='leafOutline'){
+icon=leafOutline;
+}
+return icon;
+};
+
+
+
+
 
 
 onMounted(async ()=>{
@@ -523,13 +520,12 @@ const pFarm=pOrigin[0].farm;
 //object
 const pFarmer=pFarm.profile;
 //farm details
-
 rating.value=data[0].product_rating;
 taste.value=data[0].product_taste;
 standard.value=data[0].product_standard;
 spacification.value=data[0].product_spacification;
 farm_details.value=data[0].product_farm_details;
-
+taste.value=data[0].product_taste_note;
 //farm details
 
 if(pOrigin.length>0){
@@ -544,7 +540,7 @@ farmer.value=pFarmer;
 //format 
 
 
-console.log(farm_details.value);
+console.log(data[0].product_taste_note);
 
 
 
