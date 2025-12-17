@@ -308,25 +308,18 @@ Add to Cart
 
 
 <!-- Nutritional Info -->
-<div class="nutrition-section">
+<div class="nutrition-section" v-if="nutrients.length>0">
 <h3 class="section-label">Nutritional Information</h3>
 <div class="nutrition-grid">
-<div class="nutrition-item">
-<span class="nutrition-value">150</span>
-<span class="nutrition-label">Calories</span>
+
+<div class="nutrition-item" v-for="(n,key) in nutrients" :key="key">
+<span class="nutrition-value">{{ n.description }} </span>
+<span class="nutrition-label text-capitalize">
+{{ n.name }}
+</span>
 </div>
-<div class="nutrition-item">
-<span class="nutrition-value">8g</span>
-<span class="nutrition-label">Protein</span>
-</div>
-<div class="nutrition-item">
-<span class="nutrition-value">6g</span>
-<span class="nutrition-label">Fat</span>
-</div>
-<div class="nutrition-item">
-<span class="nutrition-value">12g</span>
-<span class="nutrition-label">Carbs</span>
-</div>
+
+
 </div>
 </div>
 
@@ -338,7 +331,7 @@ Add to Cart
 
 
 <!-- RECOMMENDED PRODUCTS -->
-<div class="recommended-section">
+<div class="recommended-section" v-if="similarProducts.length>0">
 <div class="recommended-header">
 <h2 class="section-title">You May Also Like</h2>
 <button class="view-all-link">
@@ -349,8 +342,8 @@ Add to Cart
 
 <div class="recommended-carousel">
 <div 
-v-for="item in recommendedProducts" 
-:key="item.id"
+v-for="(item,key) in similarProducts" 
+:key="key"
 class="recommended-card"
 >
 <div class="recommended-image-wrapper">
@@ -362,10 +355,10 @@ class="recommended-card"
 <span class="recommended-type">{{ item.type }}</span>
 <div class="recommended-rating">
 <ion-icon :icon="starSharp"></ion-icon>
-<span>{{ item.rating }}</span>
+<span>20</span>
 </div>
 </div>
-<span class="recommended-price">${{ item.price }}</span>
+<span class="recommended-price">Shs. {{ item.price }}</span>
 </div>
 </div>
 </div>
@@ -384,10 +377,11 @@ class="recommended-card"
 </template>
 
 <script setup>
-import { ref,onMounted,computed } from 'vue';
+import { ref,onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import AppLayout from './template/AppLayout.vue';
 import ProductService from '../service/ProductService';
+import RatingService from '../service/RatingService';
 import Skeleton from './template/Skeleton.vue';
 import {
   IonButton,
@@ -423,40 +417,6 @@ import {
   flameOutline
 } from 'ionicons/icons';
 
-const recommendedProducts = ref([
-{
-id: 2,
-name: 'Colombian Supremo',
-type: 'Medium Roast',
-rating: 4.7,
-price: 16.99,
-image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400'
-},
-{
-id: 3,
-name: 'Kenyan AA',
-type: 'Light Roast',
-rating: 4.9,
-price: 19.99,
-image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400'
-},
-{
-id: 4,
-name: 'Brazilian Santos',
-type: 'Dark Roast',
-rating: 4.6,
-price: 15.99,
-image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400'
-},
-{
-id: 5,
-name: 'Guatemala Antigua',
-type: 'Medium Roast',
-rating: 4.8,
-price: 17.99,
-image: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400'
-}
-]);
 
 
 
@@ -472,6 +432,8 @@ const taste=ref([]);
 const standard=ref('');
 const spacification=ref('');
 const farm_details=ref([]);
+const nutrients=ref([]);
+const similarProducts=ref([]);
 
 
 //format farm details
@@ -480,7 +442,7 @@ const row=[];
 return row;
 }
 
-//icon set
+//icon set 
 const iconSet=(option)=>{
 let icon='';
 if(option=='waterOutline'){
@@ -499,6 +461,12 @@ return icon;
 
 
 
+//Rating information
+const productRating=(rating)=>{
+
+const service=new RatingService();
+return service.productRating(rating);
+}
 
 
 
@@ -509,7 +477,6 @@ const service=new ProductService();
 const response=await service.getProductDetails(id);
 if(response.status===200){
 const data=response.data;
-
 //product object
 const prod=data[0];
 product.value=prod;
@@ -526,6 +493,9 @@ standard.value=data[0].product_standard;
 spacification.value=data[0].product_spacification;
 farm_details.value=data[0].product_farm_details;
 taste.value=data[0].product_taste_note;
+nutrients.value=data[0].product_nutrient;
+
+
 //farm details
 
 if(pOrigin.length>0){
@@ -537,12 +507,25 @@ farmer.value=pFarmer;
 }
 }
 
-//format 
+//Query similar products
+
+const busID=prod.business_id;
+const similar=await service.getRelatedProducts(busID,id);
+if(similar.status===200){
+
+let proRating=productRating();
+
+similarProducts.value=similar.data;
+//
+// const sum=items.reduce((total,n)=>total+n,0);
+// console.log(proRating);
 
 
-console.log(data[0].product_taste_note);
+}
 
 
+
+// console.log(similar.data);
 
 
 }else{
