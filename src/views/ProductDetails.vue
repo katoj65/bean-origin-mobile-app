@@ -60,6 +60,13 @@
 <ion-icon :icon="cartOutline" slot="start"></ion-icon>
 Add to Cart
 </ion-button>
+
+<!-- Rate Product Button -->
+<ProductRatingButton />
+
+
+
+
 </div>
 </div>
 
@@ -71,6 +78,7 @@ Add to Cart
 <!-- Origin Info -->
 
 <div class="origin-card" v-if="origin.length>0">
+<div class="origin-row">
 <ion-icon :icon="locationOutline" class="origin-icon"></ion-icon>
 <div class="origin-info" v-for="(source,key) in origin" :key="key">
 <h4 class="origin-label">Origin</h4>
@@ -80,21 +88,14 @@ Add to Cart
 </div>
 </div>
 
-
-
-
-
-
-
-
-<!-- Roast Level Info -->
-<div class="origin-card" v-if=" product.roast_level">
+<div class="origin-row" v-if="product.roast_level">
 <ion-icon :icon="flameOutline" class="origin-icon"></ion-icon>
 <div class="origin-info">
 <h4 class="origin-label">Roast Level</h4>
 <p class="origin-value text-capitalize">
 {{ product.roast_level }}
 </p>
+</div>
 </div>
 </div>
 
@@ -383,6 +384,7 @@ import AppLayout from './template/AppLayout.vue';
 import ProductService from '../service/ProductService';
 import RatingService from '../service/RatingService';
 import Skeleton from './template/Skeleton.vue';
+import ProductRatingButton from './template/ProductRatingButton.vue';
 import {
   IonButton,
   IonIcon,
@@ -540,9 +542,6 @@ console.log(response.error);
 
 
 });
-
-
-
 
 </script>
 
@@ -769,15 +768,49 @@ console.log(response.error);
   font-size: 22px;
 }
 
+/* ===== RATE PRODUCT BUTTON ===== */
+.rate-product-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  margin-top: 12px;
+  background: white;
+  border: 2px solid var(--gold);
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.rate-product-btn:active {
+  transform: scale(0.98);
+  background: rgba(251, 191, 36, 0.05);
+}
+
+.rate-product-btn ion-icon {
+  font-size: 20px;
+}
+
 /* ===== ORIGIN CARD ===== */
 .origin-card {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 16px;
   padding: 16px;
   background: white;
   border-radius: 16px;
   margin-bottom: 24px;
+}
+
+.origin-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .origin-icon {
