@@ -1,5 +1,6 @@
 import database from './database';
 
+
 class RatingService{
 
 productRating(row){
@@ -12,11 +13,52 @@ return sum;
 
 
 
-createProductRating(productID,rating){
+createProductRating(obj){
 return database
-.from()
-
+.from('product_rating')
+.insert(obj);
 }
+
+
+
+async ratingPoints(){
+return  await database
+.from('rating_points')
+.select('name,value,tag');
+}
+
+
+
+
+
+async getUserProductRating(pid,uid){
+return await database
+.from('product_rating')
+.select('*')
+.eq('product_id',pid)
+.eq('user_id',uid);
+}
+
+
+
+//check if the user rated the product.
+async checkUserProductRating(pid,uid){
+const response=await database
+.from('product_rating')
+.select('*')
+.eq('product_id',pid)
+.eq('user_id',uid);
+let data=response.data;
+return data.length>0?true:false;
+}
+
+
+
+
+
+
+
+
 
 
 

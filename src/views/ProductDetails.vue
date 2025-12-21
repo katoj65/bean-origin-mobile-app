@@ -62,7 +62,7 @@ Add to Cart
 </ion-button>
 
 <!-- Rate Product Button -->
-<ProductRatingButton />
+<ProductRatingButton :product="product"/>
 
 
 
@@ -465,7 +465,6 @@ return icon;
 
 //Rating information
 const productRating=(rating)=>{
-
 const service=new RatingService();
 return service.productRating(rating);
 }
@@ -778,18 +777,18 @@ console.log(response.error);
   padding: 14px;
   margin-top: 12px;
   background: white;
-  border: 2px solid var(--gold);
+  border: 2px solid var(--coffee-600);
   border-radius: 16px;
   font-size: 15px;
   font-weight: 800;
-  color: var(--gold);
+  color: var(--coffee-600);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .rate-product-btn:active {
   transform: scale(0.98);
-  background: rgba(251, 191, 36, 0.05);
+  background: rgba(107, 66, 38, 0.05);
 }
 
 .rate-product-btn ion-icon {
