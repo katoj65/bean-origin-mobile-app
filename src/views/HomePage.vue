@@ -96,6 +96,8 @@ let account='';
 profile.forEach(element => {
 account={
 id:id,
+profile_id:element.id,
+name:element.name,
 fname:element.fname,
 email:element.email,
 gender:element.gender,

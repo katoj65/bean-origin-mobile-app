@@ -6,7 +6,7 @@
 <span>Rate this Product</span>
 </button>
 
-<button class="rated-btn" v-else disabled>
+<button class="rated-btn" v-else @click="isUserRatingModalOpen">
 <ion-icon :icon="starIcon"></ion-icon>
 <span>You Rated</span>
 </button>
@@ -69,11 +69,40 @@ Submit Rating
 </div>
 </div>
 </ion-modal>
+
+
+
+
+
+
+<ion-modal 
+:is-open="isUserRating" 
+@did-dismiss="closeUserRatingModal"
+:initial-breakpoint="0.65"
+:breakpoints="[0, 0.65, 1]"
+class="rating-modal">
+<ProductUserRating/>
+</ion-modal>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </div>
 </template>
 
 <script setup>
 import { ref,onMounted,defineProps } from 'vue';
+import ProductUserRating from '../product/ProductUserRating.vue';
 
 
 import {
@@ -100,6 +129,21 @@ const closeRatingModal = () => {
 isRatingModalOpen.value = false;
 };
 
+
+
+
+
+//Modal for user rating results
+const isUserRating=ref(false);
+const isUserRatingModalOpen = () => {
+isUserRating.value = true;
+};
+const closeUserRatingModal   = () => {
+isUserRating.value = false;
+};
+
+
+
 const setRating = (rating) => {
 selectedRating.value = rating;
 };
@@ -115,23 +159,6 @@ const ratingTexts = [
 ];
 
 return ratingTexts[rating] || '';
-};
-
-const submitRating = async () => {
-// Here you would typically send the rating to your backend service
-console.log('Rating:', selectedRating.value);
-
-const alert = await alertController.create({
-header: 'Thank You!',
-message: 'Your rating has been submitted successfully.',
-buttons: ['OK'],
-});
-
-await alert.present();
-
-// Reset form and close modal
-selectedRating.value = 0;
-closeRatingModal();
 };
 
 
@@ -155,23 +182,18 @@ try{
 isLoading.value=true;
 let user = await Preferences.get({key:'account'});
 user=JSON.parse(user.value);
-const id=user.id;
+const id=user.profile_id;
 const product=props.product;
 uid.value=id;
 pid.value=product.id;
 if(uid.value && pid.value){
-
 const service = new RatingService();
 
 //chek if the user has rated the product.
 const check = await service.checkUserProductRating(product.id,id);
 ratingStatus.value=check;
 
-console.log(ratingStatus.value);
-
-
-
-
+// console.log(item.value);
 
 }
 
@@ -196,13 +218,14 @@ let rate=selectedRating.value;
 const count=rate;
 try{
 isLoading.value=true;
-const response=await service.createProductRating([{
-product_id:pid.value,
-user_id:uid.value,
-rating:count
-}
-]);
 
+const insert={
+product_id:pid.value,
+profile_id:uid.value,
+rating:count
+};
+
+const response=await service.createProductRating([insert]);
 if(response.status===201){
 ratingStatus.value=true;
 isRatingModalOpen.value = false;

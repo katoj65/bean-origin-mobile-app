@@ -31,8 +31,8 @@
 </h1>
 <div class="product-rating">
 <ion-icon :icon="starOutline" class="star-icon"></ion-icon>
-<span class="rating-value">4.8</span>
-<span class="rating-count">(245)</span>
+<span class="rating-value">{{ statistics[0]>0?statistics[0]:0 }}</span>
+<span class="rating-count">({{ statistics[1]>0?statistics[1]:0 }})</span>
 </div>
 </div>
 
@@ -436,6 +436,7 @@ const spacification=ref('');
 const farm_details=ref([]);
 const nutrients=ref([]);
 const similarProducts=ref([]);
+const statistics=ref([]);
 
 
 //format farm details
@@ -495,52 +496,59 @@ spacification.value=data[0].product_spacification;
 farm_details.value=data[0].product_farm_details;
 taste.value=data[0].product_taste_note;
 nutrients.value=data[0].product_nutrient;
+//rating  statistics
+statistics.value = await ratingStatistics(rating.value);
 
-
-//farm details
+console.log(statistics.value);
 
 if(pOrigin.length>0){
 origin.value=pOrigin;
 farm.value=pFarm;
 if(pFarm){
 farmer.value=pFarmer;
-//farm details section
 }
 }
 
 //Query similar products
-
 const busID=prod.business_id;
 const similar=await service.getRelatedProducts(busID,id);
 if(similar.status===200){
-
-let proRating=productRating();
-
 similarProducts.value=similar.data;
-//
-// const sum=items.reduce((total,n)=>total+n,0);
-// console.log(proRating);
-
-
 }
-
-
-
-// console.log(similar.data);
-
 
 }else{
 console.log(response.error);
 }
 
 }catch(e){
-  console.log(e);
+console.log(e);
 }finally{
-  isLoading.value=false;  
+isLoading.value=false;  
 }
 
 
+
+
+
+
+
 });
+
+
+
+
+const ratingStatistics = async (rate)=>{
+const service=new RatingService();
+const rating=await service.productRatingStatistics(rate);
+return rating;
+}
+
+
+
+
+
+
+
 
 </script>
 
