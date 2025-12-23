@@ -1,6 +1,7 @@
 <template>
 <div class="rating-component">
 
+<div v-if="isLoading1===false">
 <button class="rate-product-btn" @click="openRatingModal" v-if="ratingStatus==false">
 <ion-icon :icon="starOutline"></ion-icon>
 <span>Rate this Product</span>
@@ -8,12 +9,10 @@
 
 <button class="rated-btn" v-else @click="isUserRatingModalOpen">
 <ion-icon :icon="starIcon"></ion-icon>
-<span>You Rated</span>
+<span>Ratings</span>
 </button>
-
-
-
-
+</div>
+<ion-skeleton-text v-else style="margin:10px;"/>
 
 <!-- Rating Modal -->
 <ion-modal 
@@ -60,10 +59,11 @@ v-for="star in 5"
 <ion-button
 expand="block"
 :disabled="selectedRating === 0"
-@click="submit"
-class="submit-button"
->
+@click="submit" class="submit-button">
+<ion-spinner v-if="isLoading==true" style="color:white;"></ion-spinner>
+<span v-else>
 Submit Rating
+</span>
 </ion-button>
 </div>
 </div>
@@ -101,15 +101,15 @@ class="rating-modal">
 </template>
 
 <script setup>
-import { ref,onMounted,defineProps } from 'vue';
+import { ref,onMounted } from 'vue';
 import ProductUserRating from '../product/ProductUserRating.vue';
-
-
 import {
 IonButton,
 IonModal,
 IonIcon,
-alertController,
+IonSpinner,
+IonSkeletonText
+
 } from '@ionic/vue';
 import { star, starOutline, close as closeIcon } from 'ionicons/icons';
 import { Preferences } from '@capacitor/preferences';
@@ -169,8 +169,8 @@ product:{},
 const isLoading=ref(false);
 const uid=ref('');
 const pid=ref('');
-const points=ref('');
 const ratingStatus=ref('');
+const isLoading1=ref(false);
 
 
 
@@ -179,7 +179,7 @@ const ratingStatus=ref('');
 
 onMounted(async()=>{
 try{
-isLoading.value=true;
+isLoading1.value=true;
 let user = await Preferences.get({key:'account'});
 user=JSON.parse(user.value);
 const id=user.profile_id;
@@ -200,25 +200,20 @@ ratingStatus.value=check;
 }catch(e){
 console.log(e);
 }finally{
-isLoading.value=false;
+isLoading1.value=false;
 }
 
-
-
 });
-
-
 
 
 
 //submit the rating
 const submit = async ()=>{
 const service = new RatingService();
-let rate=selectedRating.value;
+const rate=selectedRating.value;
 const count=rate;
 try{
 isLoading.value=true;
-
 const insert={
 product_id:pid.value,
 profile_id:uid.value,
@@ -228,20 +223,26 @@ rating:count
 const response=await service.createProductRating([insert]);
 if(response.status===201){
 ratingStatus.value=true;
-isRatingModalOpen.value = false;
 }
 
 }catch(e){
 console.log(e);
 }finally{
 isLoading.value=false;
+isRatingModalOpen.value = false;
+selectedRating.value = 0;
 }
 
 
-};
+}
 
 
 
+const ratingStatistics = async (rate)=>{
+const service=new RatingService();
+const rating=await service.productRatingStatistics(rate);
+return rating;
+}
 
 
 

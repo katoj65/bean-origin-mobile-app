@@ -90,20 +90,11 @@ import RatingService from '../../service/RatingService';
 
 const starIcon = star;
 const isLoading = ref(true);
-const ratings = ref([]);
-const productId = ref('sample-product-id'); // Replace with actual product ID
-
-
-
 
 
 const url = useRoute();
 const productRating=ref([]);
 const scale=ref(5);
-const userRate=ref(0);
-const scaleDifference=ref(0);
-
-
 
 
 // Fetch ratings on mount

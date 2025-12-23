@@ -56,17 +56,9 @@
 </div>
 
 <!-- Add to Cart Button -->
-<ion-button expand="block" class="add-cart-btn">
-<ion-icon :icon="cartOutline" slot="start"></ion-icon>
-Add to Cart
-</ion-button>
-
+<AddProductToCartButton :product="product"/>
 <!-- Rate Product Button -->
 <ProductRatingButton :product="product"/>
-
-
-
-
 </div>
 </div>
 
@@ -385,6 +377,7 @@ import ProductService from '../service/ProductService';
 import RatingService from '../service/RatingService';
 import Skeleton from './template/Skeleton.vue';
 import ProductRatingButton from './template/ProductRatingButton.vue';
+import AddProductToCartButton from './template/AddPRoductToCartButton.vue';
 import {
   IonButton,
   IonIcon,
@@ -438,13 +431,6 @@ const nutrients=ref([]);
 const similarProducts=ref([]);
 const statistics=ref([]);
 
-
-//format farm details
-const farmDetails=(ar)=>{
-const row=[];
-return row;
-}
-
 //icon set 
 const iconSet=(option)=>{
 let icon='';
@@ -496,6 +482,7 @@ spacification.value=data[0].product_spacification;
 farm_details.value=data[0].product_farm_details;
 taste.value=data[0].product_taste_note;
 nutrients.value=data[0].product_nutrient;
+
 //rating  statistics
 statistics.value = await ratingStatistics(rating.value);
 

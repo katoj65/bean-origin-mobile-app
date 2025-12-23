@@ -127,7 +127,13 @@ text-transform: capitalize;
 text-transform: capitalize;
 }
 
+ion-spinner {
+--color: #6b4226;
+}
 
+ion-skeleton-text{
+  --border-radius:5px;
+}
 
 
 

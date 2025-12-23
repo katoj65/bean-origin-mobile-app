@@ -30,36 +30,36 @@ class="rating-modal">
 </div>
 
 <div class="rating-modal-content">
-      <!-- Quantity Input Section -->
-      <div class="quantity-section">
-        <label class="section-label">How many items would you like?</label>
-        <div class="input-wrapper">
-          <ion-input
-            v-model="quantity"
-            type="text"
-            inputmode="numeric"
-            placeholder="Enter quantity"
-            class="quantity-input"
-            @ionInput="validateQuantity"
-            clear-input
-          ></ion-input>
-        </div>
-      </div>              <!-- Submit Button -->
-      <ion-button 
-        expand="block" 
-        @click="addToCart"
-        :disabled="isLoading"
-        class="submit-button">
-        <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
-        <span v-else>Add to Cart</span>
-      </ion-button>
-    </div>
-  </div>
+<!-- Quantity Input Section -->
+<div class="quantity-section">
+<label class="section-label">How many items would you like?</label>
+<div class="input-wrapper">
+<ion-input
+v-model="quantity"
+type="text"
+inputmode="numeric"
+placeholder="Enter quantity"
+class="quantity-input"
+@ionInput="validateQuantity"
+clear-input
+></ion-input>
+</div>
+</div>              <!-- Submit Button -->
+<ion-button 
+expand="block" 
+@click="addToCart"
+:disabled="isLoading"
+class="submit-button">
+<ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
+<span v-else>Add to Cart</span>
+</ion-button>
+</div>
+</div>
 </div>
 </ion-modal>
 </div>
 </template><script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import {
 IonButton,
 IonModal,
@@ -67,12 +67,18 @@ IonIcon,
 IonSpinner,
 IonInput
 } from '@ionic/vue';
-import { cartOutline, close, add, remove } from 'ionicons/icons';
+import { cartOutline, close } from 'ionicons/icons';
+
+// Props
+const props = defineProps({
+product: {
+type: Object,
+required: true
+}
+});
 
 const cartIcon = cartOutline;
 const closeIcon = close;
-const addIcon = add;
-const removeIcon = remove;
 
 // Modal state
 const isCartModalOpen = ref(false);
@@ -80,12 +86,6 @@ const isLoading = ref(false);
 
 // Cart state
 const quantity = ref(1);
-const pricePerItem = ref(25.99);
-
-// Computed
-const totalPrice = computed(() => {
-return quantity.value * pricePerItem.value;
-});
 
 // Methods
 const openCartModal = () => {
@@ -95,16 +95,6 @@ isCartModalOpen.value = true;
 const closeCartModal = () => {
 isCartModalOpen.value = false;
 quantity.value = 1; // Reset quantity
-};
-
-const incrementQuantity = () => {
-quantity.value++;
-};
-
-const decrementQuantity = () => {
-if (quantity.value > 1) {
-quantity.value--;
-}
 };
 
 const validateQuantity = () => {
@@ -121,8 +111,7 @@ isLoading.value = true;
 await new Promise(resolve => setTimeout(resolve, 1000));
 
 console.log('Added to cart:', {
-quantity: quantity.value,
-total: totalPrice.value
+quantity: quantity.value
 });
 
 // Close modal after success
@@ -165,7 +154,7 @@ border-radius: 20px 20px 0 0;
 height: 100%;
 display: flex;
 flex-direction: column;
-background: #fdfcfa;
+background: #ffffff;
 border-radius: 20px 20px 0 0;
 }
 
