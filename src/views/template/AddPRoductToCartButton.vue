@@ -1,5 +1,6 @@
 <template>
 <div>
+<div v-if="isLoading==false">
 <!-- Trigger Button -->
 <ion-button 
 expand="block" 
@@ -13,16 +14,23 @@ Add to Cart
 <ion-modal 
 :is-open="isCartModalOpen" 
 @did-dismiss="closeCartModal"
-:initial-breakpoint="0.65"
-:breakpoints="[0, 0.65, 1]"
+:initial-breakpoint="0.47"
+:breakpoints="[0, 0.47, 1]"
 class="rating-modal">
 <div class="rating-modal-wrapper">
 <div class="rating-modal-card">
 
 <div class="modal-header">
 <div class="header-content">
-<h3>Premium Arabica Coffee</h3>
-<p class="header-subtitle">Ethiopian Highlands • $25.99</p>
+<h3>
+    {{ title }}
+</h3>
+<p class="header-subtitle text-capitalize">
+Unit cost: Shs. {{ price }}
+</p>
+<p class="total-cost-text">
+Total: Shs. {{ sum }}
+</p>
 </div>
 <button @click="closeCartModal" class="close-btn">
 <ion-icon :icon="closeIcon"></ion-icon>
@@ -42,6 +50,7 @@ placeholder="Enter quantity"
 class="quantity-input"
 @ionInput="validateQuantity"
 clear-input
+@keyup="computePrice"
 ></ion-input>
 </div>
 </div>              <!-- Submit Button -->
@@ -58,8 +67,18 @@ class="submit-button">
 </div>
 </ion-modal>
 </div>
-</template><script setup>
-import { ref } from 'vue';
+
+<div v-else>
+<spinner/>
+</div>
+
+
+
+</div>
+</template>
+<script setup>
+import { ref, onMounted } from 'vue';
+import Spinner from './Spinner.vue';
 import {
 IonButton,
 IonModal,
@@ -71,10 +90,7 @@ import { cartOutline, close } from 'ionicons/icons';
 
 // Props
 const props = defineProps({
-product: {
-type: Object,
-required: true
-}
+product: Object
 });
 
 const cartIcon = cartOutline;
@@ -122,6 +138,46 @@ console.error('Error adding to cart:', error);
 isLoading.value = false;
 }
 };
+
+
+const title=ref('');
+const price=ref('');
+const business_name=ref('');
+const sum=ref(0);
+
+
+
+onMounted(async ()=>{
+try{
+
+isLoading.value=true;
+const data = await props.product;
+
+title.value=data.name;
+price.value=data.price;
+business_name.value=data.business.name;
+sum.value=price.value;
+
+
+console.log(sum.value);
+
+}catch(e){
+    console.log(e);
+}finally{
+isLoading.value=false;
+}
+});
+
+
+const computePrice=()=>{
+const total=quantity.value===1?price.value:quantity.value*price.value;
+sum.value=total;
+}
+
+
+
+
+
 </script>
 
 <style scoped>
@@ -200,6 +256,15 @@ font-size: 16px;
 font-weight: 600;
 color: #6b5444;
 letter-spacing: 0;
+line-height: 1.4;
+}
+
+.total-cost-text {
+margin: 8px 0 0 0;
+font-size: 20px;
+font-weight: 900;
+color: #6b4226;
+letter-spacing: -0.3px;
 line-height: 1.4;
 }
 

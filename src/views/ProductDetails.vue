@@ -377,7 +377,7 @@ import ProductService from '../service/ProductService';
 import RatingService from '../service/RatingService';
 import Skeleton from './template/Skeleton.vue';
 import ProductRatingButton from './template/ProductRatingButton.vue';
-import AddProductToCartButton from './template/AddPRoductToCartButton.vue';
+import AddProductToCartButton from './template/AddProductToCartButton.vue';
 import {
   IonButton,
   IonIcon,
