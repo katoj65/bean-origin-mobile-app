@@ -119,31 +119,13 @@ quantity.value = 1;
 }
 };
 
-const addToCart = async () => {
-try {
-isLoading.value = true;
-
-// Simulate API call
-await new Promise(resolve => setTimeout(resolve, 1000));
-
-console.log('Added to cart:', {
-quantity: quantity.value
-});
-
-// Close modal after success
-closeCartModal();
-} catch (error) {
-console.error('Error adding to cart:', error);
-} finally {
-isLoading.value = false;
-}
-};
 
 
 const title=ref('');
 const price=ref('');
 const business_name=ref('');
 const sum=ref(0);
+const isLoading2=ref(false);
 
 
 
@@ -175,6 +157,35 @@ sum.value=total;
 }
 
 
+
+
+
+
+
+
+
+
+
+//submit button for the cart
+const addToCart = async () => {
+try {
+isLoading2.value = true;
+
+// Simulate API call
+await new Promise(resolve => setTimeout(resolve, 1000));
+
+console.log('Added to cart:', {
+quantity: quantity.value
+});
+
+// Close modal after success
+closeCartModal();
+} catch (error) {
+console.error('Error adding to cart:', error);
+} finally {
+isLoading2.value = false;
+}
+};
 
 
 
